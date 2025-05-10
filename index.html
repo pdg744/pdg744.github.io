@@ -47,17 +47,17 @@
 
     <main id="main-content" class="main">
         <section class="hero">
-            <div class="hero-content" style="display: flex; align-items: flex-start; gap: 60px; max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
-                <div class="hero-text" style="flex: 1; text-align: left;">
+            <div class="hero-content">
+                <div class="hero-text">
                     <h1>Transform Your Child's Relationship with Math</h1>
                     <p>Experience the joy of mathematical discovery through our Math Circles and personalized consulting services.</p>
-                    <div style="display: flex; gap: 20px; margin-top: 30px;">
-                        <a href="math-circles.html" class="cta-button" style="font-size: 1.2rem; padding: 16px 32px;">Join a Math Circle</a>
-                        <a href="consulting.html" class="cta-button" style="font-size: 1.2rem; padding: 16px 32px; background-color: var(--color-secondary);">Learn About Consulting</a>
+                    <div class="hero-cta">
+                        <a href="math-circles.html" class="cta-button">Join a Math Circle</a>
+                        <a href="consulting.html" class="cta-button cta-button-secondary">Learn About Consulting</a>
                     </div>
                 </div>
-                <div class="hero-image" style="flex: 1; display: flex; justify-content: center; padding-top: 20px;">
-                    <img src="./math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo" style="max-width: 80%; height: auto;">
+                <div class="hero-image">
+                    <img src="./math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo">
                 </div>
             </div>
         </section>
@@ -107,6 +107,7 @@
             const isExpanded = this.getAttribute('aria-expanded') === 'true';
             
             this.setAttribute('aria-expanded', !isExpanded);
+            this.classList.toggle('active');
             navLinks.classList.toggle('active');
         });
     </script>
