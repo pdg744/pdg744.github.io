@@ -3,82 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math Explorers</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
+    <title>Math Explorers - Parent Math Education Consulting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            background: #f6ecd9;
-            color: #1a3a3a;
-            font-family: 'Montserrat', Arial, sans-serif;
+        :root {
+            --primary: #2b7a78;
+            --primary-dark: #205c5c;
+            --accent: #e88d2a;
+            --text: #1a3a3a;
+            --background: #f6ecd9;
+            --white: #ffffff;
+            --shadow: 0 4px 24px rgba(26,58,58,0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            box-sizing: border-box;
         }
-        .container {
-            max-width: 500px;
-            width: 90%;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 4px 24px rgba(26,58,58,0.08);
-            padding: 32px 24px 24px 24px;
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            padding: 1rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .main {
+            margin-top: 80px;
+            padding: 2rem 1rem;
+        }
+
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 1rem;
             text-align: center;
         }
-        .logo {
-            width: 160px;
-            margin-bottom: 18px;
+
+        .hero h1 {
+            font-size: 2.5rem;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
         }
-        .tagline {
-            font-size: 1.2em;
-            color: #e88d2a;
-            margin-bottom: 18px;
-            font-weight: 700;
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text);
+            max-width: 600px;
+            margin: 0 auto 2rem;
         }
-        .about {
-            font-size: 1em;
-            color: #1a3a3a;
-            margin-bottom: 24px;
-            line-height: 1.6;
-        }
-        .influences {
-            font-size: 0.95em;
-            color: #2b7a78;
-            margin-bottom: 24px;
-        }
-        .social {
-            margin-top: 12px;
-        }
-        .twitter-link {
+
+        .cta-button {
             display: inline-block;
-            background: #2b7a78;
-            color: #fff;
+            background: var(--primary);
+            color: var(--white);
             text-decoration: none;
-            padding: 10px 22px;
-            border-radius: 24px;
-            font-weight: 700;
-            transition: background 0.2s;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: var(--transition);
         }
-        .twitter-link:hover {
-            background: #205c5c;
+
+        .cta-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(43, 122, 120, 0.2);
+        }
+
+        .sections {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 1rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+        }
+
+        .section p {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            max-width: 800px;
+        }
+
+        .math-circle-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .math-circle-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .section h2 {
+                font-size: 1.75rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="logo">
-        <div class="tagline">Building Fluency by Igniting Curiosity.</div>
-        <div class="about">
-            At Math Explorers, we believe that curiosity is the key to learning. By presenting children with fascinating mathematical ideas and problems, we spark their natural curiosity. This curiosity leads to deeper engagement, and that engagement helps build true mathematical fluency.
+    <header class="header">
+        <nav class="nav">
+            <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="logo">
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#math-circles">Math Circles</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <h1>Is your child struggling with math? Or maybe moving too slowly?</h1>
+            <p>Most parents have never experienced the joy of mathematical discovery. Through Math Circles, you'll experience firsthand how curiosity-driven learning can transform your child's relationship with math.</p>
+            <a href="#contact" class="cta-button">Join a Math Circle</a>
+        </section>
+
+        <div class="sections">
+            <section id="about" class="section">
+                <h2>The Problem</h2>
+                <p>Traditional math education often leaves students either struggling to keep up or bored by the slow pace. But the real issue isn't with the students—it's with how we approach math learning.</p>
+                <p>Most of us have never experienced math as a subject of curiosity and discovery. We've been taught to memorize formulas and follow procedures, missing out on the joy of mathematical exploration.</p>
+            </section>
+
+            <section id="math-circles" class="section">
+                <h2>The Solution</h2>
+                <p>Math Circles originated in Russia as a way to engage students in genuine mathematical thinking. The concept is simple: present an interesting problem, and let the learning unfold naturally through discussion and exploration.</p>
+                <div class="math-circle-card">
+                    <h3>Experience Math Circles</h3>
+                    <p>In our Math Circles, parents participate alongside their children. You'll experience firsthand how a well-chosen problem can engage both 8-year-olds and adults, sparking genuine mathematical curiosity and deep thinking.</p>
+                    <p>Through this experience, you'll learn how to support your child's mathematical journey in a way that builds both understanding and enthusiasm.</p>
+                </div>
+            </section>
+
+            <section id="contact" class="section">
+                <h2>Get Started</h2>
+                <p>Ready to experience the difference? Join us for a Math Circle session and discover how curiosity-driven learning can transform your child's relationship with math.</p>
+                <a href="mailto:contact@mathexplorers.com" class="cta-button">Contact Us</a>
+            </section>
         </div>
-        <div class="influences">
-            Our approach is inspired by innovative math education movements such as <strong>Math for Love</strong>, <strong>Math Circles</strong>, and <strong>Building Thinking Classrooms</strong>.
-        </div>
-        <div class="social">
-            <a class="twitter-link" href="https://twitter.com/your_twitter_handle" target="_blank">Follow us on Twitter</a>
-        </div>
-    </div>
+    </main>
 </body>
 </html> 
