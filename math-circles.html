@@ -6,6 +6,20 @@
     <title>Math Circles - Math Explorers</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+      .hero-logo {
+        display: block;
+        margin: 0 auto var(--spacing-lg) auto;
+        max-width: 220px;
+        width: 100%;
+        height: auto;
+        animation: fadeInLogo 1.2s ease;
+      }
+      @keyframes fadeInLogo {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -23,24 +37,73 @@
     </header>
 
     <main class="main">
-        <section class="page-header">
-            <h1>Math Circles</h1>
-            <p>Experience the joy of mathematical discovery in a supportive, collaborative environment.</p>
+        <section class="hero">
+            <div class="hero-content" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo">
+                <div class="hero-text">
+                    <h1>Math Circles</h1>
+                    <p>Experience the joy of mathematical discovery in a supportive, collaborative environment.</p>
+                    <a href="contact.html" class="cta-button">Join a Session</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="features-content">
+                <h2>What are Math Circles?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>Collaborative Learning</h3>
+                        <p>Math Circles are collaborative learning environments where participants work together to explore mathematical ideas through engaging problems.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Natural Discovery</h3>
+                        <p>Originating in Russia, this approach emphasizes natural discovery and deep thinking over memorization.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Engaging Problems</h3>
+                        <p>We present carefully chosen problems that spark curiosity and discussion, leading to natural mathematical discoveries.</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section class="content">
-            <h2>What are Math Circles?</h2>
-            <p>Math Circles are collaborative learning environments where participants work together to explore mathematical ideas through engaging problems. Originating in Russia, this approach emphasizes natural discovery and deep thinking over memorization.</p>
-            
             <h2>How They Work</h2>
             <p>In our Math Circles, we present carefully chosen problems that spark curiosity and discussion. As participants work together to solve these problems, they naturally discover mathematical concepts and develop their problem-solving skills.</p>
             
-            <h2>What to Expect</h2>
-            <p>Each session is designed to be engaging and accessible, regardless of your mathematical background. You'll work in small groups, share ideas, and discover that mathematical thinking is both natural and enjoyable.</p>
-            
-            <h2>Join a Session</h2>
-            <p>Ready to experience the joy of mathematical discovery? Join one of our upcoming Math Circles and see how this approach can transform your relationship with mathematics.</p>
-            <a href="contact.html" class="cta-button">Get Started</a>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Small Groups</h3>
+                    <p>Work in intimate groups where everyone's voice is heard and valued.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Guided Exploration</h3>
+                    <p>Our facilitators guide the discussion while encouraging independent thinking.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Shared Discovery</h3>
+                    <p>Learn from others' perspectives and build on each other's ideas.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonial">
+            <div class="testimonial-content">
+                <h2>What to Expect</h2>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"Each session is designed to be engaging and accessible, regardless of your mathematical background. You'll work in small groups, share ideas, and discover that mathematical thinking is both natural and enjoyable."</p>
+                    <p class="testimonial-author">— Math Explorers Team</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content">
+            <h2>Ready to Join?</h2>
+            <p>Experience the joy of mathematical discovery in our supportive Math Circle environment. Whether you're new to this approach or have experience with Math Circles, you'll find a welcoming space to explore mathematics together.</p>
+            <div style="text-align: center; margin-top: var(--spacing-lg);">
+                <a href="contact.html" class="cta-button">Get Started</a>
+            </div>
         </section>
     </main>
 

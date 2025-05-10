@@ -6,6 +6,20 @@
     <title>Contact - Math Explorers</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+      .hero-logo {
+        display: block;
+        margin: 0 auto var(--spacing-lg) auto;
+        max-width: 220px;
+        width: 100%;
+        height: auto;
+        animation: fadeInLogo 1.2s ease;
+      }
+      @keyframes fadeInLogo {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -23,27 +37,62 @@
     </header>
 
     <main class="main">
-        <section class="page-header">
-            <h1>Contact Us</h1>
-            <p>Get in touch to learn more about our Math Circles or schedule a session.</p>
+        <section class="hero">
+            <div class="hero-content" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo">
+                <div class="hero-text">
+                    <h1>Get in Touch</h1>
+                    <p>Ready to start your mathematical journey? We're here to help you take the first step.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="features-content">
+                <h2>Contact Us</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>Join a Math Circle</h3>
+                        <p>Learn more about our Math Circles and find a session that works for you.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Ask Questions</h3>
+                        <p>Have questions about our approach or resources? We're here to help.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Schedule a Session</h3>
+                        <p>Ready to get started? Let's schedule your first Math Circle session.</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section class="content">
             <form class="contact-form">
                 <div class="form-group">
                     <label for="name">Name</label>
-                    <input type="text" id="name" name="name" required>
+                    <input type="text" id="name" name="name" required placeholder="Your name">
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="email" required placeholder="Your email address">
                 </div>
                 <div class="form-group">
                     <label for="message">Message</label>
-                    <textarea id="message" name="message" required></textarea>
+                    <textarea id="message" name="message" required placeholder="Tell us how we can help"></textarea>
                 </div>
                 <button type="submit" class="cta-button">Send Message</button>
             </form>
+        </section>
+
+        <section class="testimonial">
+            <div class="testimonial-content">
+                <h2>What Parents Say</h2>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"The team at Math Explorers was incredibly helpful in getting us started. They took the time to understand our needs and made the whole process smooth and enjoyable."</p>
+                    <p class="testimonial-author">— Jennifer K., Parent</p>
+                </div>
+            </div>
         </section>
     </main>
 

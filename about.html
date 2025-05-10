@@ -6,6 +6,20 @@
     <title>About - Math Explorers</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+      .hero-logo {
+        display: block;
+        margin: 0 auto var(--spacing-lg) auto;
+        max-width: 220px;
+        width: 100%;
+        height: auto;
+        animation: fadeInLogo 1.2s ease;
+      }
+      @keyframes fadeInLogo {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -23,20 +37,64 @@
     </header>
 
     <main class="main">
-        <section class="page-header">
-            <h1>About Math Explorers</h1>
-            <p>Discover how we're transforming math education through curiosity and deep thinking.</p>
+        <section class="hero">
+            <div class="hero-content" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo">
+                <div class="hero-text">
+                    <h1>Our Mission</h1>
+                    <p>Transforming math education through curiosity, discovery, and deep thinking.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="features-content">
+                <h2>Our Story</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>The Beginning</h3>
+                        <p>Math Explorers was born from a simple observation: when children are given the space to explore mathematical ideas through genuine curiosity, they develop a deep and lasting love for the subject.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Our Vision</h3>
+                        <p>We believe that this approach to learning math should be accessible to every child and parent, creating a foundation for lifelong mathematical thinking and problem-solving.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Our Growth</h3>
+                        <p>From our first Math Circle to today, we've helped countless families transform their relationship with mathematics through our unique approach.</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section class="content">
-            <h2>Our Story</h2>
-            <p>Math Explorers was born from a simple observation: when children are given the space to explore mathematical ideas through genuine curiosity, they develop a deep and lasting love for the subject. We believe that this approach to learning math should be accessible to every child and parent.</p>
-            
             <h2>Our Approach</h2>
             <p>We use Math Circles, a proven method that originated in Russia, to create engaging mathematical experiences. In these circles, participants work together to solve interesting problems, share ideas, and discover mathematical concepts naturally through discussion and exploration.</p>
             
-            <h2>Our Impact</h2>
-            <p>Through our Math Circles, we've helped countless families transform their relationship with mathematics. Parents report increased confidence in supporting their children's learning, while children develop a genuine enthusiasm for mathematical thinking.</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Curiosity First</h3>
+                    <p>We start with what interests children, using their natural curiosity as a springboard for mathematical discovery.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Collaborative Learning</h3>
+                    <p>Through group discussion and shared problem-solving, children learn to think mathematically together.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Parent Partnership</h3>
+                    <p>We empower parents to support their children's mathematical journey, creating a strong foundation for learning.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonial">
+            <div class="testimonial-content">
+                <h2>Our Impact</h2>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"Through our Math Circles, we've helped countless families transform their relationship with mathematics. Parents report increased confidence in supporting their children's learning, while children develop a genuine enthusiasm for mathematical thinking."</p>
+                    <p class="testimonial-author">— Math Explorers Team</p>
+                </div>
+            </div>
         </section>
     </main>
 
