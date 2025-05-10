@@ -20,6 +20,22 @@
         from { opacity: 0; transform: scale(0.95); }
         to { opacity: 1; transform: scale(1); }
       }
+      .hero-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: var(--spacing-xl) var(--spacing-md);
+      }
+      .form-container {
+        max-width: 700px;
+        width: 100%;
+        margin-top: var(--spacing-xl);
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        padding: var(--spacing-md);
+      }
     </style>
 </head>
 <body>
@@ -36,59 +52,23 @@
 
     <main class="main">
         <section class="hero">
-            <div class="hero-content" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+            <div class="hero-content">
                 <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo">
                 <div class="hero-text">
                     <h1>Get in Touch</h1>
                     <p>Ready to start your mathematical journey? We're here to help you take the first step.</p>
                 </div>
-            </div>
-        </section>
-
-        <section class="features">
-            <div class="features-content">
-                <h2>Contact Us</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <h3>Join a Math Circle</h3>
-                        <p>Learn more about our Math Circles and find a session that works for you.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3>Ask Questions</h3>
-                        <p>Have questions about our approach or resources? We're here to help.</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3>Schedule a Session</h3>
-                        <p>Ready to get started? Let's schedule your first Math Circle session.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="content">
-            <form class="contact-form">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" name="name" required placeholder="Your name">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required placeholder="Your email address">
-                </div>
-                <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea id="message" name="message" required placeholder="Tell us how we can help"></textarea>
-                </div>
-                <button type="submit" class="cta-button">Send Message</button>
-            </form>
-        </section>
-
-        <section class="testimonial">
-            <div class="testimonial-content">
-                <h2>What Parents Say</h2>
-                <div class="testimonial-card">
-                    <p class="testimonial-text">"The team at Math Explorers was incredibly helpful in getting us started. They took the time to understand our needs and made the whole process smooth and enjoyable."</p>
-                    <p class="testimonial-author">— Jennifer K., Parent</p>
+                <div class="form-container">
+                    <iframe 
+                        src="https://docs.google.com/forms/d/e/1FAIpQLSc3t3TmRjYJq-3DdnEp7H-P6rfV123uzUjt9RCtrmhd8voXtA/viewform?embedded=true" 
+                        width="100%" 
+                        height="650" 
+                        frameborder="0" 
+                        marginheight="0" 
+                        marginwidth="0"
+                        style="border-radius: 8px;">
+                        Loading…
+                    </iframe>
                 </div>
             </div>
         </section>
