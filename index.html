@@ -4,15 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Math Explorers helps parents and children discover the joy of mathematics through engaging Math Circles. Transform your child's relationship with math through curiosity and deep thinking.">
+    <meta name="description" content="Math Explorers helps parents and children discover the joy of mathematics. Transform your child's relationship with math through curiosity and deep thinking.">
     <meta property="og:title" content="Math Explorers - Parent Math Education Consulting">
-    <meta property="og:description" content="Transform your child's relationship with math through engaging Math Circles. Join us for curiosity-driven learning.">
+    <meta property="og:description" content="Transform your child's relationship with math. Join us for curiosity-driven learning.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="./math-explorers-logo.png">
     <title>Math Explorers - Parent Math Education Consulting</title>
     <link rel="icon" type="image/png" href="./favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css">
+    <script src="./navbar.js"></script>
     <style>
       .hero-logo {
         display: block;
@@ -39,29 +40,31 @@
                 <span class="menu-icon">☰</span>
             </button>
             <ul class="nav-links">
-                <li><a href="about.html">About</a></li>
-                <li><a href="math-circles.html">Math Circles</a></li>
-                <li><a href="resources.html">Resources</a></li>
-                <li><a href="contact.html">Contact</a></li>
+                <!-- Navigation will be inserted by navbar.js -->
             </ul>
         </nav>
     </header>
 
     <main id="main-content" class="main">
         <section class="hero">
-            <div class="hero-content" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
-                <img src="./math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo">
-                <div class="hero-text">
+            <div class="hero-content" style="display: flex; align-items: flex-start; gap: 60px; max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
+                <div class="hero-text" style="flex: 1; text-align: left;">
                     <h1>Transform Your Child's Relationship with Math</h1>
-                    <p>Experience the joy of mathematical discovery together. Our Math Circles help parents and children explore math through curiosity and deep thinking.</p>
-                    <a href="contact.html" class="cta-button">Join a Math Circle</a>
+                    <p>Experience the joy of mathematical discovery through our Math Circles and personalized consulting services.</p>
+                    <div style="display: flex; gap: 20px; margin-top: 30px;">
+                        <a href="math-circles.html" class="cta-button" style="font-size: 1.2rem; padding: 16px 32px;">Join a Math Circle</a>
+                        <a href="consulting.html" class="cta-button" style="font-size: 1.2rem; padding: 16px 32px; background-color: var(--color-secondary);">Learn About Consulting</a>
+                    </div>
+                </div>
+                <div class="hero-image" style="flex: 1; display: flex; justify-content: center; padding-top: 20px;">
+                    <img src="./math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo" style="max-width: 80%; height: auto;">
                 </div>
             </div>
         </section>
 
         <section class="features">
             <div class="features-content">
-                <h2>Why Math Circles Work</h2>
+                <h2>Our Philosophy</h2>
                 <div class="features-grid">
                     <div class="feature-card">
                         <h3>Curiosity-Driven Learning</h3>
@@ -94,10 +97,7 @@
         <div class="footer-content">
             <img src="./math-explorers-logo.png" alt="Math Explorers Logo" class="logo">
             <ul class="footer-links">
-                <li><a href="about.html">About</a></li>
-                <li><a href="math-circles.html">Math Circles</a></li>
-                <li><a href="resources.html">Resources</a></li>
-                <li><a href="contact.html">Contact</a></li>
+                <!-- Navigation will be inserted by navbar.js -->
             </ul>
         </div>
     </footer>
