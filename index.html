@@ -5,282 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Explorers - Parent Math Education Consulting</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #2b7a78;
-            --primary-dark: #205c5c;
-            --primary-light: rgba(43, 122, 120, 0.1);
-            --accent: #e88d2a;
-            --accent-light: rgba(232, 141, 42, 0.1);
-            --text: #1a3a3a;
-            --text-light: #4a5a5a;
-            --background: #ffffff;
-            --background-alt: #faf9f7;
-            --white: #ffffff;
-            --shadow-sm: 0 2px 4px rgba(26,58,58,0.04);
-            --shadow-md: 0 4px 12px rgba(26,58,58,0.08);
-            --shadow-lg: 0 8px 24px rgba(26,58,58,0.12);
-            --transition: all 0.3s ease;
-            --container-width: 1200px;
-            --spacing-xs: 0.5rem;
-            --spacing-sm: 1rem;
-            --spacing-md: 2rem;
-            --spacing-lg: 4rem;
-            --spacing-xl: 6rem;
-            --border-radius: 12px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: var(--background);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .header {
-            background: var(--white);
-            box-shadow: var(--shadow-sm);
-            padding: var(--spacing-sm) var(--spacing-md);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(26,58,58,0.08);
-        }
-
-        .nav {
-            max-width: var(--container-width);
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            height: 32px;
-            width: auto;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: var(--spacing-lg);
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-            letter-spacing: -0.01em;
-            transition: var(--transition);
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: var(--border-radius);
-        }
-
-        .nav-links a:hover {
-            color: var(--primary);
-            background: var(--primary-light);
-        }
-
-        .main {
-            margin-top: 64px;
-        }
-
-        .hero {
-            background: var(--background-alt);
-            padding: var(--spacing-xl) var(--spacing-md);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-content {
-            max-width: var(--container-width);
-            margin: 0 auto;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            color: var(--text);
-            margin-bottom: var(--spacing-md);
-            line-height: 1.2;
-            letter-spacing: -0.02em;
-            font-weight: 700;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero p {
-            font-size: 1.25rem;
-            color: var(--text-light);
-            max-width: 600px;
-            margin: 0 auto var(--spacing-lg);
-            line-height: 1.7;
-        }
-
-        .cta-button {
-            display: inline-block;
-            background: var(--primary);
-            color: var(--white);
-            text-decoration: none;
-            padding: 1rem 2.5rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: var(--transition);
-            box-shadow: var(--shadow-md);
-        }
-
-        .cta-button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .features {
-            max-width: var(--container-width);
-            margin: 0 auto;
-            padding: var(--spacing-xl) var(--spacing-md);
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-lg);
-        }
-
-        .feature-card {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            padding: var(--spacing-lg);
-            box-shadow: var(--shadow-md);
-            border: 1px solid rgba(26,58,58,0.08);
-            transition: var(--transition);
-            text-align: center;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .feature-card h3 {
-            color: var(--primary);
-            margin-bottom: var(--spacing-sm);
-            font-size: 1.5rem;
-            letter-spacing: -0.01em;
-        }
-
-        .feature-card p {
-            color: var(--text-light);
-            margin-bottom: var(--spacing-sm);
-            font-size: 1rem;
-        }
-
-        .feature-card .cta-button {
-            margin-top: var(--spacing-sm);
-        }
-
-        .testimonial {
-            background: var(--background-alt);
-            padding: var(--spacing-xl) var(--spacing-md);
-        }
-
-        .testimonial-content {
-            max-width: var(--container-width);
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .testimonial p {
-            font-size: 1.25rem;
-            color: var(--text);
-            font-style: italic;
-            max-width: 800px;
-            margin: 0 auto var(--spacing-md);
-        }
-
-        .testimonial-author {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .footer {
-            background: var(--white);
-            padding: var(--spacing-lg) var(--spacing-md);
-            border-top: 1px solid rgba(26,58,58,0.08);
-        }
-
-        .footer-content {
-            max-width: var(--container-width);
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: var(--spacing-md);
-            list-style: none;
-        }
-
-        .footer-links a {
-            color: var(--text-light);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-
-        .footer-links a:hover {
-            color: var(--primary);
-        }
-
-        @media (max-width: 768px) {
-            :root {
-                --spacing-xl: 4rem;
-                --spacing-lg: 3rem;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero p {
-                font-size: 1.1rem;
-            }
-
-            .footer-content {
-                flex-direction: column;
-                gap: var(--spacing-md);
-                text-align: center;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header class="header">
         <nav class="nav">
-            <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="logo">
+            <a href="index.html">
+                <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="logo">
+            </a>
             <ul class="nav-links">
                 <li><a href="about.html">About</a></li>
                 <li><a href="math-circles.html">Math Circles</a></li>
@@ -293,36 +25,42 @@
     <main class="main">
         <section class="hero">
             <div class="hero-content">
-                <h1>Transform Your Child's Relationship with Math Through Curiosity-Driven Learning</h1>
-                <p>Most parents have never experienced the joy of mathematical discovery. Through Math Circles, you'll experience firsthand how curiosity-driven learning can transform your child's relationship with math.</p>
-                <a href="math-circles.html" class="cta-button">Join a Math Circle</a>
+                <div class="hero-text">
+                    <h1>Transform Your Child's Relationship with Math</h1>
+                    <p>Experience the joy of mathematical discovery together. Our Math Circles help parents and children explore math through curiosity and deep thinking.</p>
+                    <a href="contact.html" class="cta-button">Join a Math Circle</a>
+                </div>
+                <img src="hero-image.jpg" alt="Parent and child exploring math together" class="hero-image">
             </div>
         </section>
 
         <section class="features">
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h3>Math Circles</h3>
-                    <p>Experience firsthand how mathematical curiosity can be sparked through engaging problems and discussions.</p>
-                    <a href="math-circles.html" class="cta-button">Learn More</a>
-                </div>
-                <div class="feature-card">
-                    <h3>Resources</h3>
-                    <p>Access our collection of math problems, activities, and guides to support your child's learning journey.</p>
-                    <a href="resources.html" class="cta-button">Explore</a>
-                </div>
-                <div class="feature-card">
-                    <h3>About Us</h3>
-                    <p>Learn about our mission to transform math education through curiosity-driven learning.</p>
-                    <a href="about.html" class="cta-button">Our Story</a>
+            <div class="features-content">
+                <h2>Why Math Circles Work</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>Curiosity-Driven Learning</h3>
+                        <p>Discover how engaging problems spark genuine mathematical curiosity in both parents and children.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Parent-Child Connection</h3>
+                        <p>Strengthen your relationship with your child through shared mathematical exploration.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Deep Understanding</h3>
+                        <p>Move beyond memorization to develop true mathematical thinking and problem-solving skills.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section class="testimonial">
             <div class="testimonial-content">
-                <p>"After participating in a Math Circle, I finally understood what my child was missing in traditional math education. The experience changed how I think about math learning."</p>
-                <div class="testimonial-author">— Sarah M., Parent</div>
+                <h2>What Parents Say</h2>
+                <div class="testimonial-card">
+                    <p class="testimonial-text">"The Math Circle experience completely changed how I think about math. Now I can better support my child's learning journey, and we both enjoy exploring mathematical ideas together."</p>
+                    <p class="testimonial-author">— Sarah M., Parent</p>
+                </div>
             </div>
         </section>
     </main>

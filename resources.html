@@ -5,254 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resources - Math Explorers</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #2b7a78;
-            --primary-dark: #205c5c;
-            --primary-light: rgba(43, 122, 120, 0.1);
-            --accent: #e88d2a;
-            --accent-light: rgba(232, 141, 42, 0.1);
-            --text: #1a3a3a;
-            --text-light: #4a5a5a;
-            --background: #ffffff;
-            --background-alt: #faf9f7;
-            --white: #ffffff;
-            --shadow-sm: 0 2px 4px rgba(26,58,58,0.04);
-            --shadow-md: 0 4px 12px rgba(26,58,58,0.08);
-            --shadow-lg: 0 8px 24px rgba(26,58,58,0.12);
-            --transition: all 0.3s ease;
-            --container-width: 1200px;
-            --spacing-xs: 0.5rem;
-            --spacing-sm: 1rem;
-            --spacing-md: 2rem;
-            --spacing-lg: 4rem;
-            --spacing-xl: 6rem;
-            --border-radius: 12px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: var(--background);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .header {
-            background: var(--white);
-            box-shadow: var(--shadow-sm);
-            padding: var(--spacing-sm) var(--spacing-md);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(26,58,58,0.08);
-        }
-
-        .nav {
-            max-width: var(--container-width);
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            height: 32px;
-            width: auto;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: var(--spacing-lg);
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-            letter-spacing: -0.01em;
-            transition: var(--transition);
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: var(--border-radius);
-        }
-
-        .nav-links a:hover {
-            color: var(--primary);
-            background: var(--primary-light);
-        }
-
-        .main {
-            margin-top: 64px;
-        }
-
-        .page-header {
-            background: var(--background-alt);
-            padding: var(--spacing-xl) var(--spacing-md);
-            text-align: center;
-        }
-
-        .page-header h1 {
-            font-size: 3rem;
-            color: var(--text);
-            margin-bottom: var(--spacing-md);
-            line-height: 1.2;
-            letter-spacing: -0.02em;
-            font-weight: 700;
-        }
-
-        .page-header p {
-            font-size: 1.25rem;
-            color: var(--text-light);
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.7;
-        }
-
-        .content {
-            max-width: var(--container-width);
-            margin: 0 auto;
-            padding: var(--spacing-xl) var(--spacing-md);
-        }
-
-        .content h2 {
-            font-size: 2rem;
-            color: var(--text);
-            margin-bottom: var(--spacing-md);
-            line-height: 1.3;
-            letter-spacing: -0.02em;
-            font-weight: 700;
-        }
-
-        .content p {
-            font-size: 1.125rem;
-            color: var(--text-light);
-            margin-bottom: var(--spacing-md);
-            line-height: 1.7;
-            max-width: 800px;
-        }
-
-        .resources-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-lg);
-        }
-
-        .resource-card {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            padding: var(--spacing-lg);
-            box-shadow: var(--shadow-md);
-            border: 1px solid rgba(26,58,58,0.08);
-            transition: var(--transition);
-        }
-
-        .resource-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .resource-card h3 {
-            color: var(--primary);
-            margin-bottom: var(--spacing-sm);
-            font-size: 1.5rem;
-            letter-spacing: -0.01em;
-        }
-
-        .resource-card p {
-            color: var(--text-light);
-            margin-bottom: var(--spacing-sm);
-            font-size: 1rem;
-        }
-
-        .resource-card a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-block;
-            margin-top: var(--spacing-sm);
-        }
-
-        .resource-card a:hover {
-            color: var(--primary-dark);
-        }
-
-        .footer {
-            background: var(--white);
-            padding: var(--spacing-lg) var(--spacing-md);
-            border-top: 1px solid rgba(26,58,58,0.08);
-        }
-
-        .footer-content {
-            max-width: var(--container-width);
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: var(--spacing-md);
-            list-style: none;
-        }
-
-        .footer-links a {
-            color: var(--text-light);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-
-        .footer-links a:hover {
-            color: var(--primary);
-        }
-
-        @media (max-width: 768px) {
-            :root {
-                --spacing-xl: 4rem;
-                --spacing-lg: 3rem;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .page-header h1 {
-                font-size: 2.5rem;
-            }
-
-            .page-header p {
-                font-size: 1.1rem;
-            }
-
-            .content h2 {
-                font-size: 1.75rem;
-            }
-
-            .content p {
-                font-size: 1rem;
-            }
-
-            .footer-content {
-                flex-direction: column;
-                gap: var(--spacing-md);
-                text-align: center;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header class="header">
@@ -271,53 +24,53 @@
 
     <main class="main">
         <section class="page-header">
-            <h1>Resources for Parents</h1>
-            <p>Explore our collection of math problems, activities, and guides to support your child's learning journey.</p>
+            <h1>Resources</h1>
+            <p>Explore our collection of math problems, activities, and guides for parents.</p>
         </section>
 
-        <div class="content">
+        <section class="content">
             <h2>Math Problems</h2>
-            <p>These carefully chosen problems are designed to spark curiosity and deep thinking. Try them with your child and discover the joy of mathematical exploration.</p>
+            <p>Discover engaging problems that spark mathematical curiosity and deep thinking.</p>
             
-            <div class="resources-grid">
-                <div class="resource-card">
-                    <h3>Pattern Problems</h3>
-                    <p>Explore mathematical patterns through visual and numerical sequences.</p>
-                    <a href="#">View Problems →</a>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Pattern Recognition</h3>
+                    <p>Explore the beauty of mathematical patterns through visual and numerical sequences.</p>
+                    <a href="#" class="cta-button">View Problem</a>
                 </div>
-                <div class="resource-card">
-                    <h3>Logic Puzzles</h3>
-                    <p>Challenge your thinking with puzzles that develop logical reasoning.</p>
-                    <a href="#">View Problems →</a>
+                <div class="feature-card">
+                    <h3>Logical Reasoning</h3>
+                    <p>Develop critical thinking skills through carefully crafted logic puzzles.</p>
+                    <a href="#" class="cta-button">View Problem</a>
                 </div>
-                <div class="resource-card">
-                    <h3>Number Games</h3>
-                    <p>Fun activities that build number sense and mathematical intuition.</p>
-                    <a href="#">View Problems →</a>
+                <div class="feature-card">
+                    <h3>Number Theory</h3>
+                    <p>Discover the fascinating world of numbers and their relationships.</p>
+                    <a href="#" class="cta-button">View Problem</a>
                 </div>
             </div>
 
             <h2>Parent Guides</h2>
-            <p>Learn how to support your child's mathematical journey with these practical guides.</p>
+            <p>Learn how to support your child's mathematical journey with our practical guides.</p>
             
-            <div class="resources-grid">
-                <div class="resource-card">
-                    <h3>Getting Started</h3>
-                    <p>Essential tips for creating a positive math learning environment at home.</p>
-                    <a href="#">Read Guide →</a>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Creating a Math-Rich Environment</h3>
+                    <p>Tips and ideas for incorporating mathematical thinking into daily life.</p>
+                    <a href="#" class="cta-button">Read Guide</a>
                 </div>
-                <div class="resource-card">
-                    <h3>Math Conversations</h3>
-                    <p>How to have meaningful mathematical discussions with your child.</p>
-                    <a href="#">Read Guide →</a>
+                <div class="feature-card">
+                    <h3>Supporting Mathematical Curiosity</h3>
+                    <p>Learn how to nurture your child's natural curiosity about mathematics.</p>
+                    <a href="#" class="cta-button">Read Guide</a>
                 </div>
-                <div class="resource-card">
-                    <h3>Problem Solving</h3>
-                    <p>Strategies for helping your child develop problem-solving skills.</p>
-                    <a href="#">Read Guide →</a>
+                <div class="feature-card">
+                    <h3>Math Circle at Home</h3>
+                    <p>How to create your own Math Circle experience with your family.</p>
+                    <a href="#" class="cta-button">Read Guide</a>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
 
     <footer class="footer">
