@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Our Movement - Math Explorers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="./navbar.js?v=2"></script>
+    <style>
+      .hero-logo {
+        display: block;
+        margin: 0 auto var(--spacing-lg) auto;
+        max-width: 220px;
+        width: 100%;
+        height: auto;
+        animation: fadeInLogo 1.2s ease;
+      }
+      @keyframes fadeInLogo {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .content {
+        max-width: 100%;
+        padding: 0 var(--spacing-md);
+        box-sizing: border-box;
+      }
+      .donation-options {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+        margin: var(--spacing-xl) 0;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      @media (min-width: 768px) {
+        .donation-options {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: var(--spacing-md);
+        }
+      }
+      .donation-card {
+        background: white;
+        border-radius: 12px;
+        padding: var(--spacing-md);
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease;
+        width: 100%;
+        box-sizing: border-box;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+      }
+      .donation-card:hover {
+        transform: translateY(-4px);
+      }
+      .donation-amount {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin: var(--spacing-md) 0;
+      }
+      .donation-card .card-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+      }
+      .donation-card .cta-button {
+        white-space: normal;
+        width: 100%;
+        max-width: 200px;
+        display: inline-block;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        margin-top: var(--spacing-md);
+        text-align: center;
+      }
+      .donation-footer {
+        text-align: center;
+        margin-top: var(--spacing-xl);
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <a href="index.html">
+                <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="logo">
+            </a>
+            <button class="mobile-menu-button" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="menu-icon">☰</span>
+            </button>
+            <ul class="nav-links">
+                <!-- Navigation will be inserted by navbar.js -->
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <div class="hero-content" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo">
+                <div class="hero-text">
+                    <h1>Support Our Movement</h1>
+                    <p>Help us build vibrant mathematical communities where children discover the joy of learning through curiosity and deep thinking.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="features-content">
+                <h2>Your Impact</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h3>Community Growth</h3>
+                        <p>Support the development of new Math Circles and help existing ones thrive in communities across the country.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Resource Development</h3>
+                        <p>Help create and share engaging mathematical problems and activities that spark curiosity and deep thinking.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Leadership Training</h3>
+                        <p>Support volunteer leaders with training and resources to create meaningful mathematical experiences.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content">
+            <h2>Join Our Supporters</h2>
+            <p>Your contribution helps us build a movement where mathematical exploration is as natural and engaging as playing chess or learning music. Every donation, no matter the size, helps create more opportunities for children to discover the joy of mathematics.</p>
+            
+            <div class="donation-options">
+                <div class="donation-card">
+                    <div class="card-content">
+                        <h3>Monthly Supporter</h3>
+                        <div class="donation-amount">$10/month</div>
+                        <p>Help sustain our community-building efforts and resource development. Monthly support provides consistent funding for our growing network of Math Circles.</p>
+                        <a href="#" class="cta-button">Become a Monthly Supporter</a>
+                    </div>
+                </div>
+                <div class="donation-card">
+                    <div class="card-content">
+                        <h3>Circle Builder</h3>
+                        <div class="donation-amount">$50</div>
+                        <p>Support the launch of a new Math Circle in your community. Your one-time gift helps provide resources and training for volunteer leaders.</p>
+                        <a href="#" class="cta-button">Support a New Circle</a>
+                    </div>
+                </div>
+                <div class="donation-card">
+                    <div class="card-content">
+                        <h3>Movement Leader</h3>
+                        <div class="donation-amount">$250</div>
+                        <p>Help train volunteer leaders and develop new resources. Your contribution supports our mission to make math circles as common as chess clubs.</p>
+                        <a href="#" class="cta-button">Lead the Movement</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="donation-footer">
+                <p>Every contribution makes a difference. Contact us to discuss custom support options or to learn more about how your donation will be used.</p>
+                <a href="contact.html" class="cta-button cta-button-secondary">Contact Us</a>
+                <p style="margin-top: var(--spacing-md);">
+                    <a href="whitepaper.pdf" style="color: var(--primary-color); text-decoration: underline;">Read our whitepaper</a> to learn more about our vision and strategy.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="logo">
+            <a href="whitepaper.pdf" class="footer-outline-button">Read the Whitepaper</a>
+            <ul class="footer-links">
+                <!-- Navigation will be inserted by navbar.js -->
+            </ul>
+        </div>
+    </footer>
+</body>
+</html>

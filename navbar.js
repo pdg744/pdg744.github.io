@@ -2,8 +2,8 @@
 const navItems = [
     { href: 'about.html', text: 'About' },
     { href: 'math-circles.html', text: 'Math Circles' },
-    { href: 'consulting.html', text: 'Consulting' },
     { href: 'resources.html', text: 'Resources' },
+    { href: 'donate.html', text: 'Support Us' },
     { href: 'contact.html', text: 'Contact' }
 ];
 
@@ -26,10 +26,13 @@ function initNavigation() {
         mainNav.innerHTML = createNavHTML(currentPage);
     }
     
-    // Update footer navigation
-    const footerNav = document.querySelector('.footer-links');
-    if (footerNav) {
-        footerNav.innerHTML = createNavHTML(currentPage);
+    // Update footer with logo and whitepaper button
+    const footerContent = document.querySelector('.footer-content');
+    if (footerContent) {
+        footerContent.innerHTML = `
+            <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="logo">
+            <a href="whitepaper.html" class="footer-outline-button">Read the Whitepaper</a>
+        `;
     }
 
     // Initialize mobile menu
