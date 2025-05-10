@@ -567,12 +567,13 @@ body {
 }
 
 .footer-content {
-    max-width: var(--container-width);
-    margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: relative;
+    flex-wrap: wrap;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: var(--spacing-md);
 }
 
 .footer .logo {
@@ -761,7 +762,13 @@ body {
     .footer-content {
         flex-direction: column;
         text-align: center;
-        gap: 2rem;
+    }
+
+    .footer-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: var(--spacing-md);
     }
 
     .feature-grid {
