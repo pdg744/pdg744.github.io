@@ -31,6 +31,19 @@ function initNavigation() {
     if (footerNav) {
         footerNav.innerHTML = createNavHTML(currentPage);
     }
+
+    // Initialize mobile menu
+    const mobileMenuButton = document.querySelector('.mobile-menu-button');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (mobileMenuButton && navLinks) {
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenuButton.classList.toggle('active');
+            navLinks.classList.toggle('active');
+            mobileMenuButton.setAttribute('aria-expanded', 
+                mobileMenuButton.classList.contains('active'));
+        });
+    }
 }
 
 // Initialize when DOM is loaded
