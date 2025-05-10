@@ -4,7 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Math Explorers helps parents and children discover the joy of mathematics through engaging Math Circles. Transform your child's relationship with math through curiosity-driven learning.">
+    <meta property="og:title" content="Math Explorers - Parent Math Education Consulting">
+    <meta property="og:description" content="Transform your child's relationship with math through engaging Math Circles. Join us for curiosity-driven learning.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="math-explorers-logo.png">
     <title>Math Explorers - Parent Math Education Consulting</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -23,11 +29,15 @@
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <header class="header">
-        <nav class="nav">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
             <a href="index.html">
-                <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="logo">
+                <img src="math-explorers-logo.png" alt="Math Explorers Logo - Return to homepage" class="logo">
             </a>
+            <button class="mobile-menu-button" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="menu-icon">☰</span>
+            </button>
             <ul class="nav-links">
                 <li><a href="about.html">About</a></li>
                 <li><a href="math-circles.html">Math Circles</a></li>
@@ -37,7 +47,7 @@
         </nav>
     </header>
 
-    <main class="main">
+    <main id="main-content" class="main">
         <section class="hero">
             <div class="hero-content" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
                 <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo">
@@ -91,5 +101,14 @@
             </ul>
         </div>
     </footer>
+    <script>
+        document.querySelector('.mobile-menu-button').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            
+            this.setAttribute('aria-expanded', !isExpanded);
+            navLinks.classList.toggle('active');
+        });
+    </script>
 </body>
 </html> 
