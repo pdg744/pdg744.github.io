@@ -1,0 +1,11 @@
+{
+  "name": "math-explorers",
+  "version": "1.0.0",
+  "description": "Math Explorers website",
+  "scripts": {
+    "generate-pdf": "node generate-pdf.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0"
+  }
+} 

@@ -1,0 +1,60 @@
+name: Generate PDF
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'whitepaper.html'
+      - 'styles.css'
+      - 'generate-pdf.js'
+      - '.github/workflows/generate-pdf.yml'
+
+jobs:
+  generate-pdf:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: |
+        npm install puppeteer
+        sudo apt-get install -y gh
+        
+    - name: Generate PDF
+      run: node generate-pdf.js
+      
+    - name: Update PDF Branch
+      run: |
+        # Create or update the pdf-updates branch
+        git checkout -B pdf-updates || git checkout pdf-updates
+        git pull origin pdf-updates || true
+        
+        # Add and commit if there are changes
+        if [[ -n "$(git status --porcelain)" ]]; then
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add whitepaper.pdf
+          git commit -m "Update PDF [skip ci]"
+          git push origin pdf-updates
+          
+          # Create PR if it doesn't exist
+          gh pr create \
+            --title "Update PDF" \
+            --body "This PR updates the PDF to match the latest HTML changes." \
+            --base main \
+            --head pdf-updates \
+            || gh pr edit pdf-updates --title "Update PDF" --body "This PR updates the PDF to match the latest HTML changes."
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
