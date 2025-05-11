@@ -1,11 +1,13 @@
 const puppeteer = require('puppeteer');
+const path = require('path');
 
 async function generatePDF() {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     
-    // Load the whitepaper page
-    await page.goto('http://localhost:8000/whitepaper.html', {
+    // Load the whitepaper page using file:// protocol
+    const filePath = path.join(__dirname, 'whitepaper.html');
+    await page.goto(`file://${filePath}`, {
         waitUntil: 'networkidle0'
     });
     

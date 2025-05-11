@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Explorers Grants Program - Supporting Math Circles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="./navbar.js?v=2"></script>
+    <style>
+        .grants-content {
+            max-width: 800px;
+            margin: var(--spacing-xl) auto 0;
+            padding: var(--spacing-lg) var(--spacing-md);
+        }
+        
+        .grant-process {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-md);
+            margin: var(--spacing-xl) 0;
+        }
+        
+        .grant-step {
+            background: white;
+            border-radius: 12px;
+            padding: var(--spacing-md);
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .grant-step h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .grant-step .step-number {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        @media (max-width: 768px) {
+            .grant-process {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <a href="index.html">
+                <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="logo">
+            </a>
+            <button class="mobile-menu-button" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="menu-icon">☰</span>
+            </button>
+            <ul class="nav-links">
+                <!-- Navigation will be inserted by navbar.js -->
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <div class="hero-content" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo">
+                <div class="hero-text">
+                    <h1>Math Explorers Grants Program</h1>
+                    <p>Supporting college students to create vibrant mathematical communities in schools across the country.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="grants-content">
+            <h2>How It Works</h2>
+            <p>Our grants program empowers college students to start and run Math Circles in their communities. Each $500 grant provides the resources and support needed to create a lasting mathematical community.</p>
+            
+            <div class="grant-process">
+                <div class="grant-step">
+                    <div class="step-number">1</div>
+                    <h3>Apply</h3>
+                    <p>College students apply for a grant to start a Math Circle at a school of their choice.</p>
+                </div>
+                <div class="grant-step">
+                    <div class="step-number">2</div>
+                    <h3>Train</h3>
+                    <p>Selected students receive training and resources to run an engaging Math Circle.</p>
+                </div>
+                <div class="grant-step">
+                    <div class="step-number">3</div>
+                    <h3>Impact</h3>
+                    <p>Students create a vibrant mathematical community that inspires curiosity and deep thinking.</p>
+                </div>
+            </div>
+
+            <div class="donor-impact">
+                <h2>Your Impact</h2>
+                <div class="impact-levels">
+                    <div class="impact-level">
+                        <h3>Community Grant</h3>
+                        <div class="amount">$1,000</div>
+                        <ul>
+                            <li>Funds two $500 grants</li>
+                            <li>One grant at your chosen school</li>
+                            <li>One grant supporting the global movement</li>
+                            <li>Featured in our community stories</li>
+                            <li>Connection with both communities</li>
+                            <li>Impact report for both grants</li>
+                        </ul>
+                    </div>
+                    <div class="impact-level">
+                        <h3>Regional Impact</h3>
+                        <div class="amount">$5,000</div>
+                        <ul>
+                            <li>Funds ten $500 grants</li>
+                            <li>Five grants in your chosen region</li>
+                            <li>Five grants supporting global communities</li>
+                            <li>Featured in regional impact report</li>
+                            <li>Community leadership recognition</li>
+                            <li>Comprehensive impact reporting</li>
+                        </ul>
+                    </div>
+                    <div class="impact-level">
+                        <h3>Movement Leader</h3>
+                        <div class="amount">$10,000+</div>
+                        <ul>
+                            <li>Funds twenty or more $500 grants</li>
+                            <li>Half in your chosen communities</li>
+                            <li>Half supporting the global movement</li>
+                            <li>Featured in annual impact report</li>
+                            <li>Movement leadership recognition</li>
+                            <li>Detailed impact analysis</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Grant Requirements</h2>
+            <p>To ensure the success of each Math Circle, we require:</p>
+            <ul>
+                <li>College student applicants must demonstrate mathematical interest and leadership potential</li>
+                <li>Schools must provide a suitable space and support for the Math Circle</li>
+                <li>Math Circles must meet regularly (weekly or bi-weekly)</li>
+                <li>Students must document and share their experiences</li>
+            </ul>
+
+            <div class="cta-section" style="text-align: center; margin-top: var(--spacing-xl);">
+                <h2>Ready to Make an Impact?</h2>
+                <p>Create a named grant and support a Math Circle in a community of your choice.</p>
+                <a href="donate.html" class="cta-button">Support a Math Circle</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <img src="math-explorers-logo.png" alt="Math Explorers Logo" class="logo">
+            <a href="whitepaper.pdf" class="footer-outline-button">Read the Whitepaper</a>
+            <ul class="footer-links">
+                <!-- Navigation will be inserted by navbar.js -->
+            </ul>
+        </div>
+    </footer>
+</body>
+</html> 
