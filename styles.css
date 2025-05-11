@@ -605,15 +605,13 @@ body {
     background: transparent;
     display: inline-block;
     box-shadow: var(--shadow-sm);
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    margin: 0 var(--spacing-md);
 }
 
 .footer-outline-button:hover {
     background: var(--primary);
     color: var(--white);
-    transform: translateX(-50%) translateY(-2px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 
@@ -762,6 +760,7 @@ body {
     .footer-content {
         flex-direction: column;
         text-align: center;
+        gap: var(--spacing-md);
     }
 
     .footer-links {
