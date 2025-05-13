@@ -1,7 +1,7 @@
 name: Generate PDF
 
 on:
-  push:
+  pull_request:
     branches: [ main ]
     paths:
       - 'whitepaper.html'
