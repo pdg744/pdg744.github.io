@@ -2,6 +2,7 @@
 const navItems = [
     { href: 'about.html', text: 'About' },
     { href: 'math-circles.html', text: 'Math Circles' },
+    { href: 'problem-of-day', text: 'Problem of the Day' },
     { href: 'resources.html', text: 'Resources' },
     { href: 'donate.html', text: 'Support Us' },
     { href: 'contact.html', text: 'Contact' }

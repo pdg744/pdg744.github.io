@@ -1,0 +1,38 @@
+name: Daily Math Problem
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run at midnight UTC
+  workflow_dispatch:      # Allow manual triggers
+    inputs:
+      date:
+        description: 'Date for the problem (YYYY-MM-DD)'
+        required: false
+        type: string
+
+jobs:
+  select-problem:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Select and publish problem
+        if: ${{ !github.event.inputs.date }}
+        run: node problem-of-day/js/select-problem.js
+        
+      - name: Select and publish problem for specific date
+        if: ${{ github.event.inputs.date }}
+        run: node problem-of-day/js/select-problem.js ${{ github.event.inputs.date }}
+        
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Add problem of the day for ${{ github.event.inputs.date || format('$(date +%Y-%m-%d)') }}"
+          file_pattern: 'problem-of-day/published-problems.json problem-of-day/assets/*'
