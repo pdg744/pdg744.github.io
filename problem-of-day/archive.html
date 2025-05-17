@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse the complete archive of Math Explorers' Problem of the Day challenges.">
+    <title>Problem Archive - Math Explorers</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero-logo {
+            display: block;
+            margin: var(--spacing-lg) auto;
+            max-width: 180px;
+            width: 100%;
+            height: auto;
+            animation: fadeInLogo 1.2s ease;
+        }
+        
+        @keyframes fadeInLogo {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+        }
+        
+        .archive-container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: var(--spacing-md);
+        }
+        
+        .archive-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .archive-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 0;
+        }
+        
+        .archive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .problem-card {
+            border-radius: var(--border-radius-sm);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .problem-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .problem-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .problem-card-content {
+            padding: 1rem;
+        }
+        
+        .problem-date {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .problem-source {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+        
+        /* New styles for copyright icon and tooltip */
+        .copyright-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .copyright-icon {
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.25rem;
+        }
+        
+        .copyright-tooltip {
+            visibility: hidden;
+            position: absolute;
+            background-color: var(--background-dark);
+            color: var(--white);
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .copyright-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--background-dark) transparent transparent transparent;
+        }
+        
+        .copyright-container:hover .copyright-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .problem-metadata {
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+        }
+        
+        .problem-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .action-button {
+            background: var(--gradient-accent);
+            color: var(--white);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: var(--font-size-md);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .action-button:hover::before {
+            opacity: 1;
+        }
+        
+        .loading-indicator, .error-message, .no-problems {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+        
+        .description-text {
+            max-width: 600px;
+            margin: var(--spacing-xl) auto var(--spacing-md) auto;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .archive-container {
+                padding: var(--spacing-sm);
+                margin: var(--spacing-md) var(--spacing-sm);
+            }
+            
+            .archive-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+            
+            .archive-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <a href="../">
+                <img src="../math-explorers-logo.png" alt="Math Explorers Logo - Return to homepage" class="logo">
+            </a>
+            <button class="mobile-menu-button" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="menu-icon">☰</span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="../about.html">About</a></li>
+                <li><a href="../math-circles.html">Math Circles</a></li>
+                <li><a href="../problem-of-day">Problem of the Day</a></li>
+                <li><a href="../resources.html">Resources</a></li>
+                <li><a href="../donate.html">Support Us</a></li>
+                <li><a href="../contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <div class="hero-content">
+                <div class="archive-container">
+                    <div class="archive-header">
+                        <h2 class="archive-title">Problem Archive</h2>
+                        <a href="./" class="action-button">Today's Problem</a>
+                    </div>
+                    
+                    <div id="archive-grid" class="archive-grid">
+                        <div class="loading-indicator">
+                            <p>Loading problem archive...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="description-text">
+                    Browse all past Problems of the Day.
+                </p>
+                
+                <img src="../math-explorers-logo.png" alt="Math Explorers Logo" class="hero-logo">
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-button').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+            this.setAttribute('aria-expanded', navLinks.classList.contains('active'));
+        });
+        
+        // Format date for display
+        function formatHumanDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+        
+        // Load and display all published problems
+        async function loadArchive() {
+            const archiveGrid = document.getElementById('archive-grid');
+            
+            try {
+                // Fetch the published problems file
+                const response = await fetch('./published-problems.json');
+                if (!response.ok) {
+                    throw new Error(`Failed to load problems: ${response.status} ${response.statusText}`);
+                }
+                
+                const problems = await response.json();
+                
+                if (!problems || problems.length === 0) {
+                    archiveGrid.innerHTML = `
+                        <div class="no-problems">
+                            <p>No problems have been published yet. Check back soon!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Sort problems by date (newest first)
+                problems.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // Generate the grid content
+                let gridHTML = '';
+                
+                for (const problem of problems) {
+                    const humanDate = formatHumanDate(problem.date);
+                    const assetPath = `./assets/${problem.date}-problem`;
+                    const fileExtension = problem.path.split('.').pop().toLowerCase();
+                    
+                    let imageHTML;
+                    if (fileExtension === 'pdf') {
+                        imageHTML = `
+                            <div style="height: 150px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                <span style="font-size: 2rem; color: #777;">PDF</span>
+                            </div>
+                        `;
+                    } else {
+                        imageHTML = `<img src="${assetPath}.${fileExtension}" alt="Problem for ${humanDate}" onerror="this.onerror=null; this.parentNode.innerHTML='<div style=\\'height: 150px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;\\'><span style=\\'font-size: 2rem; color: #777;\\'>?</span></div>';">`;
+                    }
+                    
+                    gridHTML += `
+                        <a href="./?date=${problem.date}" class="problem-card">
+                            ${imageHTML}
+                            <div class="problem-card-content">
+                                <div class="problem-date">${humanDate}</div>
+                                <div class="copyright-container">
+                                    <i class="fas fa-copyright copyright-icon" title="Source: ${problem.source}"></i>
+                                    <span class="copyright-tooltip">${problem.source}</span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                }
+                
+                archiveGrid.innerHTML = gridHTML;
+                
+            } catch (error) {
+                console.error('Error loading archive:', error);
+                archiveGrid.innerHTML = `
+                    <div class="error-message">
+                        <p>Unable to load the problem archive. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load the archive when the page is ready
+        document.addEventListener('DOMContentLoaded', loadArchive);
+    </script>
+</body>
+</html>

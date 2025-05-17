@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore a random mathematical problem from our collection to develop curiosity and problem-solving skills.">
+    <meta property="og:title" content="Random Problem - Math Explorers">
+    <meta property="og:description" content="Challenge yourself with a random mathematical problem from our collection.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="../math-explorers-logo.png">
+    <title>Random Problem - Math Explorers</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero-logo {
+            display: block;
+            margin: var(--spacing-lg) auto;
+            max-width: 180px;
+            width: 100%;
+            height: auto;
+            animation: fadeInLogo 1.2s ease;
+        }
+        
+        @keyframes fadeInLogo {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+        }
+        
+        .problem-container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: var(--spacing-md);
+        }
+        
+        .problem-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            background-color: var(--accent-light);
+            color: var(--accent);
+        }
+        
+        .problem-metadata {
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+        }
+        
+        .problem-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: var(--border-radius-sm);
+        }
+        
+        .problem-source {
+            font-size: 0.9rem;
+            text-align: center;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+        
+        .problem-footer {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        /* New styles for copyright icon and metadata layout */
+        .metadata-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .copyright-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .copyright-icon {
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.5rem;
+        }
+        
+        .copyright-tooltip {
+            visibility: hidden;
+            position: absolute;
+            background-color: var(--background-dark);
+            color: var(--white);
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .copyright-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--background-dark) transparent transparent transparent;
+        }
+        
+        .copyright-container:hover .copyright-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Updated date navigation styles */
+        .date-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0;
+            flex: 1;
+        }
+        
+        .problem-date {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin: 0;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .date-nav-button {
+            font-size: 0.9rem;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            min-width: 80px;
+        }
+        
+        .date-nav-placeholder {
+            min-width: 80px;
+        }
+        
+        .random-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+        
+        .action-button {
+            background: var(--gradient-accent);
+            color: var(--white);
+            text-decoration: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: var(--font-size-md);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+        
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .action-button:hover::before {
+            opacity: 1;
+        }
+        
+        .action-button-secondary {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+        
+        .loading-indicator, .error-message {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .pdf-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .description-text {
+            max-width: 600px;
+            margin: var(--spacing-xl) auto var(--spacing-md) auto;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .problem-container {
+                padding: var(--spacing-sm);
+            }
+            
+            .random-actions {
+                flex-direction: column;
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .action-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <a href="../">
+                <img src="../math-explorers-logo.png" alt="Math Explorers Logo - Return to homepage" class="logo">
+            </a>
+            <button class="mobile-menu-button" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="menu-icon">☰</span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="../about.html">About</a></li>
+                <li><a href="../math-circles.html">Math Circles</a></li>
+                <li><a href="../problem-of-day">Problem of the Day</a></li>
+                <li><a href="../resources.html">Resources</a></li>
+                <li><a href="../donate.html">Support Us</a></li>
+                <li><a href="../contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <div class="hero-content">
+                <div class="problem-container">
+                    <div id="problem-content">
+                        <div class="loading-indicator">
+                            <p>Loading a random problem...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="random-actions">
+                    <a href="./" class="action-button action-button-secondary">Today's Problem</a>
+                    <button id="random-button" class="action-button">Show me another problem</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-button').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+            this.setAttribute('aria-expanded', navLinks.classList.contains('active'));
+        });
+    </script>
+    <script src="./js/problem-of-day.js"></script>
+</body>
+</html> 
