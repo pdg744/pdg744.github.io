@@ -2,6 +2,9 @@
   "name": "math-explorers",
   "version": "1.0.0",
   "description": "Math Explorers website",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "generate-pdf": "node generate-pdf.js"
   },
