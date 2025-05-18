@@ -12,6 +12,8 @@ on:
 jobs:
   select-problem:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # This allows writing to repository contents (commits)
     timeout-minutes: 15  # Add timeout to prevent hanging jobs
     steps:
       - uses: actions/checkout@v3
