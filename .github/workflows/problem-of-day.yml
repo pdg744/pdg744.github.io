@@ -29,6 +29,8 @@ jobs:
             ${{ runner.os }}-node-
           
       - name: Install dependencies
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         run: npm ci
         
       - name: Select and publish problem
