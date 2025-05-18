@@ -1,0 +1,9 @@
+{
+  "name": "problem-of-day",
+  "version": "1.0.0",
+  "description": "Problem of the day generator",
+  "private": true,
+  "dependencies": {
+    "sharp": "^0.32.1"
+  }
+} 

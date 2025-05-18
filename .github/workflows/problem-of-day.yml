@@ -12,6 +12,7 @@ on:
 jobs:
   select-problem:
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # Add timeout to prevent hanging jobs
     steps:
       - uses: actions/checkout@v3
       
@@ -23,14 +24,13 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: problem-of-day/node_modules
+          key: ${{ runner.os }}-problem-of-day-${{ hashFiles('problem-of-day/package.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-problem-of-day-
           
-      - name: Install dependencies
-        env:
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      - name: Install dependencies for problem-of-day
+        working-directory: problem-of-day
         run: npm ci
         
       - name: Select and publish problem
