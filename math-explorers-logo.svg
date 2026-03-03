@@ -1,0 +1,200 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="cubeTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F5C030"/>
+      <stop offset="100%" style="stop-color:#ECA020"/>
+    </linearGradient>
+    <linearGradient id="cubeLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E07520"/>
+      <stop offset="100%" style="stop-color:#C86010"/>
+    </linearGradient>
+    <linearGradient id="cubeRight" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#D05510"/>
+      <stop offset="100%" style="stop-color:#B84808"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background: warm cream -->
+  <rect width="1024" height="1024" fill="#F7F1E3"/>
+
+  <!-- Teal circle ring, center at 512,415 -->
+  <g transform="translate(0,-30)">
+  <circle cx="512" cy="415" r="215" fill="none" stroke="#4AADA0" stroke-width="24"/>
+
+  <!--
+    8-pointed compass rose, center = cx=512, cy=415
+    Each point is a kite: tip → right-shoulder → center → left-shoulder
+
+    Cardinal tips (N/S/E/W): outer radius 295
+    Diagonal tips (NE/NW/SE/SW): outer radius 245 (at 45°)
+    Inner notch radius: 115 (shoulder points, offset ±22.5° from each tip)
+
+    Cardinal shoulder half-angle: 18° → shoulder offset at r=115
+      N: tip=(512,120), L-shoulder=(512-115*sin18°, 415-115*cos18°)=(476.5,305.6), R-shoulder=(547.5,305.6)
+      S: tip=(512,710), L=(476.5,524.4), R=(547.5,524.4)
+      E: tip=(807,415), L=(602.4,379.5), R=(602.4,450.5)
+      W: tip=(217,415), L=(421.6,379.5), R=(421.6,450.5)
+
+    Diagonal shoulder half-angle: 18° (same) but base at r=115 rotated 45°
+      NE: tip=(685,242), shoulders at ±18° from NE around center
+      NW: tip=(339,242), ...
+      SE: tip=(685,588), ...
+      SW: tip=(339,588), ...
+
+    sin(18°)=0.309, cos(18°)=0.951
+    sin(63°)=0.891, cos(63°)=0.454  (45°+18°)
+    sin(27°)=0.454, cos(27°)=0.891  (45°-18°)
+
+    Diagonal shoulders at r=115:
+      NE tip direction = 45° CCW from East = NE
+      Left shoulder of NE = 45°-18°=27° from East: (512+115*cos27°, 415-115*sin27°) = (512+102.5, 415-52.2) = (614.5, 362.8)
+        → wait, shoulders should be the INNER notch points adjacent to this tip, so:
+        L-shoulder of NE (between N and NE) at 22.5° from N = 67.5° from E:
+          (512+115*cos67.5°, 415-115*sin67.5°) = (512+44.1, 415-106.2) = (556.1, 308.8)
+        R-shoulder of NE (between NE and E) at 22.5° from E = 22.5° from E:
+          (512+115*cos22.5°, 415-115*sin22.5°) = (512+106.2, 415-44.1) = (618.2, 370.9)
+
+    All 8 outer tips:
+      N   = (512, 120)
+      NE  = (512+245*cos45°, 415-245*sin45°) = (512+173.2, 415-173.2) = (685.2, 241.8)
+      E   = (807, 415)
+      SE  = (685.2, 588.2)
+      S   = (512, 710)
+      SW  = (338.8, 588.2)
+      W   = (217, 415)
+      NW  = (338.8, 241.8)
+
+    All 8 inner notch points (between tips, at r=115):
+      between N and NE  (at 22.5°): (512+115*sin22.5°, 415-115*cos22.5°) = (512+43.9, 415-106.2) = (555.9, 308.8)
+      between NE and E  (at 67.5°): (512+115*sin67.5°, 415-115*cos67.5°) = (512+106.2, 415-43.9) = (618.2, 371.1)
+      between E and SE  (at 112.5°):(512+115*sin112.5°,415-115*cos112.5°)= (512+106.2, 415+43.9) = (618.2, 458.9)
+      between SE and S  (at 157.5°):(512+115*sin157.5°,415-115*cos157.5°)= (512+43.9,  415+106.2)= (555.9, 521.2)
+      between S and SW  (at 202.5°):(512-43.9,          415+106.2)        = (468.1, 521.2)
+      between SW and W  (at 247.5°):(512-106.2,         415+43.9)         = (405.8, 458.9)
+      between W and NW  (at 292.5°):(512-106.2,         415-43.9)         = (405.8, 371.1)
+      between NW and N  (at 337.5°):(512-43.9,          415-106.2)        = (468.1, 308.8)
+  -->
+
+  <!-- DIAGONAL POINTS (NE/NW/SE/SW) — two-tone: lighter teal face / dark navy face -->
+
+  <!-- NW: tip(339,242), left-notch(481,341), right-notch anchored to cube top-left corner(392,368) -->
+  <polygon points="339,242  481,341  512,415" fill="#1C3D50"/>
+  <polygon points="339,242  392,368  512,415" fill="#2E6B7A"/>
+  <polygon points="339,242  392,368  512,415  481,341" fill="none" stroke="#1C3D50" stroke-width="7" stroke-linejoin="round"/>
+  <line x1="339" y1="242" x2="512" y2="415" stroke="#1C3D50" stroke-width="7"/>
+
+  <!-- NE: tip(685,242), left-notch(543,341), right-notch anchored to cube top-right corner(632,368) -->
+  <polygon points="685,242  543,341  512,415" fill="#2E6B7A"/>
+  <polygon points="685,242  632,368  512,415" fill="#1C3D50"/>
+  <polygon points="685,242  543,341  512,415  632,368" fill="none" stroke="#1C3D50" stroke-width="7" stroke-linejoin="round"/>
+  <line x1="685" y1="242" x2="512" y2="415" stroke="#1C3D50" stroke-width="7"/>
+
+  <!-- SE: tip(685,588), left-notch(618,459), right-notch(556,521)
+       Left face (upper-right, lit): lighter teal; Right face (lower-left, shadow): dark navy -->
+  <polygon points="685,588  618,459  512,415" fill="#2E6B7A"/>
+  <polygon points="685,588  556,521  512,415" fill="#1C3D50"/>
+  <polygon points="685,588  618,459  512,415  556,521" fill="none" stroke="#1C3D50" stroke-width="7" stroke-linejoin="round"/>
+  <line x1="685" y1="588" x2="512" y2="415" stroke="#1C3D50" stroke-width="7"/>
+
+  <!-- SW: tip(339,588), left-notch(406,459), right-notch(468,521)
+       Left face (lower-left, shadow): dark navy; Right face (upper-right, lit): lighter teal -->
+  <polygon points="339,588  406,459  512,415" fill="#1C3D50"/>
+  <polygon points="339,588  468,521  512,415" fill="#2E6B7A"/>
+  <polygon points="339,588  406,459  512,415  468,521" fill="none" stroke="#1C3D50" stroke-width="7" stroke-linejoin="round"/>
+  <line x1="339" y1="588" x2="512" y2="415" stroke="#1C3D50" stroke-width="7"/>
+
+  <!-- CARDINAL POINTS (N/S/E/W): light from upper-left → left/top face orange, right/bottom face dark navy -->
+
+  <!-- N: tip(512,120), left-notch(468,309), right-notch(556,309)
+       Left face (lit, upper-left): orange; Right face (shadow): dark navy -->
+  <polygon points="512,120  468,309  512,415" fill="#E8711A"/>
+  <polygon points="512,120  556,309  512,415" fill="#1C3D50"/>
+  <polygon points="512,120  556,309  512,415  468,309" fill="none" stroke="#1C3D50" stroke-width="9" stroke-linejoin="round"/>
+  <line x1="512" y1="120" x2="512" y2="415" stroke="#1C3D50" stroke-width="9"/>
+
+  <!-- S: tip(512,710), left-notch(556,521), right-notch(468,521)
+       Right face (lit, upper-left light hits right side of downward point): orange
+       Left face (shadow): dark navy -->
+  <polygon points="512,710  468,521  512,415" fill="#1C3D50"/>
+  <polygon points="512,710  556,521  512,415" fill="#E8711A"/>
+  <polygon points="512,710  468,521  512,415  556,521" fill="none" stroke="#1C3D50" stroke-width="9" stroke-linejoin="round"/>
+  <line x1="512" y1="710" x2="512" y2="415" stroke="#1C3D50" stroke-width="9"/>
+
+  <!-- E: tip(807,415), left-notch(618,371), right-notch(618,459)
+       Top face (lit): orange; Bottom face (shadow): dark navy -->
+  <polygon points="807,415  618,371  512,415" fill="#E8711A"/>
+  <polygon points="807,415  618,459  512,415" fill="#1C3D50"/>
+  <polygon points="807,415  618,459  512,415  618,371" fill="none" stroke="#1C3D50" stroke-width="9" stroke-linejoin="round"/>
+  <line x1="807" y1="415" x2="512" y2="415" stroke="#1C3D50" stroke-width="9"/>
+
+  <!-- W: tip(217,415), left-notch(406,459), right-notch(406,371)
+       Top face (shadow): dark navy; Bottom face (lit): orange -->
+  <polygon points="217,415  406,371  512,415" fill="#1C3D50"/>
+  <polygon points="217,415  406,459  512,415" fill="#E8711A"/>
+  <polygon points="217,415  406,371  512,415  406,459" fill="none" stroke="#1C3D50" stroke-width="9" stroke-linejoin="round"/>
+  <line x1="217" y1="415" x2="512" y2="415" stroke="#1C3D50" stroke-width="9"/>
+
+  <!--
+    3D Isometric Cube, centered at (512, 415)
+    In the original, the cube is large — roughly 240px wide and 250px tall.
+
+    Isometric cube vertices:
+      Top-center (topmost):    (512, 300)
+      Top-left:                (392, 368)
+      Top-right:               (632, 368)
+      Middle-center:           (512, 436)  <- bottom of top face / top of side faces
+      Bottom-left:             (392, 504)
+      Bottom-right:            (632, 504)
+      Bottom-center:           (512, 572)
+
+    Top face:    top-center, top-right, middle-center, top-left
+    Left face:   top-left, middle-center, bottom-center, bottom-left
+    Right face:  top-right, middle-center, bottom-center, bottom-right
+  -->
+
+  <!-- Cube - Top face (bright yellow-orange) -->
+  <polygon
+    points="512,300  632,368  512,436  392,368"
+    fill="url(#cubeTop)"
+    stroke="#1C3D50" stroke-width="10" stroke-linejoin="round"
+  />
+  <!-- Cube - Left face (orange) -->
+  <polygon
+    points="392,368  512,436  512,572  392,504"
+    fill="url(#cubeLeft)"
+    stroke="#1C3D50" stroke-width="10" stroke-linejoin="round"
+  />
+  <!-- Cube - Right face (dark orange) -->
+  <polygon
+    points="632,368  512,436  512,572  632,504"
+    fill="url(#cubeRight)"
+    stroke="#1C3D50" stroke-width="10" stroke-linejoin="round"
+  />
+
+  </g>
+
+  <!-- Text group -->
+  <!-- MATH -->
+  <text
+    x="512"
+    y="820"
+    font-family="'Arial Black', 'Franklin Gothic Heavy', 'Impact', sans-serif"
+    font-weight="900"
+    font-size="155"
+    letter-spacing="4"
+    text-anchor="middle"
+    fill="#1C3D50"
+  >MATH</text>
+
+  <!-- EXPLORERS -->
+  <text
+    x="512"
+    y="965"
+    font-family="'Arial Black', 'Franklin Gothic Heavy', 'Impact', sans-serif"
+    font-weight="900"
+    font-size="117"
+    letter-spacing="2"
+    text-anchor="middle"
+    fill="#1C3D50"
+  >EXPLORERS</text>
+</svg>
