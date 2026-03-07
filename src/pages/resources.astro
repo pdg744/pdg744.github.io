@@ -1,0 +1,197 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Resources — Math Explorers"
+  description="Curated math resources for parents, teachers, and math circle leaders — problems, activities, and guides for curiosity-driven math learning."
+>
+
+  <section class="page-hero">
+    <div class="inner">
+      <span class="section-label">Resources</span>
+      <h1>Good math is everywhere.</h1>
+      <p>
+        A curated set of places and guides we trust for curious, low-floor, high-ceiling math — 
+        the kind that's good for a classroom, a math circle, or a kitchen table.
+      </p>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="inner">
+      <h2>External resources we love</h2>
+      <p>These sites are consistently excellent sources of rich mathematical experiences.</p>
+
+      <div class="resource-grid">
+        <a href="https://mathforlove.com" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-name">Math for Love <span class="ext-icon">↗</span></div>
+          <p>Games, lessons, and rich tasks that make math class the best part of the day. 
+          Includes award-winning games (Prime Climb, Tiny Polka Dot) and a play-based curriculum.</p>
+        </a>
+        <a href="https://openmiddle.com" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-name">Open Middle <span class="ext-icon">↗</span></div>
+          <p>Robert Kaplinsky's collection of challenging problems with "low floor, high ceiling" design —
+          accessible to beginners but rich enough for deep exploration. Organized by grade and standard.</p>
+        </a>
+        <a href="https://gfletchy.com" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-name">Graham Fletcher <span class="ext-icon">↗</span></div>
+          <p>3-Act Tasks and other resources that build conceptual understanding through engaging, 
+          real-world contexts. Great for sparking "I wonder..." conversations.</p>
+        </a>
+        <a href="https://mathcircles.org" target="_blank" rel="noopener" class="resource-card">
+          <div class="resource-name">National Assoc. of Math Circles <span class="ext-icon">↗</span></div>
+          <p>The go-to hub for Math Circle resources — a map of existing circles nationwide, 
+          curriculum materials, and a community of leaders.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-section alt">
+    <div class="inner">
+      <h2>Parent guides</h2>
+      <p>Practical guides for supporting mathematical curiosity at home — no special background required.</p>
+
+      <div class="guide-list">
+        <a href="/guide-math-rich-environment" class="guide-card">
+          <div class="guide-icon">🏠</div>
+          <div>
+            <h3>Creating a Math-Rich Environment</h3>
+            <p>How to shape your home so that mathematical thinking happens naturally — in conversations, games, and everyday routines.</p>
+          </div>
+          <span class="guide-arrow">→</span>
+        </a>
+        <a href="/guide-mathematical-curiosity" class="guide-card">
+          <div class="guide-icon">🔍</div>
+          <div>
+            <h3>Supporting Mathematical Curiosity</h3>
+            <p>How to respond when your child asks a math question — and how to ask questions that open things up rather than shut them down.</p>
+          </div>
+          <span class="guide-arrow">→</span>
+        </a>
+        <a href="/guide-math-circle-at-home" class="guide-card">
+          <div class="guide-icon">⭕</div>
+          <div>
+            <h3>Math Circle at Home</h3>
+            <p>A practical guide to running a family math circle — from choosing problems to keeping the conversation going.</p>
+          </div>
+          <span class="guide-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="inner">
+      <h2>Math Explorers' own resources</h2>
+      <div class="own-grid single">
+        <div class="own-card coming-soon">
+          <div class="own-icon">📱</div>
+          <h3>Interactive Explorations <span class="badge">Coming soon</span></h3>
+          <p>Our interactive app brings math explorations to life — animated, tactile, and designed to make the mathematics visible.</p>
+          <a href="/#notify" class="link-label">Get notified →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, #1f5c5a 0%, #2b7a78 100%);
+    color: #fff;
+    padding: 4rem 1.5rem;
+  }
+  .page-hero .inner h1 { color: #fff; font-size: clamp(1.75rem, 3vw, 2.5rem); margin-bottom: 1rem; }
+  .page-hero .section-label { color: rgba(255,255,255,0.65); }
+  .page-hero .inner p { color: rgba(255,255,255,0.85); font-size: 1.125rem; max-width: 640px; line-height: 1.75; margin: 0; }
+
+  .content-section { padding: 4rem 0; }
+  .content-section.alt { background: var(--bg-alt); }
+  .inner { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; }
+  .inner h2 { font-size: clamp(1.375rem, 2.2vw, 1.75rem); margin-bottom: 0.75rem; }
+  .inner > p { font-size: 1.0625rem; color: var(--text-muted); max-width: 680px; line-height: 1.75; margin-bottom: 1.5rem; }
+
+  /* External resource cards */
+  .resource-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  .resource-card {
+    display: block;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-decoration: none;
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .resource-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--teal); }
+  .resource-name { font-size: 1.0625rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text); }
+  .ext-icon { color: var(--teal); font-size: 0.875rem; }
+  .resource-card p { font-size: 0.9375rem; color: var(--text-muted); line-height: 1.65; margin: 0; }
+
+  /* Guide list */
+  .guide-list { display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem; }
+  .guide-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    text-decoration: none;
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .guide-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .guide-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .guide-card h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+  .guide-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0; }
+  .guide-arrow { margin-left: auto; font-size: 1.125rem; color: var(--teal); flex-shrink: 0; }
+
+  /* Own resources */
+  .own-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-top: 1rem; }
+  .own-grid.single { grid-template-columns: minmax(0, 480px); }
+  .own-card {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    text-decoration: none;
+    color: var(--text);
+    display: block;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  a.own-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .own-card.coming-soon { cursor: default; }
+  .own-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
+  .own-card h3 { font-size: 1.0625rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .own-card p { font-size: 0.9375rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 1rem; }
+  .link-label { font-size: 0.9375rem; font-weight: 600; color: var(--teal); text-decoration: none; }
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: var(--teal-light);
+    color: var(--teal);
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+  }
+
+  @media (max-width: 720px) {
+    .resource-grid { grid-template-columns: 1fr; }
+    .own-grid { grid-template-columns: 1fr; }
+    .guide-card { align-items: flex-start; }
+    .guide-arrow { display: none; }
+  }
+</style>

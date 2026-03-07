@@ -1,0 +1,309 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = 'Interactive math explorations for students, parents, and educators. Discover the joy of mathematics through curiosity and play.',
+  ogImage = '/images/math-explorers-logo-social.png',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={new URL(ogImage, Astro.site).toString()} />
+    <meta property="og:url" content={canonicalURL.toString()} />
+    <link rel="canonical" href={canonicalURL.toString()} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header class="site-header">
+      <nav class="nav" aria-label="Main navigation">
+        <a href="/" class="nav-logo" aria-label="Math Explorers — home">
+          <img src="/math-explorers-logo.png" alt="Math Explorers" height="48" />
+        </a>
+
+        <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu">
+          <span></span><span></span><span></span>
+        </button>
+
+        <ul class="nav-links" id="nav-menu" role="list">
+          <li><a href="/about">About</a></li>
+          <li><a href="/math-circles">Math Circles</a></li>
+          <li><a href="/resources">Resources</a></li>
+          <li><a href="/#notify" class="nav-cta">Get Notified</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <a href="/" class="footer-logo" aria-label="Math Explorers — home">
+          <img src="/math-explorers-logo.png" alt="Math Explorers" height="52" />
+        </a>
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <a href="/about">About</a>
+          <a href="/math-circles">Math Circles</a>
+          <a href="/resources">Resources</a>
+        </nav>
+        <p class="footer-copy">&copy; {new Date().getFullYear()} Math Explorers</p>
+      </div>
+    </footer>
+
+    <script>
+      const toggle = document.querySelector('.nav-toggle') as HTMLButtonElement;
+      const menu = document.querySelector('.nav-links') as HTMLElement;
+      toggle?.addEventListener('click', () => {
+        const open = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!open));
+        menu.classList.toggle('is-open', !open);
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  /* ── Design tokens ───────────────────────────────────────────── */
+  :root {
+    --teal:       #2b7a78;
+    --teal-dark:  #1f5c5a;
+    --teal-light: #e8f4f4;
+    --amber:      #e88d2a;
+    --amber-dark: #c97820;
+    --text:       #1a3a3a;
+    --text-muted: #4a6060;
+    --bg:         #ffffff;
+    --bg-alt:     #f7fafa;
+    --border:     rgba(26,58,58,0.1);
+    --radius:     12px;
+    --radius-lg:  20px;
+    --shadow-sm:  0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:  0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+    --shadow-lg:  0 8px 24px rgba(0,0,0,0.1);
+    --transition: 0.2s ease;
+    --max-w:      1140px;
+  }
+
+  /* ── Reset ───────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  img, svg { display: block; max-width: 100%; }
+  a { color: inherit; }
+
+  /* ── Base ────────────────────────────────────────────────────── */
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* ── Skip link ───────────────────────────────────────────────── */
+  .skip-link {
+    position: absolute;
+    top: -100%;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--teal);
+    color: #fff;
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 9999;
+    transition: top var(--transition);
+  }
+  .skip-link:focus { top: 1rem; }
+
+  /* ── Header / Nav ────────────────────────────────────────────── */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .nav-logo img { height: 48px; width: auto; }
+  .nav-logo:hover img { opacity: 0.85; }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin-left: auto;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: color var(--transition), background var(--transition);
+  }
+  .nav-links a:hover { color: var(--teal); background: var(--teal-light); }
+
+  .nav-links .nav-cta {
+    background: var(--teal);
+    color: #fff !important;
+    padding: 0.4rem 1rem;
+  }
+  .nav-links .nav-cta:hover { background: var(--teal-dark); }
+
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    margin-left: auto;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: var(--transition);
+  }
+
+  /* ── Footer ──────────────────────────────────────────────────── */
+  .site-footer {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 1.5rem;
+    margin-top: 4rem;
+  }
+  .footer-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .footer-logo img { height: 52px; opacity: 0.85; }
+  .footer-logo:hover img { opacity: 1; }
+  .footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-left: auto;
+  }
+  .footer-nav a {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: color var(--transition);
+  }
+  .footer-nav a:hover { color: var(--teal); }
+  .footer-copy {
+    width: 100%;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  /* ── Utilities ───────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+    cursor: pointer;
+    border: none;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .btn-primary { background: var(--amber); color: #fff; box-shadow: var(--shadow-sm); }
+  .btn-primary:hover { background: var(--amber-dark); }
+  .btn-outline { background: transparent; color: var(--teal); border: 2px solid var(--teal); }
+  .btn-outline:hover { background: var(--teal); color: #fff; }
+  .btn-teal { background: var(--teal); color: #fff; box-shadow: var(--shadow-sm); }
+  .btn-teal:hover { background: var(--teal-dark); }
+
+  .section-label {
+    display: inline-block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── Mobile nav ──────────────────────────────────────────────── */
+  @media (max-width: 720px) {
+    .nav-toggle { display: flex; }
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      flex-direction: column;
+      gap: 0.25rem;
+      padding: 1rem;
+      box-shadow: var(--shadow-md);
+    }
+    .nav-links.is-open { display: flex; }
+    .nav-links a { font-size: 1rem; }
+    .footer-nav { margin-left: 0; }
+    .footer-copy { text-align: left; }
+  }
+</style>

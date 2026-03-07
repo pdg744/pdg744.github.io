@@ -1,0 +1,154 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="About — Math Explorers"
+  description="Math Explorers helps students, parents, and educators discover the joy of mathematics through curiosity-driven interactive explorations."
+>
+
+  <section class="page-hero">
+    <div class="inner">
+      <span class="section-label">About</span>
+      <h1>Math worth wondering about.</h1>
+      <p>
+        Math Explorers started from a simple belief: when people are given the space to explore 
+        mathematical ideas through genuine curiosity, they develop a deep and lasting relationship with the subject.
+      </p>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="inner">
+      <h2>Our approach</h2>
+      <p>
+        Most math education is built around answers. We're interested in questions. 
+        The kind of questions where a student says "wait — does that <em>always</em> work?" 
+        and genuinely doesn't know the answer yet.
+      </p>
+      <p>
+        Each Math Explorers activity starts with something hands-on and accessible — 
+        something you can try in the first minute — and opens into mathematics that's 
+        surprisingly rich. The goal isn't to cover curriculum. It's to develop the habit 
+        of mathematical curiosity.
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3>Curiosity first</h3>
+          <p>We start with what's interesting, not what's required. Good questions come before procedures.</p>
+        </div>
+        <div class="card">
+          <h3>Low floor, high ceiling</h3>
+          <p>Every activity is designed to be approachable by beginners and deep enough to challenge experts.</p>
+        </div>
+        <div class="card">
+          <h3>Built for real contexts</h3>
+          <p>Classroom warm-ups, math circles, family game nights — our activities work in the spaces where people actually gather.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-section alt">
+    <div class="inner">
+      <h2>Who it's for</h2>
+      <p>Math Explorers is designed for three overlapping audiences:</p>
+
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-icon">🏫</div>
+          <h3>Teachers</h3>
+          <p>
+            Drop-in activities that work as warm-ups, extension tasks, or full lessons. 
+            No special prep required — just a projector and a curious class.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-icon">⭕</div>
+          <h3>Math Circle Leaders</h3>
+          <p>
+            Self-contained explorations with enough mathematical depth to anchor a full session, 
+            plus natural follow-up questions to keep things going.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-icon">👨‍👩‍👧</div>
+          <h3>Parents & Students</h3>
+          <p>
+            Self-guided activities that work alone, with a sibling, or as a family. 
+            No prior knowledge needed — just a willingness to try things and see what happens.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="inner">
+      <h2>The app is coming.</h2>
+      <p>
+        We're building an interactive tool that brings these explorations to life — 
+        animated, tactile, and designed to make the mathematics visible. 
+        Be first to know when it launches.
+      </p>
+      <a href="/#notify" class="btn btn-primary">Get notified</a>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, #1f5c5a 0%, #2b7a78 100%);
+    color: #fff;
+    padding: 4rem 1.5rem;
+  }
+  .page-hero .inner h1 { color: #fff; font-size: clamp(1.75rem, 3vw, 2.5rem); margin-bottom: 1rem; }
+  .page-hero .section-label { color: rgba(255,255,255,0.65); }
+  .page-hero .inner p { color: rgba(255,255,255,0.85); font-size: 1.125rem; max-width: 640px; line-height: 1.75; margin: 0; }
+
+  .content-section { padding: 4rem 0; }
+  .content-section.alt { background: var(--bg-alt); }
+
+  .inner { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; }
+  .inner h2 { font-size: clamp(1.375rem, 2.2vw, 1.75rem); margin-bottom: 1rem; }
+  .inner > p {
+    font-size: 1.0625rem;
+    color: var(--text-muted);
+    max-width: 680px;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .content-section.alt .card { background: var(--bg); }
+  .card-icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  .card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+  .card p { font-size: 0.9375rem; color: var(--text-muted); line-height: 1.65; margin: 0; }
+
+  .cta-band {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+    padding: 4rem 1.5rem;
+    text-align: center;
+  }
+  .cta-band h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); margin-bottom: 0.75rem; }
+  .cta-band p { font-size: 1.0625rem; color: var(--text-muted); max-width: 560px; margin: 0 auto 1.75rem; line-height: 1.7; }
+
+  @media (max-width: 720px) {
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>

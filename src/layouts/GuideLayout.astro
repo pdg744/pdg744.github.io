@@ -1,0 +1,87 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  label: string;
+  headline: string;
+  intro: string;
+}
+
+const { title, description, label, headline, intro } = Astro.props;
+---
+
+<Layout title={`${title} — Math Explorers`} description={description}>
+  <section class="page-hero">
+    <div class="inner">
+      <a href="/resources" class="back-link">← Resources</a>
+      <span class="section-label">{label}</span>
+      <h1>{headline}</h1>
+      <p>{intro}</p>
+    </div>
+  </section>
+
+  <article class="guide-body">
+    <div class="inner">
+      <slot />
+      <div class="guide-footer">
+        <a href="/resources" class="btn btn-outline">← Back to Resources</a>
+      </div>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, #1f5c5a 0%, #2b7a78 100%);
+    color: #fff;
+    padding: 3.5rem 1.5rem 3rem;
+  }
+  .back-link {
+    display: inline-block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.65);
+    text-decoration: none;
+    margin-bottom: 1rem;
+    transition: color 0.2s ease;
+  }
+  .back-link:hover { color: #fff; }
+  .page-hero .section-label { color: rgba(255,255,255,0.65); }
+  .page-hero h1 { color: #fff; font-size: clamp(1.75rem, 3vw, 2.5rem); margin-bottom: 0.75rem; }
+  .page-hero p { color: rgba(255,255,255,0.85); font-size: 1.0625rem; max-width: 600px; line-height: 1.7; margin: 0; }
+
+  .guide-body { padding: 3.5rem 0 4rem; }
+  .inner { max-width: 740px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* Prose styles for guide content */
+  .guide-body :global(h2) {
+    font-size: 1.25rem;
+    color: var(--text);
+    margin: 2.5rem 0 0.75rem;
+  }
+  .guide-body :global(h2:first-child) { margin-top: 0; }
+  .guide-body :global(p) {
+    font-size: 1.0625rem;
+    color: var(--text-muted);
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .guide-body :global(ul), .guide-body :global(ol) {
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .guide-body :global(li) {
+    font-size: 1.0625rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+  .guide-body :global(strong) { color: var(--text); font-weight: 600; }
+  .guide-body :global(a) { color: var(--teal); text-underline-offset: 3px; }
+
+  .guide-footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+</style>

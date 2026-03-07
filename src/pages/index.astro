@@ -1,0 +1,291 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Math Explorers — Interactive Math for Students, Parents & Educators">
+
+  <!-- ── Hero ──────────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <span class="section-label">Math Explorers</span>
+        <h1>Math that makes you stop and wonder.</h1>
+        <p class="hero-sub">
+          Interactive explorations for curious students, math circle leaders, and educators
+          who believe math should feel like discovery — not drill.
+        </p>
+        <div class="hero-actions">
+          <a href="#notify" class="btn btn-primary">Get Early Access</a>
+          <a href="/about" class="btn btn-outline">Learn more</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="app-preview">
+          <div class="app-preview-label">Diffy Squares</div>
+          <svg viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="diffy-svg">
+            <!-- Outer square -->
+            <rect x="20" y="20" width="240" height="240" rx="4" stroke="#2b7a78" stroke-width="2.5" fill="none"/>
+            <!-- Rotated square gen 1 -->
+            <polygon points="140,20 260,140 140,260 20,140" stroke="#e88d2a" stroke-width="2.5" fill="none"/>
+            <!-- Rotated square gen 2 -->
+            <polygon points="200,80 200,200 80,200 80,80" stroke="#7c6cd4" stroke-width="2.5" fill="none"/>
+            <!-- Rotated square gen 3 -->
+            <polygon points="140,80 200,140 140,200 80,140" stroke="#3aafaa" stroke-width="2.5" fill="none"/>
+            <!-- Corner labels -->
+            <circle cx="20" cy="20" r="14" fill="#2b7a78"/>
+            <text x="20" y="25" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="white">7</text>
+            <circle cx="260" cy="20" r="14" fill="#2b7a78"/>
+            <text x="260" y="25" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="white">3</text>
+            <circle cx="260" cy="260" r="14" fill="#2b7a78"/>
+            <text x="260" y="265" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="white">5</text>
+            <circle cx="20" cy="260" r="14" fill="#2b7a78"/>
+            <text x="20" y="265" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="white">1</text>
+            <!-- Midpoint labels gen 1 -->
+            <circle cx="140" cy="20" r="12" fill="#e88d2a"/>
+            <text x="140" y="25" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="white">4</text>
+            <circle cx="260" cy="140" r="12" fill="#e88d2a"/>
+            <text x="260" y="145" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="white">2</text>
+            <circle cx="140" cy="260" r="12" fill="#e88d2a"/>
+            <text x="140" y="265" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="white">4</text>
+            <circle cx="20" cy="140" r="12" fill="#e88d2a"/>
+            <text x="20" y="145" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="600" fill="white">6</text>
+          </svg>
+          <p class="app-preview-caption">Does it always reach zero?</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── What it is ─────────────────────────────────────────────── -->
+  <section class="what-section">
+    <div class="inner">
+      <span class="section-label">What is Math Explorers?</span>
+      <h2>Hands-on activities built around genuine mathematical curiosity.</h2>
+      <p>
+        Each exploration starts with a simple question — one that's easy to ask and surprisingly deep to investigate.
+        No worksheets. No right-answer pressure. Just math worth thinking about.
+      </p>
+      <div class="audience-grid">
+        <div class="audience-card">
+          <div class="audience-icon">🏫</div>
+          <h3>Teachers</h3>
+          <p>Drop-in activities that spark discussion and support the "what do you notice?" habit.</p>
+        </div>
+        <div class="audience-card">
+          <div class="audience-icon">⭕</div>
+          <h3>Math Circle Leaders</h3>
+          <p>Ready-to-run explorations with enough depth for a full session and a follow-up.</p>
+        </div>
+        <div class="audience-card">
+          <div class="audience-icon">👨‍👩‍👧</div>
+          <h3>Parents & Students</h3>
+          <p>Self-guided and satisfying — play alone, with a sibling, or as a family.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── App teaser ─────────────────────────────────────────────── -->
+  <section class="teaser-section">
+    <div class="inner">
+      <span class="section-label">Coming Soon</span>
+      <h2>Diffy Squares is just the beginning.</h2>
+      <p>
+        Our first interactive exploration is Diffy Squares — place four numbers at the corners of a square, 
+        fill in the differences, and repeat. It always reaches zero. But why?
+      </p>
+      <p>
+        More topics are on the way: visual proofs, pattern hunts, number puzzles with surprising
+        properties. Each one designed for the moment when a student asks <em>"wait — does that always work?"</em>
+      </p>
+      <a href="#notify" class="btn btn-teal">Get notified when it launches →</a>
+    </div>
+  </section>
+
+  <!-- ── Email capture ──────────────────────────────────────────── -->
+  <section class="notify-section" id="notify">
+    <div class="inner notify-inner">
+      <div class="notify-text">
+        <span class="section-label">Stay in the loop</span>
+        <h2>Be first to explore new topics.</h2>
+        <p>
+          The app is in development. Drop your email and we'll reach out when it's ready to use — 
+          and when new explorations launch.
+        </p>
+      </div>
+      <form
+        class="notify-form"
+        action="https://buttondown.com/api/emails/embed-subscribe/mathexplorers"
+        method="post"
+        target="popupwindow"
+        onsubmit="window.open('https://buttondown.com/mathexplorers', 'popupwindow')"
+      >
+        <input type="hidden" value="1" name="embed" />
+        <div class="notify-inputs">
+          <input
+            type="email"
+            name="email"
+            id="notify-email"
+            placeholder="your@email.com"
+            required
+            aria-label="Email address"
+          />
+          <button type="submit" class="btn btn-primary">Notify me</button>
+        </div>
+        <p class="notify-fine">No spam, ever. Unsubscribe any time.</p>
+      </form>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  /* ── Hero ──────────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, #1f5c5a 0%, #2b7a78 100%);
+    color: #fff;
+    padding: 5rem 1.5rem 4rem;
+    overflow: hidden;
+  }
+  .hero-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .hero-text h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: #fff;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.03em;
+  }
+  .hero-text .section-label { color: rgba(255,255,255,0.7); }
+  .hero-sub {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.85);
+    max-width: 500px;
+    margin-bottom: 2rem;
+  }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .hero-actions .btn-outline { color: #fff; border-color: rgba(255,255,255,0.5); }
+  .hero-actions .btn-outline:hover { background: rgba(255,255,255,0.15); color: #fff; border-color: #fff; }
+
+  /* ── App preview card ──────────────────────────────────────── */
+  .app-preview {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    text-align: center;
+    backdrop-filter: blur(8px);
+  }
+  .app-preview-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 1.25rem;
+  }
+  .diffy-svg { width: 100%; max-width: 280px; margin: 0 auto; }
+  .app-preview-caption {
+    margin-top: 1.25rem;
+    font-size: 1rem;
+    font-style: italic;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* ── Shared inner ──────────────────────────────────────────── */
+  .inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  .inner h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); margin-bottom: 1rem; }
+  .inner p {
+    font-size: 1.0625rem;
+    color: var(--text-muted);
+    max-width: 680px;
+    margin-bottom: 1rem;
+    line-height: 1.75;
+  }
+
+  /* ── What section ──────────────────────────────────────────── */
+  .what-section { padding: 5rem 0; background: var(--bg-alt); }
+
+  .audience-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+  .audience-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .audience-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .audience-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
+  .audience-card h3 { font-size: 1.0625rem; margin-bottom: 0.5rem; }
+  .audience-card p { font-size: 0.9375rem; color: var(--text-muted); line-height: 1.6; margin: 0; }
+
+  /* ── Teaser section ────────────────────────────────────────── */
+  .teaser-section { padding: 5rem 0; }
+  .teaser-section .inner p { }
+  .teaser-section .btn { margin-top: 1.25rem; }
+
+  /* ── Email capture ─────────────────────────────────────────── */
+  .notify-section {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, #1f5c5a 0%, #2b7a78 100%);
+    color: #fff;
+  }
+  .notify-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .notify-text h2 { color: #fff; font-size: clamp(1.5rem, 2.5vw, 2rem); }
+  .notify-text .section-label { color: rgba(255,255,255,0.65); }
+  .notify-text p { color: rgba(255,255,255,0.8); margin: 0; }
+  .notify-form { display: flex; flex-direction: column; gap: 0.75rem; }
+  .notify-inputs { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .notify-inputs input[type="email"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-family: inherit;
+    border: none;
+    border-radius: 50px;
+    outline: none;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    transition: background var(--transition);
+  }
+  .notify-inputs input::placeholder { color: rgba(255,255,255,0.5); }
+  .notify-inputs input:focus { background: rgba(255,255,255,0.2); }
+  .notify-fine { font-size: 0.8125rem; color: rgba(255,255,255,0.5); }
+
+  /* ── Responsive ────────────────────────────────────────────── */
+  @media (max-width: 860px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+    .hero-visual { order: -1; max-width: 320px; margin: 0 auto; }
+    .audience-grid { grid-template-columns: 1fr; }
+    .notify-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .potd-inner { flex-direction: column; align-items: flex-start; }
+    .potd-badge { display: none; }
+  }
+  @media (max-width: 560px) {
+    .hero-actions { flex-direction: column; }
+    .notify-inputs { flex-direction: column; }
+    .notify-inputs input, .notify-inputs .btn { width: 100%; }
+  }
+</style>

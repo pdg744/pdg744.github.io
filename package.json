@@ -1,15 +1,21 @@
 {
   "name": "math-explorers",
+  "type": "module",
   "version": "1.0.0",
   "description": "Math Explorers website",
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
     "generate-pdf": "node generate-pdf.js"
   },
   "dependencies": {
+    "astro": "^5.17.1",
     "puppeteer": "^21.0.0",
     "sharp": "^0.32.1"
   }
-} 
+}

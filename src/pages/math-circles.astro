@@ -1,0 +1,204 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Math Circles — Math Explorers"
+  description="Math Circles are small groups that gather to explore mathematics together. Find one near you, or start your own."
+>
+
+  <section class="page-hero">
+    <div class="inner">
+      <span class="section-label">Math Circles</span>
+      <h1>Math as a shared adventure.</h1>
+      <p>
+        A Math Circle is a small group — students, parents, adults — that gathers regularly 
+        to explore mathematical ideas together. No curriculum, no tests. Just interesting problems 
+        and good conversation.
+      </p>
+      <div class="hero-actions">
+        <a href="https://mathcircles.org/map/" target="_blank" rel="noopener" class="btn btn-primary">Find a Math Circle near you ↗</a>
+        <a href="/math-circles#start" class="btn btn-outline-white">Start your own</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="inner">
+      <h2>What is a Math Circle?</h2>
+      <p>
+        Math Circles originated in Eastern Europe, where mathematicians gathered with students 
+        to explore problems for the sheer joy of it. The model has spread worldwide, and for good reason: 
+        it works. Participants develop deeper mathematical thinking, gain confidence, and — 
+        most importantly — come to see math as a creative, human endeavor.
+      </p>
+
+      <div class="card-grid">
+        <div class="card">
+          <h3>Small and personal</h3>
+          <p>Typically 8–20 participants. Everyone's voice gets heard. Mathematical ideas develop through conversation, not lecture.</p>
+        </div>
+        <div class="card">
+          <h3>Problem-centered</h3>
+          <p>One interesting problem can anchor an entire session. The goal is depth, not coverage.</p>
+        </div>
+        <div class="card">
+          <h3>Open to everyone</h3>
+          <p>Math Circles exist for every age and background. Many of the best ones mix ages and experience levels deliberately.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="content-section alt" id="start">
+    <div class="inner">
+      <h2>Starting your own Math Circle</h2>
+      <p>
+        You don't need a degree in mathematics or a formal curriculum. You need a few curious people, 
+        a good problem, and a commitment to showing up regularly. Here's what we've learned:
+      </p>
+
+      <ol class="steps">
+        <li>
+          <span class="step-num">1</span>
+          <div>
+            <h3>Find two or three other curious people</h3>
+            <p>A Math Circle doesn't need to be large to be good. Parents, colleagues, neighbors — start with whoever's nearby and interested.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <div>
+            <h3>Pick a problem, not a topic</h3>
+            <p>
+              A specific, hands-on problem is better than "let's talk about fractions." 
+              Our <a href="/resources">resources page</a> and 
+              <a href="/resources">resources page</a> are good starting points.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <div>
+            <h3>Commit to a regular time</h3>
+            <p>Once a week, once a month — consistency matters more than frequency. The community grows around the rhythm.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <div>
+            <h3>Embrace "I don't know yet"</h3>
+            <p>The facilitator doesn't need to have the answer. In fact, working through a problem alongside participants is often more powerful than demonstrating a solution.</p>
+          </div>
+        </li>
+      </ol>
+
+      <p style="margin-top: 2rem;">
+        The <a href="https://mathcircles.org" target="_blank" rel="noopener">National Association of Math Circles</a> 
+        has additional resources, a map of existing circles, and a community of leaders to connect with.
+      </p>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="inner">
+      <h2>Math Explorers for your Math Circle</h2>
+      <p>
+        Our interactive explorations are designed to work as Math Circle activities — 
+        self-contained, discussion-rich, and deep enough for a full session.
+        The app is coming soon.
+      </p>
+      <a href="/#notify" class="btn btn-primary">Get notified when it launches</a>
+    </div>
+  </section>
+
+</Layout>
+
+<style>
+  .page-hero {
+    background: linear-gradient(135deg, #1f5c5a 0%, #2b7a78 100%);
+    color: #fff;
+    padding: 4rem 1.5rem;
+  }
+  .page-hero .inner h1 { color: #fff; font-size: clamp(1.75rem, 3vw, 2.5rem); margin-bottom: 1rem; }
+  .page-hero .section-label { color: rgba(255,255,255,0.65); }
+  .page-hero .inner p { color: rgba(255,255,255,0.85); font-size: 1.125rem; max-width: 640px; line-height: 1.75; margin-bottom: 2rem; }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-outline-white { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.5); border-radius: 50px; padding: 0.75rem 1.75rem; font-size: 1rem; font-weight: 600; text-decoration: none; transition: 0.2s ease; }
+  .btn-outline-white:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+
+  .content-section { padding: 4rem 0; }
+  .content-section.alt { background: var(--bg-alt); }
+
+  .inner { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; }
+  .inner h2 { font-size: clamp(1.375rem, 2.2vw, 1.75rem); margin-bottom: 1rem; }
+  .inner > p {
+    font-size: 1.0625rem;
+    color: var(--text-muted);
+    max-width: 680px;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .inner a { color: var(--teal); text-underline-offset: 3px; }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .content-section.alt .card { background: var(--bg); }
+  .card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+  .card p { font-size: 0.9375rem; color: var(--text-muted); line-height: 1.65; margin: 0; }
+
+  .steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .steps li {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    background: var(--teal);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin-top: 0.125rem;
+  }
+  .steps h3 { font-size: 1rem; margin-bottom: 0.35rem; }
+  .steps p { font-size: 0.9375rem; color: var(--text-muted); line-height: 1.65; margin: 0; }
+  .steps a { color: var(--teal); }
+
+  .cta-band {
+    background: var(--bg-alt);
+    border-top: 1px solid var(--border);
+    padding: 4rem 1.5rem;
+    text-align: center;
+  }
+  .cta-band h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); margin-bottom: 0.75rem; }
+  .cta-band p { font-size: 1.0625rem; color: var(--text-muted); max-width: 540px; margin: 0 auto 1.75rem; line-height: 1.7; }
+
+  @media (max-width: 720px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .hero-actions { flex-direction: column; }
+  }
+</style>
