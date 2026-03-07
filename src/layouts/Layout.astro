@@ -88,11 +88,38 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <style is:global>
   /* ── Design tokens ───────────────────────────────────────────── */
   :root {
-    --teal:       #2b7a78;
-    --teal-dark:  #1f5c5a;
-    --teal-light: #e8f4f4;
-    --amber:      #e88d2a;
-    --amber-dark: #c97820;
+    /* Brand colors */
+    --teal:         #4AADA0;
+    --teal-dark:    #2E6B7A;
+    --teal-light:   #7ECEC8;
+    --amber:        #E8711A;
+    --amber-dark:   #D05510;
+    --gold:         #F5C030;
+    --navy:         #0D1F2D;
+
+    /* RGB channel splits (for rgba() composition) */
+    --navy-rgb:     13, 31, 45;
+    --teal-rgb:     74, 173, 160;
+    --white-rgb:    255, 255, 255;
+
+    /* Derived alpha variants */
+    --navy-95:      rgba(var(--navy-rgb), 0.95);
+    --navy-97:      rgba(var(--navy-rgb), 0.97);
+    --navy-98:      rgba(var(--navy-rgb), 0.98);
+    --navy-border:  rgba(var(--teal-rgb), 0.2);
+    --teal-hover-bg: rgba(var(--teal-rgb), 0.1);
+    --white-30:     rgba(var(--white-rgb), 0.3);
+    --white-50:     rgba(var(--white-rgb), 0.5);
+    --white-60:     rgba(var(--white-rgb), 0.6);
+    --white-65:     rgba(var(--white-rgb), 0.65);
+    --white-70:     rgba(var(--white-rgb), 0.7);
+    --white-80:     rgba(var(--white-rgb), 0.8);
+    --white-85:     rgba(var(--white-rgb), 0.85);
+
+    /* Hero gradient (shared across all page heroes) */
+    --hero-gradient: linear-gradient(135deg, var(--navy) 0%, var(--teal-dark) 100%);
+
+    /* Content palette */
     --text:       #1a3a3a;
     --text-muted: #4a6060;
     --bg:         #ffffff;
@@ -151,9 +178,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(255,255,255,0.95);
+    background: var(--navy-97);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--navy-border);
   }
 
   .nav {
@@ -181,19 +208,19 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     padding: 0.4rem 0.75rem;
     font-size: 0.9375rem;
     font-weight: 500;
-    color: var(--text-muted);
+    color: var(--white-70);
     text-decoration: none;
     border-radius: 8px;
     transition: color var(--transition), background var(--transition);
   }
-  .nav-links a:hover { color: var(--teal); background: var(--teal-light); }
+  .nav-links a:hover { color: var(--teal); background: var(--teal-hover-bg); }
 
   .nav-links .nav-cta {
-    background: var(--teal);
+    background: var(--amber);
     color: #fff !important;
     padding: 0.4rem 1rem;
   }
-  .nav-links .nav-cta:hover { background: var(--teal-dark); }
+  .nav-links .nav-cta:hover { background: var(--amber-dark); }
 
   .nav-toggle {
     display: none;
@@ -209,15 +236,15 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     display: block;
     width: 22px;
     height: 2px;
-    background: var(--text);
+    background: var(--white-80);
     border-radius: 2px;
     transition: var(--transition);
   }
 
   /* ── Footer ──────────────────────────────────────────────────── */
   .site-footer {
-    background: var(--bg-alt);
-    border-top: 1px solid var(--border);
+    background: var(--navy);
+    border-top: 1px solid var(--navy-border);
     padding: 2.5rem 1.5rem;
     margin-top: 4rem;
   }
@@ -229,8 +256,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     align-items: center;
     gap: 1.5rem;
   }
-  .footer-logo img { height: 52px; opacity: 0.85; }
-  .footer-logo:hover img { opacity: 1; }
+  .footer-logo img { height: 52px; opacity: 1; }
+  .footer-logo:hover img { opacity: 0.85; }
   .footer-nav {
     display: flex;
     flex-wrap: wrap;
@@ -240,7 +267,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   .footer-nav a {
     padding: 0.3rem 0.6rem;
     font-size: 0.875rem;
-    color: var(--text-muted);
+    color: var(--white-50);
     text-decoration: none;
     border-radius: 6px;
     transition: color var(--transition);
@@ -249,7 +276,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   .footer-copy {
     width: 100%;
     font-size: 0.8125rem;
-    color: var(--text-muted);
+    color: var(--white-30);
     text-align: right;
   }
 
@@ -294,8 +321,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       top: 100%;
       left: 0;
       right: 0;
-      background: #fff;
-      border-bottom: 1px solid var(--border);
+      background: var(--navy-98);
+      border-bottom: 1px solid var(--navy-border);
       flex-direction: column;
       gap: 0.25rem;
       padding: 1rem;

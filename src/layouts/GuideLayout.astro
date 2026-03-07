@@ -34,7 +34,7 @@ const { title, description, label, headline, intro } = Astro.props;
 
 <style>
   .page-hero {
-    background: linear-gradient(135deg, #1f5c5a 0%, #2b7a78 100%);
+    background: var(--hero-gradient);
     color: #fff;
     padding: 3.5rem 1.5rem 3rem;
   }
@@ -42,15 +42,15 @@ const { title, description, label, headline, intro } = Astro.props;
     display: inline-block;
     font-size: 0.875rem;
     font-weight: 500;
-    color: rgba(255,255,255,0.65);
+    color: rgba(var(--white-rgb), 0.65);
     text-decoration: none;
     margin-bottom: 1rem;
     transition: color 0.2s ease;
   }
   .back-link:hover { color: #fff; }
-  .page-hero .section-label { color: rgba(255,255,255,0.65); }
+  .page-hero .section-label { color: var(--white-65); }
   .page-hero h1 { color: #fff; font-size: clamp(1.75rem, 3vw, 2.5rem); margin-bottom: 0.75rem; }
-  .page-hero p { color: rgba(255,255,255,0.85); font-size: 1.0625rem; max-width: 600px; line-height: 1.7; margin: 0; }
+  .page-hero p { color: var(--white-85); font-size: 1.0625rem; max-width: 600px; line-height: 1.7; margin: 0; }
 
   .guide-body { padding: 3.5rem 0 4rem; }
   .inner { max-width: 740px; margin: 0 auto; padding: 0 1.5rem; }

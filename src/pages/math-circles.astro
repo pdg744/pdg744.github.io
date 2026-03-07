@@ -116,16 +116,16 @@ import Layout from '../layouts/Layout.astro';
 
 <style>
   .page-hero {
-    background: linear-gradient(135deg, #1f5c5a 0%, #2b7a78 100%);
+    background: var(--hero-gradient);
     color: #fff;
     padding: 4rem 1.5rem;
   }
   .page-hero .inner h1 { color: #fff; font-size: clamp(1.75rem, 3vw, 2.5rem); margin-bottom: 1rem; }
-  .page-hero .section-label { color: rgba(255,255,255,0.65); }
-  .page-hero .inner p { color: rgba(255,255,255,0.85); font-size: 1.125rem; max-width: 640px; line-height: 1.75; margin-bottom: 2rem; }
+  .page-hero .section-label { color: var(--white-65); }
+  .page-hero .inner p { color: var(--white-85); font-size: 1.125rem; max-width: 640px; line-height: 1.75; margin-bottom: 2rem; }
   .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
-  .btn-outline-white { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.5); border-radius: 50px; padding: 0.75rem 1.75rem; font-size: 1rem; font-weight: 600; text-decoration: none; transition: 0.2s ease; }
-  .btn-outline-white:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+  .btn-outline-white { background: transparent; color: #fff; border: 2px solid var(--white-50); border-radius: 50px; padding: 0.75rem 1.75rem; font-size: 1rem; font-weight: 600; text-decoration: none; transition: 0.2s ease; }
+  .btn-outline-white:hover { border-color: #fff; background: rgba(var(--white-rgb), 0.1); }
 
   .content-section { padding: 4rem 0; }
   .content-section.alt { background: var(--bg-alt); }

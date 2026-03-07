@@ -100,13 +100,13 @@ import Layout from '../layouts/Layout.astro';
 
 <style>
   .page-hero {
-    background: linear-gradient(135deg, #1f5c5a 0%, #2b7a78 100%);
+    background: var(--hero-gradient);
     color: #fff;
     padding: 4rem 1.5rem;
   }
   .page-hero .inner h1 { color: #fff; font-size: clamp(1.75rem, 3vw, 2.5rem); margin-bottom: 1rem; }
-  .page-hero .section-label { color: rgba(255,255,255,0.65); }
-  .page-hero .inner p { color: rgba(255,255,255,0.85); font-size: 1.125rem; max-width: 640px; line-height: 1.75; margin: 0; }
+  .page-hero .section-label { color: var(--white-65); }
+  .page-hero .inner p { color: var(--white-85); font-size: 1.125rem; max-width: 640px; line-height: 1.75; margin: 0; }
 
   .content-section { padding: 4rem 0; }
   .content-section.alt { background: var(--bg-alt); }
