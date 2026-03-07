@@ -3,8 +3,6 @@
   <head>
     <meta charset="utf-8" />
     <script>
-      // Redirect SPA deep links back to index.html, preserving the path
-      // as a query param that index.html can restore.
       var seg = window.location.pathname.replace(/^\/app/, '') || '/';
       window.location.replace(
         window.location.origin + '/app/?path=' + encodeURIComponent(seg) +
