@@ -57,9 +57,11 @@ The shared `utils/progressStorage.js` adapter stores versioned snapshots under `
 
 This MVP uses browser localStorage, without accounts or cross-device sync. Clearing site data removes progress. If storage is blocked or full, play continues with a memory fallback, but refresh recovery is unavailable. Native exports also use memory only; durable native persistence is outside this MVP.
 
-## Publishing later
+## Publishing
 
-The current website still uses the old `../public/app/` export. Builds here write only to `dist/`; they do not update the site. When a reviewed release is ready, copy the fresh export to `../public/app/` while preserving the existing GitHub Pages `404.html` fallback. Do not delete the recovery baseline. Deploy through the website's existing process.
+Run `npm run build:web --prefix recovered-app` from the repository root, then `node recovered-app/scripts/publish-web.mjs`. The staging script copies the export into `public/app/` and creates entry documents for each activity and the topics page so direct links and refreshes work on GitHub Pages. Older hashed assets and the existing 404 fallback are retained. The recovery baseline remains untouched.
+
+Commit and push the staged files to `main`. The existing GitHub Pages workflow builds the Astro website and deploys it, including the app.
 
 ## Verified September 18, 2026
 
