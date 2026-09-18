@@ -17,6 +17,7 @@ export function emptyFactorProgress() {
     savedPairs: {},
     factorInput: "",
     pairedInput: "",
+    entryOpen: true,
     sum: "",
     connections: [],
     latest: null,
@@ -71,6 +72,8 @@ export function validateFactorProgress(value) {
     !draft(value.sum, SUM_DIGITS)
   )
     return null;
+  if (value.entryOpen !== undefined && typeof value.entryOpen !== "boolean")
+    return null;
   if (!record(value.savedFactors) || !record(value.savedPairs)) return null;
   const keys = Object.keys(value.savedPairs);
   if (
@@ -118,6 +121,11 @@ export function validateFactorProgress(value) {
   const restored = Object.fromEntries(
     Object.keys(emptyFactorProgress()).map((key) => [key, value[key]]),
   );
+  restored.entryOpen =
+    value.entryOpen ??
+    (value.pairs.length === 0 || !!value.factorInput || !!value.pairedInput);
+  if (!value.pairs.length || value.factorInput || value.pairedInput)
+    restored.entryOpen = true;
   // Migrate the brief version that allowed exploring 1, preserving other work.
   restored.connections = restored.connections.filter((edge) => edge.from !== 1);
   restored.savedFactors = { ...restored.savedFactors };
@@ -127,6 +135,7 @@ export function validateFactorProgress(value) {
   if (restored.latest?.from === 1) restored.latest = null;
   if (restored.chosen === 1) {
     Object.assign(restored, {
+      entryOpen: true,
       phase: "choose",
       chosen: null,
       selected: [],

@@ -24,6 +24,10 @@ const measure = (node) =>
 
 export default function FactorEntry({
   circleSize,
+  entryOpen,
+  onAddAnother,
+  onFinishFactors,
+  onCancelEntry,
   factors,
   pairs,
   onRemovePair,
@@ -49,7 +53,7 @@ export default function FactorEntry({
   const secondInput = useRef(null);
   const sumInput = useRef(null);
   const previousMode = useRef(summing);
-  const previousCount = useRef(factors.length);
+  const addAnother = useRef(null);
   const transition = useRef(new Animated.Value(summing ? 1 : 0)).current;
   const [sprites, setSprites] = useState([]);
   const [atSum, setAtSum] = useState(summing);
@@ -97,7 +101,7 @@ export default function FactorEntry({
     previousMode.current = summing;
     let cancelled = false;
     let animation;
-    // Both layouts remain mounted, so source positions are exactly those shown before Next.
+    // Both pair and sum layouts remain mounted for measured transitions.
     const frame = requestAnimationFrame(async () => {
       const origin = await measure(root.current);
       const clip = await measure(pairViewport.current);
@@ -156,7 +160,12 @@ export default function FactorEntry({
         setAtSum(summing);
         requestAnimationFrame(() => {
           if (!cancelled && !(summing && automaticSum))
-            (summing ? sumInput : input).current?.focus();
+            (summing
+              ? sumInput
+              : entryOpen
+                ? input
+                : addAnother
+            ).current?.focus();
         });
       });
     });
@@ -168,10 +177,13 @@ export default function FactorEntry({
   }, [summing, reduceMotion, transition, pairs]);
 
   useEffect(() => {
-    if (factors.length > previousCount.current && !summing)
-      input.current?.focus();
-    previousCount.current = factors.length;
-  }, [factors.length, summing]);
+    if (summing) return;
+    const frame = requestAnimationFrame(() => {
+      if (entryOpen) input.current?.focus();
+      else addAnother.current?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [entryOpen, summing]);
 
   const symbol = (text, width = 26) => (
     <Text style={[styles.operator, { width }]}>{text}</Text>
@@ -213,7 +225,13 @@ export default function FactorEntry({
         <View
           ref={pairViewport}
           collapsable={false}
-          style={{ width: "100%", flex: 1, minHeight: 0, marginVertical: 4 }}
+          style={{
+            width: "100%",
+            flex: 1,
+            minHeight: 0,
+            marginTop: 4,
+            marginBottom: circleSize * 0.05,
+          }}
         >
           <ScrollView
             ref={pairList}
@@ -223,7 +241,11 @@ export default function FactorEntry({
             onContentSizeChange={() => {
               if (!summing) pairList.current?.scrollToEnd({ animated: false });
             }}
-            contentContainerStyle={{ gap: circleSize < 330 ? 0 : 4 }}
+            contentContainerStyle={{
+              gap: circleSize < 330 ? 4 : 8,
+              alignItems: "center",
+              paddingBottom: 8,
+            }}
           >
             {pairs.map((pair, row) => (
               <View
@@ -290,63 +312,119 @@ export default function FactorEntry({
                 </Pressable>
               </View>
             ))}
+            {entryOpen ? (
+              <>
+                <View
+                  style={[
+                    styles.entryPair,
+                    {
+                      width: "100%",
+                      justifyContent: "center",
+                      marginTop: 0,
+                    },
+                  ]}
+                >
+                  <TextInput
+                    ref={input}
+                    accessibilityLabel="First factor"
+                    value={summing ? "" : value}
+                    onChangeText={onChange}
+                    keyboardType="number-pad"
+                    maxLength={FACTOR_DIGITS}
+                    editable={!summing}
+                    onSubmitEditing={() => secondInput.current?.focus()}
+                    submitBehavior="submit"
+                    returnKeyType="next"
+                    style={[styles.box, styles.input, cellStyle, textStyle]}
+                  />
+                  {symbol("×")}
+                  <TextInput
+                    ref={secondInput}
+                    accessibilityLabel="Second factor"
+                    value={pairedValue}
+                    onChangeText={onPairedChange}
+                    keyboardType="number-pad"
+                    maxLength={FACTOR_DIGITS}
+                    editable={!summing}
+                    onSubmitEditing={onAdd}
+                    submitBehavior="submit"
+                    returnKeyType="done"
+                    style={[styles.box, styles.input, cellStyle, textStyle]}
+                  />
+                  {symbol("=")}
+                  <Text style={[styles.factor, textStyle]}>{number}</Text>
+                </View>
+                <View
+                  style={{
+                    height: cellSize + 6,
+                    paddingTop: 6,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <View style={cellStyle}>
+                    {!summing && canAdd && (
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel="Add factor pair"
+                        onPress={onAdd}
+                        style={[
+                          styles.plusButton,
+                          cellStyle,
+                          {
+                            backgroundColor: Colors.orange,
+                            borderColor: Colors.orange,
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[styles.plus, { color: Colors.background }]}
+                        >
+                          +
+                        </Text>
+                      </Pressable>
+                    )}
+                  </View>
+                  {pairs.length > 0 && !summing && (
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={onCancelEntry}
+                      style={{ padding: 12 }}
+                    >
+                      <Text style={{ color: Colors.textSecondary }}>
+                        Cancel
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
+              </>
+            ) : (
+              <View
+                style={{
+                  width: Math.min(260, circleSize * 0.72),
+                  gap: 8,
+                  marginTop: 8,
+                }}
+              >
+                <Pressable
+                  ref={addAnother}
+                  accessibilityRole="button"
+                  onPress={onAddAnother}
+                  style={styles.choice}
+                >
+                  <Text style={styles.choiceText}>Add another factor pair</Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={onFinishFactors}
+                  style={styles.choice}
+                >
+                  <Text style={styles.choiceText}>That's all the factors</Text>
+                </Pressable>
+              </View>
+            )}
           </ScrollView>
-        </View>
-        <View
-          style={[
-            styles.entryPair,
-            {
-              width: "100%",
-              justifyContent: "center",
-              marginTop: 0,
-            },
-          ]}
-        >
-          <TextInput
-            ref={input}
-            accessibilityLabel="First factor"
-            value={summing ? "" : value}
-            onChangeText={onChange}
-            keyboardType="number-pad"
-            maxLength={FACTOR_DIGITS}
-            editable={!summing}
-            onSubmitEditing={() => secondInput.current?.focus()}
-            submitBehavior="submit"
-            returnKeyType="next"
-            style={[styles.box, styles.input, cellStyle, textStyle]}
-          />
-          {symbol("×")}
-          <TextInput
-            ref={secondInput}
-            accessibilityLabel="Second factor"
-            value={pairedValue}
-            onChangeText={onPairedChange}
-            keyboardType="number-pad"
-            maxLength={FACTOR_DIGITS}
-            editable={!summing}
-            onSubmitEditing={onAdd}
-            submitBehavior="submit"
-            returnKeyType="done"
-            style={[styles.box, styles.input, cellStyle, textStyle]}
-          />
-          {symbol("=")}
-          <Text style={[styles.factor, textStyle]}>{number}</Text>
-        </View>
-        <View style={{ height: cellSize + 6, paddingTop: 6 }}>
-          {!summing && canAdd && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Add factor pair"
-              onPress={onAdd}
-              style={[
-                styles.plusButton,
-                cellStyle,
-                { backgroundColor: Colors.orange, borderColor: Colors.orange },
-              ]}
-            >
-              <Text style={[styles.plus, { color: Colors.background }]}>+</Text>
-            </Pressable>
-          )}
         </View>
       </Animated.View>
       <ScrollView
@@ -485,6 +563,22 @@ export default function FactorEntry({
 }
 
 const styles = StyleSheet.create({
+  choice: {
+    minHeight: 44,
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.teal,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  choiceText: {
+    color: Colors.teal,
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
+  },
   question: {
     color: Colors.textPrimary,
     fontSize: 20,

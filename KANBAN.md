@@ -11,13 +11,13 @@ Cards are ordered by priority within each column. Review contains implemented wo
 | --- | --- | --- | --- | --- |
 | [QA-01 · Check real devices and browsers](#qa-01-check-real-devices-and-browsers) | — | — | [SAVE-01 · Restore progress after refresh](#save-01-restore-progress-after-refresh) | [FA-00 · Recover the app and establish the activity](#fa-00-recover-the-app-and-establish-the-activity) |
 | | | | [FA-06 · Always check answers](#fa-06-always-check-answers) | [FA-07 · Continue discovered chains](#fa-07-continue-discovered-chains) |
-| | | | [FA-01 · Fit longer lists inside the circle](#fa-01-fit-longer-lists-inside-the-circle) | |
+| | | | [FA-01 · Fit longer lists inside the circle](#fa-01-fit-longer-lists-inside-the-circle) | [FA-08 · Choose whether to add more pairs](#fa-08-choose-whether-to-add-more-pairs) |
 | | | | [FA-02 · Clarify the primary action](#fa-02-clarify-the-primary-action) | |
 | | | | [FA-03 · Scale the graph to its content](#fa-03-scale-the-graph-to-its-content) | |
 | | | | [FA-04 · Give new results visual emphasis](#fa-04-give-new-results-visual-emphasis) | |
 | | | | [FA-05 · Make pair removal discoverable](#fa-05-make-pair-removal-discoverable) | |
 
-**Current review:** The five design cards plus refresh persistence and always-on correctness are implemented locally and ready for user review. Thirty-five automated tests pass; web and native exports build. Refresh checks cover drafts, sums, graphs, Diffy generation transitions, completion, variation, and New Game. Earlier design checks covered desktop and 320/390 px layouts, explicit pair removal/resubmission, four correct pairs, and an outside-range result. Historical unchecked-mode checks are superseded by FA-06. Real devices remain under QA-01. The earlier recovered app was published successfully by GitHub Pages (run 35399254573). FA-07 was published in f072f2d. The terminal-1 correction is verified and included in the rebuilt public/app export.
+**Current review:** The five design cards plus refresh persistence and always-on correctness are implemented locally and ready for user review. Thirty-six automated tests pass; web and native exports build. Refresh checks cover drafts, sums, graphs, Diffy generation transitions, completion, variation, and New Game. Earlier design checks covered desktop and 320/390 px layouts, explicit pair removal/resubmission, four correct pairs, and an outside-range result. Historical unchecked-mode checks are superseded by FA-06. Real devices remain under QA-01. The earlier recovered app was published successfully by GitHub Pages (run 35399254573). FA-07 was published in f072f2d. The terminal-1 correction is verified and included in the rebuilt public/app export.
 
 ## Working agreements
 
@@ -115,6 +115,8 @@ Cards are ordered by priority within each column. Review contains implemented wo
 
 ### FA-02: Clarify the primary action
 
+**Superseded interaction:** FA-08 replaces Next and automatic blank rows with explicit choices and inline entry.
+
 **Owner:** Codex
 
 **Problem:** Next is the strongest visual action even when both factor inputs are empty; the useful add-pair action has less emphasis.
@@ -200,3 +202,20 @@ Cards are ordered by priority within each column. Review contains implemented wo
 - Start over confirms before clearing the graph and saved Factor and Add progress.
 - The factor question is larger and lower inside the circle.
 - Achievements are deferred.
+
+
+### FA-08: Choose whether to add more pairs
+
+**Owner:** Codex
+
+**Problem:** Immediately opening another empty factor row implies that more factors are required, even when the learner has found all of them. The separated input area makes saved and new pairs feel disconnected.
+
+**Acceptance criteria**
+
+- Enter each new pair directly below saved pairs in the same scrollable area.
+- After accepting a pair, replace entry with equally styled “Add another factor pair” and “That's all the factors” buttons.
+- Opening another pair focuses its first input; Cancel returns to the choices. Removing the last pair reopens entry.
+- Check completeness only when the learner chooses to finish; retain work and show “There are more factors to find.” for an incomplete list.
+- Restore the choice or unfinished entry after refresh, including older saved work.
+
+**Implemented / evidence:** Inline entry and choices replace the lower input area and Next button. Thirty-six tests pass, including persistence and migration checks. Browser checks cover continued chains, incomplete-factor feedback, refresh, focus, cancellation, pair removal, and 320/390/1280 px layouts. Real mobile keyboards remain under QA-01.

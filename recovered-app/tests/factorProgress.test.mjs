@@ -233,3 +233,31 @@ test("legacy exploration of one returns to the graph without losing other chains
   assert.equal(restored.latest, null);
   assert.equal(state.connections.length, 3);
 });
+
+test("pair-entry choice and unfinished entry restore, including older saves", () => {
+  const state = {
+    ...emptyFactorProgress(),
+    phase: "factors",
+    chosen: 24,
+    pairs: [[1, 24]],
+    selected: [1, 24],
+    entryOpen: false,
+  };
+  assert.deepEqual(validateFactorProgress(state), state);
+  assert.equal(
+    validateFactorProgress({ ...state, entryOpen: true }).entryOpen,
+    true,
+  );
+  assert.equal(
+    validateFactorProgress({ ...state, entryOpen: undefined }).entryOpen,
+    false,
+  );
+  const draft = { ...state, entryOpen: undefined, factorInput: "2" };
+  assert.equal(validateFactorProgress(draft).entryOpen, true);
+  assert.equal(validateFactorProgress({ ...state, entryOpen: "yes" }), null);
+  assert.equal(
+    validateFactorProgress({ ...emptyFactorProgress(), entryOpen: false })
+      .entryOpen,
+    true,
+  );
+});

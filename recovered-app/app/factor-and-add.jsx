@@ -181,6 +181,7 @@ export default function FactorAndAddScreen() {
   const [savedPairs, setSavedPairs] = useState(initialProgress.savedPairs);
   const [factorInput, setFactorInput] = useState(initialProgress.factorInput);
   const [pairedInput, setPairedInput] = useState(initialProgress.pairedInput);
+  const [entryOpen, setEntryOpen] = useState(initialProgress.entryOpen);
   const [sum, setSum] = useState(initialProgress.sum);
   const [feedback, setFeedback] = useState("");
   const [confirmRestart, setConfirmRestart] = useState(false);
@@ -196,6 +197,7 @@ export default function FactorAndAddScreen() {
       savedPairs,
       factorInput,
       pairedInput,
+      entryOpen,
       sum,
       connections,
       latest,
@@ -209,6 +211,7 @@ export default function FactorAndAddScreen() {
     savedPairs,
     factorInput,
     pairedInput,
+    entryOpen,
     sum,
     connections,
     latest,
@@ -229,6 +232,7 @@ export default function FactorAndAddScreen() {
     setFactorInput(empty.factorInput);
     setPairedInput(empty.pairedInput);
     setSum(empty.sum);
+    setEntryOpen(true);
     setConnections(empty.connections);
     setLatest(empty.latest);
     setFeedback("");
@@ -239,9 +243,6 @@ export default function FactorAndAddScreen() {
 
   const boardWidth = Math.min(600, width - 48);
   const circleSize = Math.min(460, width - 24);
-  const nextEnabled = !transitioning && selected.length > 0;
-  const nextPrimary =
-    nextEnabled && selected.length > 0 && !factorInput && !pairedInput;
   const addends = factorsToAdd(chosen, selected);
   const automaticSum =
     hasAllFactors(chosen, selected) && addends.length === 1 && addends[0] === 1;
@@ -265,6 +266,7 @@ export default function FactorAndAddScreen() {
     setChosen(number);
     setSelected(savedFactors[number] || []);
     setPairs(savedPairs[number] || []);
+    setEntryOpen(!savedPairs[number]?.length);
     setFactorInput("");
     setPairedInput("");
     setSum("");
@@ -293,6 +295,8 @@ export default function FactorAndAddScreen() {
       setFeedback("Already added.");
       return;
     }
+    Keyboard.dismiss();
+    setEntryOpen(false);
     setSelected((previous) => [...new Set([...previous, ...values])]);
     setPairs((previous) => [...previous, values]);
     setFactorInput("");
@@ -324,7 +328,7 @@ export default function FactorAndAddScreen() {
       setFeedback(
         selected.some((value) => !expected.includes(value))
           ? "Check your factors."
-          : "Some factors are missing.",
+          : "There are more factors to find.",
       );
       return;
     }
@@ -536,6 +540,19 @@ export default function FactorAndAddScreen() {
               >
                 <FactorEntry
                   circleSize={circleSize}
+                  entryOpen={entryOpen}
+                  onAddAnother={() => {
+                    setEntryOpen(true);
+                    setFeedback("");
+                  }}
+                  onFinishFactors={finishFactors}
+                  onCancelEntry={() => {
+                    setFactorInput("");
+                    setPairedInput("");
+                    setEntryOpen(false);
+                    setFeedback("");
+                    Keyboard.dismiss();
+                  }}
                   sumInputRef={sumInputRef}
                   unitFactorRef={unitFactorRef}
                   automaticSum={automaticSum}
@@ -544,6 +561,7 @@ export default function FactorAndAddScreen() {
                   onRemovePair={(index) => {
                     const remaining = pairs.filter((_, i) => i !== index);
                     setPairs(remaining);
+                    if (!remaining.length) setEntryOpen(true);
                     setSelected([...new Set(remaining.flat())]);
                     setFeedback("");
                   }}
@@ -579,29 +597,6 @@ export default function FactorAndAddScreen() {
                   reduceMotion={reduceMotion}
                 />
               </FactorFocusCircle>
-            </View>
-          )}
-          {phase === "factors" && (
-            <View style={styles.actions}>
-              <Pressable
-                accessibilityRole="button"
-                disabled={!nextEnabled}
-                style={[
-                  styles.primary,
-                  !nextPrimary && styles.secondaryAction,
-                  !nextEnabled && { opacity: 0.4 },
-                ]}
-                onPress={finishFactors}
-              >
-                <Text
-                  style={[
-                    styles.primaryText,
-                    !nextPrimary && { color: Colors.teal },
-                  ]}
-                >
-                  Next →
-                </Text>
-              </Pressable>
             </View>
           )}
           {phase === "sum" && !automaticSum && (
