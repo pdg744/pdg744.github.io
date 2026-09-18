@@ -53,6 +53,44 @@ function DiffyIcon({ size = 48 }) {
     </Svg.default>
   );
 }
+function FactorGraphIcon({ size = 64 }) {
+  const nodes = [
+    [18, 12],
+    [48, 12],
+    [78, 34],
+    [33, 42],
+    [33, 66],
+    [78, 66],
+    [55, 90],
+  ];
+  return (
+    <Svg.default
+      width={size}
+      height={size}
+      viewBox="0 0 100 100"
+      accessible={false}
+    >
+      <Svg.Path
+        d="M18 12 L33 42 L33 66 L55 90 M48 12 L33 42 M78 34 L78 66 L55 90"
+        fill="none"
+        stroke={Theme.Colors.teal}
+        strokeWidth={2}
+        strokeLinejoin="round"
+      />
+      {nodes.map(([x, y]) => (
+        <Svg.Circle
+          key={`${x}-${y}`}
+          cx={x}
+          cy={y}
+          r={6}
+          fill={Theme.Colors.surface}
+          stroke={Theme.Colors.teal}
+          strokeWidth={2}
+        />
+      ))}
+    </Svg.default>
+  );
+}
 const activities = [
   {
     id: "diffy-squares",
@@ -64,8 +102,8 @@ const activities = [
   {
     id: "factor-and-add",
     label: "Factor and Add",
-    emoji: "＋",
-    description: "Find factors. Add them. Follow the connections.",
+    icon: "factor-and-add",
+    description: "Do all paths lead to 1?",
     color: Theme.Colors.teal,
   },
 ];
@@ -105,9 +143,9 @@ function TopicsScreen() {
                   <DiffyIcon size={64} />
                 </View>
               ) : (
-                <Text style={[styles.cardEmoji, { color: o.color }]}>
-                  {o.emoji}
-                </Text>
+                <View style={styles.cardIconWrapper}>
+                  <FactorGraphIcon size={64} />
+                </View>
               )}
               <View style={styles.cardText}>
                 <Text
@@ -180,9 +218,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-  },
-  cardEmoji: {
-    fontSize: 48,
   },
   cardIconWrapper: {},
   cardText: {
