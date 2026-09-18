@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "MathExplorers",
+    "slug": "math-explorers-recovered",
+    "version": "1.0.0",
+    "scheme": "math-explorers-recovered",
+    "userInterfaceStyle": "dark",
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/logo-mark.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-video"
+    ],
+    "experiments": {
+      "baseUrl": "/app"
+    }
+  }
+}
