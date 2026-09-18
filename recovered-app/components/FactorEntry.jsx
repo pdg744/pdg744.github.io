@@ -25,8 +25,7 @@ const measure = (node) =>
 export default function FactorEntry({
   circleSize,
   entryOpen,
-  onAddAnother,
-  onFinishFactors,
+  addAnother,
   onCancelEntry,
   factors,
   pairs,
@@ -53,7 +52,6 @@ export default function FactorEntry({
   const secondInput = useRef(null);
   const sumInput = useRef(null);
   const previousMode = useRef(summing);
-  const addAnother = useRef(null);
   const transition = useRef(new Animated.Value(summing ? 1 : 0)).current;
   const [sprites, setSprites] = useState([]);
   const [atSum, setAtSum] = useState(summing);
@@ -399,31 +397,7 @@ export default function FactorEntry({
                   )}
                 </View>
               </>
-            ) : (
-              <View
-                style={{
-                  width: Math.min(260, circleSize * 0.72),
-                  gap: 8,
-                  marginTop: 8,
-                }}
-              >
-                <Pressable
-                  ref={addAnother}
-                  accessibilityRole="button"
-                  onPress={onAddAnother}
-                  style={styles.choice}
-                >
-                  <Text style={styles.choiceText}>Add another factor pair</Text>
-                </Pressable>
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={onFinishFactors}
-                  style={styles.choice}
-                >
-                  <Text style={styles.choiceText}>That's all the factors</Text>
-                </Pressable>
-              </View>
-            )}
+            ) : null}
           </ScrollView>
         </View>
       </Animated.View>
@@ -563,22 +537,6 @@ export default function FactorEntry({
 }
 
 const styles = StyleSheet.create({
-  choice: {
-    minHeight: 44,
-    paddingHorizontal: 10,
-    paddingVertical: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Colors.teal,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  choiceText: {
-    color: Colors.teal,
-    fontSize: 14,
-    fontWeight: "600",
-    textAlign: "center",
-  },
   question: {
     color: Colors.textPrimary,
     fontSize: 20,

@@ -49,6 +49,7 @@ export default function FactorAndAddScreen() {
   const rootRef = useRef(null);
   const focusRef = useRef(null);
   const sumInputRef = useRef(null);
+  const addAnotherRef = useRef(null);
   const unitFactorRef = useRef(null);
   const nodeRefs = useRef({});
   const boardScroll = useRef(0);
@@ -541,11 +542,7 @@ export default function FactorAndAddScreen() {
                 <FactorEntry
                   circleSize={circleSize}
                   entryOpen={entryOpen}
-                  onAddAnother={() => {
-                    setEntryOpen(true);
-                    setFeedback("");
-                  }}
-                  onFinishFactors={finishFactors}
+                  addAnother={addAnotherRef}
                   onCancelEntry={() => {
                     setFactorInput("");
                     setPairedInput("");
@@ -597,6 +594,32 @@ export default function FactorAndAddScreen() {
                   reduceMotion={reduceMotion}
                 />
               </FactorFocusCircle>
+            </View>
+          )}
+          {phase === "factors" && !entryOpen && (
+            <View
+              style={[styles.actions, { width: 260, maxWidth: "100%", gap: 8 }]}
+            >
+              <Pressable
+                ref={addAnotherRef}
+                accessibilityRole="button"
+                disabled={transitioning}
+                onPress={() => {
+                  setEntryOpen(true);
+                  setFeedback("");
+                }}
+                style={styles.choice}
+              >
+                <Text style={styles.choiceText}>Add another factor pair</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                disabled={transitioning}
+                onPress={finishFactors}
+                style={styles.choice}
+              >
+                <Text style={styles.choiceText}>That's all the factors</Text>
+              </Pressable>
             </View>
           )}
           {phase === "sum" && !automaticSum && (
@@ -815,6 +838,24 @@ export default function FactorAndAddScreen() {
 }
 
 const styles = StyleSheet.create({
+  choice: {
+    width: "100%",
+    minHeight: 44,
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.teal,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  choiceText: {
+    color: Colors.teal,
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+
   flex: { flex: 1 },
   container: { flex: 1, backgroundColor: Colors.background },
   content: {

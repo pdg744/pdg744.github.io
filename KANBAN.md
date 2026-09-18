@@ -213,9 +213,9 @@ Cards are ordered by priority within each column. Review contains implemented wo
 **Acceptance criteria**
 
 - Enter each new pair directly below saved pairs in the same scrollable area.
-- After accepting a pair, replace entry with equally styled “Add another factor pair” and “That's all the factors” buttons.
+- After accepting a pair, hide entry and show below the circle equally styled “Add another factor pair” and “That's all the factors” buttons.
 - Opening another pair focuses its first input; Cancel returns to the choices. Removing the last pair reopens entry.
 - Check completeness only when the learner chooses to finish; retain work and show “There are more factors to find.” for an incomplete list.
 - Restore the choice or unfinished entry after refresh, including older saved work.
 
-**Implemented / evidence:** Inline entry and choices replace the lower input area and Next button. Thirty-six tests pass, including persistence and migration checks. Browser checks cover continued chains, incomplete-factor feedback, refresh, focus, cancellation, pair removal, and 320/390/1280 px layouts. Real mobile keyboards remain under QA-01.
+**Implemented / evidence:** New entry stays directly under saved pairs inside the circle; the two choices sit below the circle and replace Next. Thirty-six tests pass, including persistence and migration checks. Browser checks cover continued chains, incomplete-factor feedback, refresh, focus, cancellation, pair removal, and 320/390/1280 px layouts. Real mobile keyboards remain under QA-01.
