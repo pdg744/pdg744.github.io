@@ -203,7 +203,7 @@ export default function FactorNumberBoard({
                             textAlign: "center",
                           }}
                         >
-                          {number === 0 ? "End" : "Limit reached"}
+                          {number <= 1 ? "End" : "Limit reached"}
                         </Text>
                       )}
                       {factors && diameter >= 80 && (

@@ -149,7 +149,7 @@ test("malformed shapes and out-of-bounds snapshots safely fail validation", () =
   }
 });
 
-test("continued chains, merged paths, cycles and terminal zero survive serialization", () => {
+test("continued chains, merged paths, cycles and terminal one survive serialization", () => {
   const state = {
     ...emptyFactorProgress(),
     phase: "factors",
@@ -165,13 +165,12 @@ test("continued chains, merged paths, cycles and terminal zero survive serializa
       { from: 36, to: 55 },
       { from: 55, to: 17 },
       { from: 17, to: 1 },
-      { from: 1, to: 0 },
       { from: 7, to: 1 },
       { from: 220, to: 284 },
       { from: 284, to: 220 },
       { from: 6, to: 6 },
     ],
-    latest: { from: 1, to: 0 },
+    latest: { from: 17, to: 1 },
   };
   assert.deepEqual(
     validateFactorProgress(JSON.parse(JSON.stringify(state))),
@@ -186,7 +185,7 @@ test("continued chains, merged paths, cycles and terminal zero survive serializa
 test("complete larger factor sets and upper-bound results restore", async () => {
   const { factorsOf, properFactorSum } =
     await import("../game/factorAndAdd.js");
-  for (const chosen of [1, 36, 83160, 1000000]) {
+  for (const chosen of [36, 83160, 1000000]) {
     const selected = factorsOf(chosen);
     const pairs = selected
       .filter((n) => n * n <= chosen)
@@ -202,4 +201,35 @@ test("complete larger factor sets and upper-bound results restore", async () => 
     };
     assert.deepEqual(validateFactorProgress(state), state);
   }
+});
+
+test("legacy exploration of one returns to the graph without losing other chains", () => {
+  const state = {
+    ...emptyFactorProgress(),
+    phase: "sum",
+    chosen: 1,
+    selected: [1],
+    pairs: [[1, 1]],
+    sum: "0",
+    savedFactors: { 1: [1], 24: [1, 24] },
+    savedPairs: { 1: [[1, 1]], 24: [[1, 24]] },
+    connections: [
+      { from: 24, to: 36 },
+      { from: 17, to: 1 },
+      { from: 1, to: 0 },
+    ],
+    latest: { from: 1, to: 0 },
+  };
+  const restored = validateFactorProgress(state);
+  assert.equal(restored.phase, "choose");
+  assert.equal(restored.chosen, null);
+  assert.deepEqual(restored.selected, []);
+  assert.deepEqual(restored.connections, [
+    { from: 24, to: 36 },
+    { from: 17, to: 1 },
+  ]);
+  assert.deepEqual(restored.savedFactors, { 24: [1, 24] });
+  assert.deepEqual(restored.savedPairs, { 24: [[1, 24]] });
+  assert.equal(restored.latest, null);
+  assert.equal(state.connections.length, 3);
 });

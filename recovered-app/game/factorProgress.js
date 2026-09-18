@@ -115,7 +115,26 @@ export function validateFactorProgress(value) {
   )
     return null;
   // Pick only durable fields; animation flags and other unknown fields are ignored.
-  return Object.fromEntries(
+  const restored = Object.fromEntries(
     Object.keys(emptyFactorProgress()).map((key) => [key, value[key]]),
   );
+  // Migrate the brief version that allowed exploring 1, preserving other work.
+  restored.connections = restored.connections.filter((edge) => edge.from !== 1);
+  restored.savedFactors = { ...restored.savedFactors };
+  restored.savedPairs = { ...restored.savedPairs };
+  delete restored.savedFactors[1];
+  delete restored.savedPairs[1];
+  if (restored.latest?.from === 1) restored.latest = null;
+  if (restored.chosen === 1) {
+    Object.assign(restored, {
+      phase: "choose",
+      chosen: null,
+      selected: [],
+      pairs: [],
+      factorInput: "",
+      pairedInput: "",
+      sum: "",
+    });
+  }
+  return restored;
 }

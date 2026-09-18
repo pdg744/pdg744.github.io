@@ -12,7 +12,7 @@ export const supportedNumber = (number) =>
   Number.isSafeInteger(number) && number >= 1 && number <= MAX_FACTOR_NUMBER;
 
 export function explorationLimit(number, connections, savedFactors) {
-  if (number === 0) return "End of chain";
+  if (number === 0 || number === 1) return "End of chain";
   if (!supportedNumber(number)) return "Exploration limit: 1,000,000";
   if (connections.some((edge) => edge.from === number)) return "Completed";
   const explored = new Set([

@@ -60,6 +60,7 @@ test("numeric and exploration bounds preserve existing work", async () => {
     assert.ok(explorationLimit(invalid, [], {}));
   }
   assert.equal(properFactorSum(MAX_FACTOR_NUMBER), 1480437);
+  assert.equal(explorationLimit(1, [], {}), "End of chain");
   assert.equal(explorationLimit(36, [{ from: 24, to: 36 }], {}), null);
   const saved = Object.fromEntries(
     Array.from({ length: MAX_EXPLORATIONS }, (_, i) => [i + 1, []]),

@@ -96,15 +96,15 @@ test("incoming branches are symmetric and independent of discovery order", () =>
   assert.ok(graph.width > 342);
 });
 
-test("zero terminates a continued chain below one", () => {
+test("one terminates a continued chain", () => {
   const graph = layoutFactorGraph(
     [
+      { from: 55, to: 17 },
       { from: 17, to: 1 },
-      { from: 1, to: 0 },
     ],
     {},
     272,
   );
-  assert.equal(graph.positions.get(1).x, graph.positions.get(0).x);
-  assert.ok(graph.positions.get(1).y < graph.positions.get(0).y);
+  assert.equal(graph.positions.get(17).x, graph.positions.get(1).x);
+  assert.ok(graph.positions.get(17).y < graph.positions.get(1).y);
 });
