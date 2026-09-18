@@ -11,7 +11,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   View,
@@ -29,14 +28,25 @@ import {
   hasAllFactors,
   properFactorSum,
 } from "../game/factorAndAdd.js";
+import {
+  emptyFactorProgress,
+  validateFactorProgress,
+} from "../game/factorProgress.js";
+import { readProgress, writeProgress } from "../utils/progressStorage.js";
 import logoAsset from "../assets/logo-mark.png";
 
 export default function FactorAndAddScreen() {
   const router = useRouter();
+  const [initialProgress] = useState(
+    () =>
+      readProgress("factor-and-add", validateFactorProgress) ||
+      emptyFactorProgress(),
+  );
   const scrollRef = useRef(null);
   const rootRef = useRef(null);
   const focusRef = useRef(null);
   const sumInputRef = useRef(null);
+  const unitFactorRef = useRef(null);
   const nodeRefs = useRef({});
   const boardScroll = useRef(0);
   const currentScroll = useRef(0);
@@ -70,8 +80,8 @@ export default function FactorAndAddScreen() {
         resolve({ x, y, width, height }),
       );
     });
-  const { width } = useWindowDimensions();
-  const [phase, setPhase] = useState("choose");
+  const { width, height: viewportHeight } = useWindowDimensions();
+  const [phase, setPhase] = useState(initialProgress.phase);
   const previousPhase = useRef("choose");
   useEffect(() => {
     if (phase === "choose" || previousPhase.current === "choose") {
@@ -87,11 +97,30 @@ export default function FactorAndAddScreen() {
       requestAnimationFrame(async () => {
         const pending = pendingZoom.current;
         if (!pending) return;
-        const target = await measure(
+        let target = await measure(
           phase === "choose"
             ? nodeRefs.current[pending.number]
             : focusRef.current,
         );
+        if (
+          pending.result &&
+          target &&
+          target.y + target.height > viewportHeight - 24
+        ) {
+          const offset = Math.max(
+            0,
+            currentScroll.current +
+              target.y +
+              target.height / 2 -
+              viewportHeight * 0.6,
+          );
+          boardScroll.current = offset;
+          scrollRef.current?.scrollTo({ y: offset, animated: false });
+          await new Promise((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(resolve)),
+          );
+          target = await measure(nodeRefs.current[pending.number]);
+        }
         const root = await measure(rootRef.current);
         const sourceTarget = pending.source
           ? await measure(nodeRefs.current[pending.source.number])
@@ -111,6 +140,7 @@ export default function FactorAndAddScreen() {
         setZoom({
           number: pending.number,
           result: pending.result,
+          direct: pending.direct,
           source: sourceTarget
             ? {
                 number: pending.source.number,
@@ -139,20 +169,79 @@ export default function FactorAndAddScreen() {
       cancelAnimationFrame(frame);
     };
   }, [phase]);
-  const [chosen, setChosen] = useState(null);
-  const [selected, setSelected] = useState([]);
-  const [savedFactors, setSavedFactors] = useState({});
-  const [pairs, setPairs] = useState([]);
-  const [savedPairs, setSavedPairs] = useState({});
-  const [factorInput, setFactorInput] = useState("");
-  const [pairedInput, setPairedInput] = useState("");
-  const [enforce, setEnforce] = useState(true);
-  const [sum, setSum] = useState("");
+  const [chosen, setChosen] = useState(initialProgress.chosen);
+  const [selected, setSelected] = useState(initialProgress.selected);
+  const [savedFactors, setSavedFactors] = useState(
+    initialProgress.savedFactors,
+  );
+  const [pairs, setPairs] = useState(initialProgress.pairs);
+  const [savedPairs, setSavedPairs] = useState(initialProgress.savedPairs);
+  const [factorInput, setFactorInput] = useState(initialProgress.factorInput);
+  const [pairedInput, setPairedInput] = useState(initialProgress.pairedInput);
+  const [sum, setSum] = useState(initialProgress.sum);
   const [feedback, setFeedback] = useState("");
-  const [connections, setConnections] = useState([]);
-  const [latest, setLatest] = useState(null);
+  const [confirmRestart, setConfirmRestart] = useState(false);
+  const [connections, setConnections] = useState(initialProgress.connections);
+  const [latest, setLatest] = useState(initialProgress.latest);
+  useEffect(() => {
+    writeProgress("factor-and-add", {
+      phase,
+      chosen,
+      selected,
+      pairs,
+      savedFactors,
+      savedPairs,
+      factorInput,
+      pairedInput,
+      sum,
+      connections,
+      latest,
+    });
+  }, [
+    phase,
+    chosen,
+    selected,
+    pairs,
+    savedFactors,
+    savedPairs,
+    factorInput,
+    pairedInput,
+    sum,
+    connections,
+    latest,
+  ]);
+  function startOver() {
+    const empty = emptyFactorProgress();
+    pendingZoom.current = null;
+    animation.stopAnimation();
+    setZoom(null);
+    setTransitioning(false);
+    boardScroll.current = 0;
+    currentScroll.current = 0;
+    setChosen(empty.chosen);
+    setSelected(empty.selected);
+    setPairs(empty.pairs);
+    setSavedFactors(empty.savedFactors);
+    setSavedPairs(empty.savedPairs);
+    setFactorInput(empty.factorInput);
+    setPairedInput(empty.pairedInput);
+    setSum(empty.sum);
+    setConnections(empty.connections);
+    setLatest(empty.latest);
+    setFeedback("");
+    setConfirmRestart(false);
+    setPhase(empty.phase);
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }
+
   const boardWidth = Math.min(600, width - 48);
+  const circleSize = Math.min(460, width - 24);
+  const nextEnabled = !transitioning && selected.length > 0;
+  const nextPrimary =
+    nextEnabled && selected.length > 0 && !factorInput && !pairedInput;
   const addends = factorsToAdd(chosen, selected);
+  const automaticSum =
+    hasAllFactors(chosen, selected) && addends.length === 1 && addends[0] === 1;
   const prompt =
     phase === "choose"
       ? "Pick a number · 2–30"
@@ -161,7 +250,8 @@ export default function FactorAndAddScreen() {
         : "Add the factors.";
 
   async function selectNumber(number) {
-    if (transitioning) return;
+    if (transitioning || connections.some((edge) => edge.from === number))
+      return;
     setFeedback("");
     boardScroll.current = currentScroll.current;
     const from = await measure(nodeRefs.current[number]);
@@ -189,7 +279,7 @@ export default function FactorAndAddScreen() {
       return;
     }
     const values = pair.map(Number);
-    if (enforce && values[0] * values[1] !== chosen) {
+    if (values[0] * values[1] !== chosen) {
       setFeedback(`The pair should multiply to ${chosen}.`);
       return;
     }
@@ -223,7 +313,7 @@ export default function FactorAndAddScreen() {
     setPhase("choose");
   }
   function finishFactors() {
-    if (enforce && !hasAllFactors(chosen, selected)) {
+    if (!hasAllFactors(chosen, selected)) {
       const expected = factorsOf(chosen);
       setFeedback(
         selected.some((value) => !expected.includes(value))
@@ -232,27 +322,33 @@ export default function FactorAndAddScreen() {
       );
       return;
     }
+    if (automaticSum) {
+      finishSum(1, true);
+      return;
+    }
     saveFactors();
     setFeedback("");
     setPhase("sum");
   }
-  async function finishSum() {
+  async function finishSum(automaticTotal, direct = false) {
+    const answer =
+      typeof automaticTotal === "number" ? String(automaticTotal) : sum;
     if (transitioning) return;
-    if (!/^\d+$/.test(sum)) {
+    if (!/^\d+$/.test(answer)) {
       setFeedback("Enter a whole number.");
       return;
     }
-    const total = Number(sum);
-    if (enforce && !hasAllFactors(chosen, selected)) {
+    const total = Number(answer);
+    if (!hasAllFactors(chosen, selected)) {
       setFeedback("Check your factors first.");
       return;
     }
-    if (enforce && total !== properFactorSum(chosen)) {
+    if (total !== properFactorSum(chosen)) {
       setFeedback("Check your sum.");
       return;
     }
     const [from, sourceCircle] = await Promise.all([
-      measure(sumInputRef.current),
+      measure(direct ? unitFactorRef.current : sumInputRef.current),
       measure(focusRef.current),
     ]);
     if (from && !reduceMotion) {
@@ -260,6 +356,7 @@ export default function FactorAndAddScreen() {
         number: total,
         from,
         result: true,
+        direct,
         source:
           sourceCircle && total !== chosen
             ? { number: chosen, from: sourceCircle }
@@ -277,6 +374,14 @@ export default function FactorAndAddScreen() {
     setLatest(edge);
     setPhase("choose");
   }
+  useEffect(() => {
+    if (phase !== "sum" || !automaticSum) return;
+    setSum("1");
+    // Let the existing factor-to-sum animation finish before returning to the graph.
+    const timer = setTimeout(() => finishSum(1), reduceMotion ? 0 : 1750);
+    return () => clearTimeout(timer);
+  }, [phase, chosen, automaticSum, reduceMotion]);
+
   function previousStep() {
     if (transitioning) return;
     Keyboard.dismiss();
@@ -316,20 +421,6 @@ export default function FactorAndAddScreen() {
             {phase === "choose" && (
               <Text style={styles.title}>Factor and Add</Text>
             )}
-            <View style={styles.mode}>
-              <Text style={styles.modeLabel}>Check answers</Text>
-              <Switch
-                accessibilityLabel="Check answers"
-                accessibilityHint="When off, incorrect factors and sums are allowed."
-                value={enforce}
-                onValueChange={(value) => {
-                  setEnforce(value);
-                  setFeedback("");
-                }}
-                trackColor={{ false: Colors.border, true: Colors.teal }}
-                thumbColor={Colors.textPrimary}
-              />
-            </View>
             {phase === "choose" &&
               connections.length === 0 &&
               Object.keys(savedFactors).length === 0 && (
@@ -355,6 +446,7 @@ export default function FactorAndAddScreen() {
             >
               <FactorNumberBoard
                 width={boardWidth}
+                availableHeight={viewportHeight - 160}
                 phase={phase}
                 chosen={chosen}
                 selected={selected}
@@ -364,6 +456,57 @@ export default function FactorAndAddScreen() {
                 savedFactors={savedFactors}
                 nodeRefs={nodeRefs}
               />
+              {(connections.length > 0 ||
+                Object.keys(savedFactors).length > 0) && (
+                <View style={{ alignItems: "center", marginTop: 24 }}>
+                  {confirmRestart ? (
+                    <>
+                      <Text
+                        style={{
+                          color: Colors.textSecondary,
+                          textAlign: "center",
+                        }}
+                      >
+                        Clear this graph and start over?
+                      </Text>
+                      <View
+                        style={{ flexDirection: "row", gap: 24, marginTop: 8 }}
+                      >
+                        <Pressable
+                          accessibilityRole="button"
+                          onPress={() => setConfirmRestart(false)}
+                          style={{ padding: 12 }}
+                        >
+                          <Text style={{ color: Colors.textSecondary }}>
+                            Cancel
+                          </Text>
+                        </Pressable>
+                        <Pressable
+                          accessibilityRole="button"
+                          onPress={startOver}
+                          disabled={transitioning}
+                          style={{ padding: 12 }}
+                        >
+                          <Text style={{ color: Colors.orange }}>
+                            Start over
+                          </Text>
+                        </Pressable>
+                      </View>
+                    </>
+                  ) : (
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => setConfirmRestart(true)}
+                      disabled={transitioning}
+                      style={{ padding: 12 }}
+                    >
+                      <Text style={{ color: Colors.textSecondary }}>
+                        Start over
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
+              )}
             </Animated.View>
           )}
           {phase !== "choose" && (
@@ -373,7 +516,7 @@ export default function FactorAndAddScreen() {
                 number={chosen}
                 showNumber={false}
                 factors={[]}
-                size={Math.min(boardWidth, 400)}
+                size={circleSize}
                 onRemove={
                   phase === "factors"
                     ? (factor) => {
@@ -386,7 +529,10 @@ export default function FactorAndAddScreen() {
                 }
               >
                 <FactorEntry
+                  circleSize={circleSize}
                   sumInputRef={sumInputRef}
+                  unitFactorRef={unitFactorRef}
+                  automaticSum={automaticSum}
                   factors={selected}
                   pairs={pairs}
                   onRemovePair={(index) => {
@@ -429,21 +575,41 @@ export default function FactorAndAddScreen() {
             <View style={styles.actions}>
               <Pressable
                 accessibilityRole="button"
-                style={styles.primary}
+                disabled={!nextEnabled}
+                style={[
+                  styles.primary,
+                  !nextPrimary && styles.secondaryAction,
+                  !nextEnabled && { opacity: 0.4 },
+                ]}
                 onPress={finishFactors}
               >
-                <Text style={styles.primaryText}>Next →</Text>
+                <Text
+                  style={[
+                    styles.primaryText,
+                    !nextPrimary && { color: Colors.teal },
+                  ]}
+                >
+                  Next →
+                </Text>
               </Pressable>
             </View>
           )}
-          {phase === "sum" && (
+          {phase === "sum" && !automaticSum && (
             <View style={styles.actions}>
               <Pressable
                 accessibilityRole="button"
-                style={styles.primary}
+                disabled={!sum || transitioning}
+                style={[
+                  styles.primary,
+                  (!sum || transitioning) && styles.secondaryAction,
+                ]}
                 onPress={finishSum}
               >
-                <Text style={styles.primaryText}>Connect →</Text>
+                <Text
+                  style={[styles.primaryText, !sum && { color: Colors.teal }]}
+                >
+                  Connect →
+                </Text>
               </Pressable>
             </View>
           )}
@@ -473,7 +639,10 @@ export default function FactorAndAddScreen() {
                   inputRange: [0, 0.3, 1],
                   outputRange: [
                     zoom.source.from.x,
-                    zoom.source.from.x,
+                    zoom.direct
+                      ? zoom.source.from.x +
+                        (zoom.source.to.x - zoom.source.from.x) * 0.3
+                      : zoom.source.from.x,
                     zoom.source.to.x,
                   ],
                 }),
@@ -481,7 +650,10 @@ export default function FactorAndAddScreen() {
                   inputRange: [0, 0.3, 1],
                   outputRange: [
                     zoom.source.from.y,
-                    zoom.source.from.y,
+                    zoom.direct
+                      ? zoom.source.from.y +
+                        (zoom.source.to.y - zoom.source.from.y) * 0.3
+                      : zoom.source.from.y,
                     zoom.source.to.y,
                   ],
                 }),
@@ -489,7 +661,10 @@ export default function FactorAndAddScreen() {
                   inputRange: [0, 0.3, 1],
                   outputRange: [
                     zoom.source.from.width,
-                    zoom.source.from.width,
+                    zoom.direct
+                      ? zoom.source.from.width +
+                        (zoom.source.to.width - zoom.source.from.width) * 0.3
+                      : zoom.source.from.width,
                     zoom.source.to.width,
                   ],
                 }),
@@ -497,7 +672,10 @@ export default function FactorAndAddScreen() {
                   inputRange: [0, 0.3, 1],
                   outputRange: [
                     zoom.source.from.height,
-                    zoom.source.from.height,
+                    zoom.direct
+                      ? zoom.source.from.height +
+                        (zoom.source.to.height - zoom.source.from.height) * 0.3
+                      : zoom.source.from.height,
                     zoom.source.to.height,
                   ],
                 }),
@@ -542,9 +720,11 @@ export default function FactorAndAddScreen() {
                   inputRange: [0, 0.3, 1],
                   outputRange: [
                     zoom.from.x,
-                    zoom.result
-                      ? zoom.from.x + (zoom.from.width - 96) / 2
-                      : zoom.from.x,
+                    zoom.direct
+                      ? zoom.from.x + (zoom.to.x - zoom.from.x) * 0.3
+                      : zoom.result
+                        ? zoom.from.x + (zoom.from.width - 96) / 2
+                        : zoom.from.x,
                     zoom.to.x,
                   ],
                 }),
@@ -552,9 +732,11 @@ export default function FactorAndAddScreen() {
                   inputRange: [0, 0.3, 1],
                   outputRange: [
                     zoom.from.y,
-                    zoom.result
-                      ? zoom.from.y + (zoom.from.height - 96) / 2
-                      : zoom.from.y,
+                    zoom.direct
+                      ? zoom.from.y + (zoom.to.y - zoom.from.y) * 0.3
+                      : zoom.result
+                        ? zoom.from.y + (zoom.from.height - 96) / 2
+                        : zoom.from.y,
                     zoom.to.y,
                   ],
                 }),
@@ -562,7 +744,12 @@ export default function FactorAndAddScreen() {
                   inputRange: [0, 0.3, 1],
                   outputRange: [
                     zoom.from.width,
-                    zoom.result ? 96 : zoom.from.width,
+                    zoom.direct
+                      ? zoom.from.width +
+                        (zoom.to.width - zoom.from.width) * 0.3
+                      : zoom.result
+                        ? 96
+                        : zoom.from.width,
                     zoom.to.width,
                   ],
                 }),
@@ -570,7 +757,12 @@ export default function FactorAndAddScreen() {
                   inputRange: [0, 0.3, 1],
                   outputRange: [
                     zoom.from.height,
-                    zoom.result ? 96 : zoom.from.height,
+                    zoom.direct
+                      ? zoom.from.height +
+                        (zoom.to.height - zoom.from.height) * 0.3
+                      : zoom.result
+                        ? 96
+                        : zoom.from.height,
                     zoom.to.height,
                   ],
                 }),
@@ -578,7 +770,11 @@ export default function FactorAndAddScreen() {
                   inputRange: [0, 0.3, 1],
                   outputRange: [
                     zoom.result ? 14 : zoom.from.width / 2,
-                    zoom.result ? 48 : zoom.from.width / 2,
+                    zoom.direct
+                      ? 14 + (zoom.to.width / 2 - 14) * 0.3
+                      : zoom.result
+                        ? 48
+                        : zoom.from.width / 2,
                     zoom.to.width / 2,
                   ],
                 }),
@@ -644,15 +840,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 0.5,
   },
-  mode: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    justifyContent: "flex-end",
-    marginVertical: 16,
-  },
-  modeText: { flex: 1, gap: 4 },
-  modeLabel: { color: Colors.textPrimary, fontSize: 14, fontWeight: "600" },
   caption: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19 },
   prompt: {
     color: Colors.textPrimary,
@@ -684,6 +871,11 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 28,
     alignItems: "center",
+  },
+  secondaryAction: {
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: Colors.teal,
   },
   primaryText: { color: Colors.background, fontSize: 16, fontWeight: "800" },
   sumPanel: {

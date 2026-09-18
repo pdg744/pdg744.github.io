@@ -69,6 +69,9 @@ function DiffySquaresScreen() {
   React.useEffect(() => cancelScheduled, [cancelScheduled]);
   const router = Router.useRouter();
   const {
+    restored,
+    cornerInputs,
+    setCornerInputs,
     phase,
     currentCorners,
     initialCorners,
@@ -86,12 +89,10 @@ function DiffySquaresScreen() {
     resetAnswers,
     reset,
   } = Game.useDiffySquares();
-  const [cornerInputs, setCornerInputs] = React.useState(["", "", "", ""]);
   const [hasFocusedInput, setHasFocusedInput] = React.useState(false);
   const cornerRefs = React.useRef([null, null, null, null]);
   const midpointRefs = React.useRef([null, null, null, null]);
   const keyboardHeight = KeyboardHeight.useKeyboardHeight();
-  const pendingVariation = React.useRef(null);
   const { zoomScale, panResponder, resetZoom } = PinchZoom.usePinchZoom(
     "playing" === phase,
   );
@@ -100,9 +101,6 @@ function DiffySquaresScreen() {
   React.useEffect(() => {
     if ("input" !== phase) return;
     if (skipIntroAnimation) {
-      const e = pendingVariation.current ?? ["", "", "", ""];
-      pendingVariation.current = null;
-      setCornerInputs(e);
       setHasFocusedInput(false);
       setShowCornerInputs(true);
       return void cornerOpacity.setValue(1);
@@ -119,8 +117,12 @@ function DiffySquaresScreen() {
     }, Visualization.TOTAL_DRAW_MS);
     return () => clearTimeout(e);
   }, [phase]);
-  const inputPhaseOpacity = React.useRef(new Animated.Value(1)).current;
-  const playingPhaseOpacity = React.useRef(new Animated.Value(0)).current;
+  const inputPhaseOpacity = React.useRef(
+    new Animated.Value(phase === "input" ? 1 : 0),
+  ).current;
+  const playingPhaseOpacity = React.useRef(
+    new Animated.Value(phase === "input" ? 0 : 1),
+  ).current;
   React.useEffect(() => {
     "complete" === phase && resetZoom();
     "input" === phase &&
@@ -149,11 +151,13 @@ function DiffySquaresScreen() {
   ).current;
   const midpointEnterScale = React.useRef(new Animated.Value(0)).current;
   const [showMidpoints, setShowMidpoints] = React.useState(false);
-  const [displayGeneration, setDisplayGeneration] = React.useState(0);
+  const [displayGeneration, setDisplayGeneration] =
+    React.useState(currentGenIndex);
   const [isFlying, setIsFlying] = React.useState(false);
   const transitionInProgress = React.useRef(false);
   const [suppressNewestLabels, setSuppressNewestLabels] = React.useState(false);
   const answersLocked = React.useRef(false);
+  const flyingAnswers = React.useRef(null);
   React.useEffect(() => {
     if ("playing" !== phase) return;
     if (transitionInProgress.current) return;
@@ -167,7 +171,7 @@ function DiffySquaresScreen() {
       t.setValue(0);
       o.setValue(0);
     });
-    const e = setTimeout(() => {
+    const reveal = () => {
       setDisplayGeneration(currentGenIndex);
       setShowMidpoints(true);
       flyAnimations.forEach(({ opacity: e }) => e.setValue(1));
@@ -177,10 +181,16 @@ function DiffySquaresScreen() {
         tension: 180,
         friction: 8,
       }).start();
-    }, Visualization.TOTAL_DRAW_MS);
+    };
+    if (restored) {
+      reveal();
+      midpointEnterScale.setValue(1);
+      return;
+    }
+    const e = setTimeout(reveal, Visualization.TOTAL_DRAW_MS);
     return () => clearTimeout(e);
-  }, [currentGenIndex, phase]);
-  const restart = () => {
+  }, [currentGenIndex, phase, restored]);
+  const restart = (drafts = ["", "", "", ""]) => {
     cancelScheduled();
     transitionInProgress.current = false;
     answersLocked.current = false;
@@ -193,7 +203,7 @@ function DiffySquaresScreen() {
     setIsFlying(false);
     setShowMidpoints(false);
     setSuppressNewestLabels(false);
-    reset();
+    reset(Array.isArray(drafts) ? drafts : ["", "", "", ""]);
   };
   const completeGeneration = React.useCallback(
     (points) => {
@@ -225,6 +235,12 @@ function DiffySquaresScreen() {
       });
       transitionInProgress.current = true;
       frozenMidpoints.current = points;
+      flyingAnswers.current = {
+        values: points.map((_, side) =>
+          String(Game.correctDifference(currentCorners, side)),
+        ),
+        states: ["correct", "correct", "correct", "correct"],
+      };
       setIsFlying(true);
       setSuppressNewestLabels(true);
       Animated.parallel(animations).start();
@@ -266,6 +282,7 @@ function DiffySquaresScreen() {
     },
     [
       currentGenIndex,
+      currentCorners,
       totalGens,
       advanceGeneration,
       resetAnswers,
@@ -324,8 +341,9 @@ function DiffySquaresScreen() {
   });
   const visibleGenerations =
     "input" === phase ? [EMPTY_CORNERS] : confirmedGenerations;
-  const animateGenIndex =
-    "input" === phase
+  const animateGenIndex = restored
+    ? -1
+    : "input" === phase
       ? skipIntroAnimation
         ? -1
         : 0
@@ -487,8 +505,16 @@ function DiffySquaresScreen() {
                     return (
                       <MidpointInputModule.default
                         side={e}
-                        state={answerStates[e]}
-                        value={userAnswers[e]}
+                        state={
+                          isFlying
+                            ? flyingAnswers.current.states[e]
+                            : answerStates[e]
+                        }
+                        value={
+                          isFlying
+                            ? flyingAnswers.current.values[e]
+                            : userAnswers[e]
+                        }
                         genIndex={currentGenIndex}
                         outerSide={OUTER_SIDE}
                         enterAnim={midpointEnterScale}
@@ -496,6 +522,7 @@ function DiffySquaresScreen() {
                         flyY={flyAnimations[e].y}
                         opacityAnim={flyAnimations[e].opacity}
                         onChangeText={(t, o) => {
+                          if (answersLocked.current) return;
                           const { isCorrect: n, allCorrect: s } = setAnswer(
                             e,
                             t,
@@ -623,9 +650,7 @@ function DiffySquaresScreen() {
                   e && styles.pressed,
                 ]}
                 onPress={() => {
-                  initialCorners &&
-                    ((pendingVariation.current = initialCorners.map(String)),
-                    restart());
+                  if (initialCorners) restart(initialCorners.map(String));
                 }}
               >
                 <Text style={styles.primaryButtonText}>

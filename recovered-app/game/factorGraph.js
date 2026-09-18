@@ -1,6 +1,5 @@
-// Lay out only the numbers the learner has brought into the graph.
-// Cycles and perfect-number loops are valid, so this is not a DAG-only layout.
-export function layoutFactorGraph(connections, savedFactors, width) {
+// A tidy incoming tree for each destination, with cycles retained as cross-edges.
+export function layoutFactorGraph(connections, savedFactors, viewportWidth) {
   const numbers = [
     ...new Set([
       ...connections.flatMap(({ from, to }) => [from, to]),
@@ -8,72 +7,89 @@ export function layoutFactorGraph(connections, savedFactors, width) {
         .filter((key) => savedFactors[key].length)
         .map(Number),
     ]),
-  ];
-  const diameter = width < 350 ? 80 : 96;
-  const height = Math.max(
-    300,
-    Math.ceil(numbers.length / Math.max(2, Math.floor(width / 150))) * 150,
-  );
-  const margin = diameter / 2 + 28;
-  const positions = new Map(
-    numbers.map((number, index) => {
-      const angle = (2 * Math.PI * index) / Math.max(1, numbers.length);
-      return [
-        number,
-        {
-          x: width / 2 + Math.cos(angle) * (width / 2 - margin),
-          y: height / 2 + Math.sin(angle) * (height / 2 - margin),
-        },
-      ];
-    }),
-  );
-  for (let step = 0; step < 240; step++) {
-    const forces = new Map(numbers.map((number) => [number, { x: 0, y: 0 }]));
-    for (let i = 0; i < numbers.length; i++) {
-      for (let j = i + 1; j < numbers.length; j++) {
-        const a = positions.get(numbers[i]),
-          b = positions.get(numbers[j]);
-        const dx = b.x - a.x,
-          dy = b.y - a.y;
-        const distance = Math.max(1, Math.hypot(dx, dy));
-        const strength = Math.min(15, 4500 / (distance * distance));
-        forces.get(numbers[i]).x -= (dx / distance) * strength;
-        forces.get(numbers[i]).y -= (dy / distance) * strength;
-        forces.get(numbers[j]).x += (dx / distance) * strength;
-        forces.get(numbers[j]).y += (dy / distance) * strength;
+  ].sort((a, b) => a - b);
+  const anchors = new Set([1, 6]);
+  const parent = new Map();
+  for (const number of numbers) {
+    const destinations = connections
+      .filter((edge) => edge.from === number && edge.to !== number)
+      .map((edge) => edge.to)
+      .sort((a, b) => a - b);
+    parent.set(number, anchors.has(number) ? null : (destinations[0] ?? null));
+  }
+  // Break one layout link per cycle. All original arrows are still rendered.
+  for (const number of numbers) {
+    const path = [],
+      seen = new Map();
+    let current = number;
+    while (current !== null) {
+      if (seen.has(current)) {
+        parent.set(Math.min(...path.slice(seen.get(current))), null);
+        break;
       }
-    }
-    for (const { from, to } of connections) {
-      if (from === to) continue;
-      const a = positions.get(from),
-        b = positions.get(to);
-      const dx = b.x - a.x,
-        dy = b.y - a.y;
-      const distance = Math.max(1, Math.hypot(dx, dy));
-      const strength = (distance - diameter - 65) * 0.025;
-      forces.get(from).x += (dx / distance) * strength;
-      forces.get(from).y += (dy / distance) * strength;
-      forces.get(to).x -= (dx / distance) * strength;
-      forces.get(to).y -= (dy / distance) * strength;
-    }
-    for (const number of numbers) {
-      const point = positions.get(number),
-        force = forces.get(number);
-      point.x = Math.max(
-        margin,
-        Math.min(
-          width - margin,
-          point.x + force.x + (width / 2 - point.x) * 0.002,
-        ),
-      );
-      point.y = Math.max(
-        margin,
-        Math.min(
-          height - margin,
-          point.y + force.y + (height / 2 - point.y) * 0.002,
-        ),
-      );
+      seen.set(current, path.length);
+      path.push(current);
+      current = parent.get(current) ?? null;
     }
   }
-  return { numbers, positions, diameter, height };
+  const children = new Map(numbers.map((number) => [number, []]));
+  for (const number of numbers) {
+    if (parent.get(number) !== null)
+      children.get(parent.get(number)).push(number);
+  }
+  const roots = numbers
+    .filter((number) => parent.get(number) === null)
+    .sort(
+      (a, b) => (anchors.has(a) ? 0 : 1) - (anchors.has(b) ? 0 : 1) || a - b,
+    );
+  const spans = new Map();
+  function span(number) {
+    if (!spans.has(number)) {
+      const branches = children.get(number);
+      // Equal sibling slots keep converging branches symmetrical, even with unequal subtrees.
+      spans.set(
+        number,
+        branches.length ? branches.length * Math.max(...branches.map(span)) : 1,
+      );
+    }
+    return spans.get(number);
+  }
+  const diameter =
+    numbers.length <= 4
+      ? Math.min(144, (viewportWidth - 52) / 2)
+      : viewportWidth < 350
+        ? 88
+        : 108;
+  const pitch = diameter + 48;
+  const slots = roots.reduce((sum, root) => sum + span(root), 0);
+  const width = Math.max(viewportWidth, slots * pitch);
+  const positions = new Map();
+  let maxDepth = 0;
+  function place(number, center, depth) {
+    positions.set(number, { x: center, depth });
+    maxDepth = Math.max(maxDepth, depth);
+    const branches = children.get(number);
+    const spacing = branches.length
+      ? (span(number) / branches.length) * pitch
+      : 0;
+    branches.forEach((child, index) =>
+      place(
+        child,
+        center + (index - (branches.length - 1) / 2) * spacing,
+        depth + 1,
+      ),
+    );
+  }
+  let offset = (width - slots * pitch) / 2;
+  for (const root of roots) {
+    const treeWidth = span(root) * pitch;
+    place(root, offset + treeWidth / 2, 0);
+    offset += treeWidth;
+  }
+  const top = diameter / 2 + 48;
+  const height = Math.max(340, top + maxDepth * pitch + diameter / 2 + 24);
+  const baseline = height - diameter / 2 - 24;
+  for (const [number, point] of positions)
+    positions.set(number, { x: point.x, y: baseline - point.depth * pitch });
+  return { numbers, positions, diameter, height, width };
 }

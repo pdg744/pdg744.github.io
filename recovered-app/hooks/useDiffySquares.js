@@ -7,14 +7,51 @@ import {
   checkAnswer,
   correctDifference,
 } from "../game/diffy";
+import { validateDiffyProgress } from "../game/diffyProgress.js";
+import { readProgress, writeProgress } from "../utils/progressStorage.js";
 export { correctDifference } from "../game/diffy";
 export function useDiffySquares() {
-  const [phase, setPhase] = useState("input");
-  const [generations, setGenerations] = useState([]);
-  const [currentGenIndex, setCurrentGenIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState(EMPTY_ANSWERS);
-  const [answerStates, setAnswerStates] = useState(EMPTY_STATES);
-  const [skipIntroAnimation, setSkipIntroAnimation] = useState(false);
+  const [saved] = useState(() =>
+    readProgress("diffy-squares", validateDiffyProgress),
+  );
+  const [restored, setRestored] = useState(Boolean(saved));
+  const [cornerInputs, setCornerInputs] = useState(
+    saved?.cornerInputs ?? EMPTY_ANSWERS,
+  );
+  const [phase, setPhase] = useState(saved?.phase ?? "input");
+  const [generations, setGenerations] = useState(() =>
+    saved?.initialCorners ? buildGenerations(saved.initialCorners) : [],
+  );
+  const [currentGenIndex, setCurrentGenIndex] = useState(
+    saved?.currentGenIndex ?? 0,
+  );
+  const [userAnswers, setUserAnswers] = useState(
+    saved?.userAnswers ?? EMPTY_ANSWERS,
+  );
+  const [answerStates, setAnswerStates] = useState(() =>
+    saved?.phase === "playing"
+      ? saved.userAnswers.map(
+          (answer, side) =>
+            checkAnswer(
+              answer,
+              correctDifference(
+                buildGenerations(saved.initialCorners)[saved.currentGenIndex],
+                side,
+              ),
+            ).state,
+        )
+      : EMPTY_STATES,
+  );
+  const [skipIntroAnimation, setSkipIntroAnimation] = useState(Boolean(saved));
+  useEffect(() => {
+    writeProgress("diffy-squares", {
+      phase,
+      cornerInputs,
+      initialCorners: generations[0] ?? null,
+      currentGenIndex,
+      userAnswers,
+    });
+  }, [phase, cornerInputs, generations, currentGenIndex, userAnswers]);
   const completionTimer = useRef(null);
   const clearCompletion = useCallback(() => {
     clearTimeout(completionTimer.current);
@@ -28,6 +65,7 @@ export function useDiffySquares() {
   const start = useCallback(
     (corners) => {
       clearCompletion();
+      setRestored(false);
       const next = buildGenerations(corners);
       setGenerations(next);
       setCurrentGenIndex(0);
@@ -59,6 +97,9 @@ export function useDiffySquares() {
   }, []);
   const advanceGeneration = useCallback(
     (generation, total) => {
+      if (generation !== currentGenIndex || generation >= total - 1) return;
+      setRestored(false);
+      resetAnswers();
       const next = generation + 1;
       setCurrentGenIndex(next);
       clearCompletion();
@@ -68,17 +109,25 @@ export function useDiffySquares() {
           TOTAL_DRAW_MS,
         );
     },
-    [clearCompletion],
+    [clearCompletion, currentGenIndex, resetAnswers],
   );
-  const reset = useCallback(() => {
-    clearCompletion();
-    setSkipIntroAnimation(true);
-    setPhase("input");
-    setGenerations([]);
-    setCurrentGenIndex(0);
-    resetAnswers();
-  }, [clearCompletion, resetAnswers]);
+  const reset = useCallback(
+    (drafts = EMPTY_ANSWERS) => {
+      setCornerInputs(drafts);
+      setRestored(false);
+      clearCompletion();
+      setSkipIntroAnimation(true);
+      setPhase("input");
+      setGenerations([]);
+      setCurrentGenIndex(0);
+      resetAnswers();
+    },
+    [clearCompletion, resetAnswers],
+  );
   return {
+    restored,
+    cornerInputs,
+    setCornerInputs,
     phase,
     currentCorners: generations[currentGenIndex] ?? null,
     initialCorners: generations[0] ?? null,

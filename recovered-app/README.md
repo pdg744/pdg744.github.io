@@ -3,6 +3,8 @@
 Editable recovery of the Expo app exported at `mathexplorers.xyz/app/`.
 Recovered from the preserved Metro bundle; see [recovery notes](../recovery/README.md).
 
+Plan and track work on the [repo kanban board](../KANBAN.md).
+
 ## Run locally
 
 Use Node 20.19+ (verified here with Node 26) and npm:
@@ -45,9 +47,15 @@ Diffy Squares already follows that structure. Its game rules are in `game/diffy.
 
 ## Factor and Add
 
-Choose a number from 2–30, enter its factors, then add them excluding the number itself. Submitted multiplication pairs retain their boxes inside the focused circle. Next animates the factors into an equation and focuses the sum input. Completing a sum animates the input into a graph node and returns to a graph of explored numbers. Unvisited numbers remain in a compact picker below the graph; factors, pairs, and connections remain available during the session. Check answers can be switched off for exploration. Back moves up one step.
+Choose a number from 2–30, enter its factors, then add them excluding the number itself. Submitted multiplication pairs retain their boxes inside the focused circle. Next animates the factors into an equation and focuses the sum input. Completing a sum animates the input into a graph node and returns to a graph of explored numbers. Unvisited numbers remain in a compact picker below the graph; factors, pairs, and connections are saved automatically. Factor pairs and sums are always checked before acceptance. Back moves up one step. Prime factors connect directly to 1 without a sum prompt. Completed nodes are display-only. The graph uses vertical columns and symmetric branches, automatically sizes to the screen, and keeps the number picker below it. Start over asks for confirmation before clearing Factor and Add progress.
 
-Progress is held in memory and resets on reload. Browser checks cover factor entry, wrapping, the sum transition, automatic focus, and step-by-step Back navigation.
+## Saved progress
+
+Both activities automatically save their current step and unfinished input in this browser. Refresh restores Factor and Add pairs, factors and connections, and Diffy Squares starting inputs, current generation, partial answers and completion. Returning to an activity also restores its work. Diffy Squares New Game/Fresh Start replaces its saved work; Try a Variation retains the starting numbers as a new draft.
+
+The shared `utils/progressStorage.js` adapter stores versioned snapshots under `mathexplorers.progress.<activity>`. Activity validators reject corrupt or incompatible records and reconstruct derived state. Animation state is not stored; interrupted transitions restore to a usable mathematical state.
+
+This MVP uses browser localStorage, without accounts or cross-device sync. Clearing site data removes progress. If storage is blocked or full, play continues with a memory fallback, but refresh recovery is unavailable. Native exports also use memory only; durable native persistence is outside this MVP.
 
 ## Publishing later
 
@@ -57,9 +65,11 @@ The current website still uses the old `../public/app/` export. Builds here writ
 
 - Production web export builds.
 - iOS and Android Hermes exports compile.
-- Ten rule and graph-layout tests pass, including 1,000 Diffy Squares comparisons against the original bundle and Factor and Add rules.
+- Twenty-nine rule, graph-layout and persistence tests pass, including 1,000 Diffy Squares comparisons against the original bundle and Factor and Add rules.
 - Browser: intro → topics → game, inputs, incorrect-answer feedback/correction, five-level progression to zero, variation, fresh start and the all-zero case.
 - Layout inspected at 1280×720, 390×844 and 320×568.
 - Restart during the final drawing animation leaves the new input screen intact.
+- Persistence browser checks: partial factor/corner/sum entry, invalid submissions, graph refresh, Diffy partial answers and refresh through all five generation transitions, completion, variation and New Game recovery, plus returning to saved Factor work from another activity.
+- Automated persistence checks cover malformed/version-mismatched records and blocked/full storage.
 
 These browser checks use Chromium at phone-sized viewports, not actual iOS/Android devices. Native runtime behavior, Safari/Firefox and real mobile keyboards/gestures are not yet verified.

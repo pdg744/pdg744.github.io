@@ -1,12 +1,13 @@
 import { useMemo } from "react";
 import { layoutFactorGraph } from "../game/factorGraph.js";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ScrollView, Pressable, StyleSheet, Text, View } from "react-native";
 import Svg, { Path, Defs, Marker } from "react-native-svg";
 import { Colors } from "../constants/theme.js";
 import { STARTING_NUMBERS } from "../game/factorAndAdd.js";
 
 export default function FactorNumberBoard({
   width,
+  availableHeight = 600,
   phase,
   chosen,
   selected,
@@ -16,150 +17,204 @@ export default function FactorNumberBoard({
   savedFactors = {},
   nodeRefs,
 }) {
-  const { numbers, positions, diameter, height } = useMemo(
+  const graph = useMemo(
     () => layoutFactorGraph(connections, savedFactors, width),
     [connections, savedFactors, width],
   );
-  const radius = diameter / 2;
+  const { numbers } = graph;
   const unexplored = STARTING_NUMBERS.filter(
     (number) => number >= 2 && !numbers.includes(number),
   );
-
+  const pickerRows = Math.ceil(
+    unexplored.length / Math.max(1, Math.floor((width + 8) / 50)),
+  );
+  const frameHeight = Math.max(200, availableHeight - pickerRows * 50 - 66);
+  const fitScale = Math.min(1, width / graph.width, frameHeight / graph.height);
+  // Keep numbers readable when a large graph needs scrolling.
+  const scale = Math.max(fitScale, 32 / graph.diameter);
+  const diameter = graph.diameter * scale;
+  const radius = diameter / 2;
+  const graphWidth = Math.max(width, graph.width * scale);
+  const height = Math.max(frameHeight, graph.height * scale);
+  const positions = new Map(
+    [...graph.positions].map(([number, point]) => [
+      number,
+      {
+        x: point.x * scale + (graphWidth - graph.width * scale) / 2,
+        y: point.y * scale + (height - graph.height * scale) / 2,
+      },
+    ]),
+  );
   function edgePath({ from, to }) {
     const a = positions.get(from),
       b = positions.get(to);
     if (from === to)
-      return `M ${a.x - radius * 0.55} ${a.y - radius * 0.84} C ${a.x - radius * 1.4} ${a.y - radius - 40}, ${a.x + radius * 1.4} ${a.y - radius - 40}, ${a.x + radius * 0.55} ${a.y - radius * 0.84}`;
+      return `M ${a.x - radius * 0.55} ${a.y - radius * 0.84} C ${a.x - radius * 1.4} ${a.y - radius - 40 * scale}, ${a.x + radius * 1.4} ${a.y - radius - 40 * scale}, ${a.x + radius * 0.55} ${a.y - radius * 0.84}`;
     const dx = b.x - a.x,
       dy = b.y - a.y,
       length = Math.hypot(dx, dy);
     const ux = dx / length,
       uy = dy / length;
-    const bend = Math.min(28, length * 0.15);
+    const bend = 0;
     return `M ${a.x + ux * radius} ${a.y + uy * radius} Q ${(a.x + b.x) / 2 - uy * bend} ${(a.y + b.y) / 2 + ux * bend} ${b.x - ux * (radius + 5)} ${b.y - uy * (radius + 5)}`;
   }
 
   return (
     <View style={{ width }}>
       {numbers.length > 0 && (
-        <View style={{ width, height }}>
-          <Svg
-            width={width}
-            height={height}
-            style={StyleSheet.absoluteFill}
-            pointerEvents="none"
-            accessible={false}
+        <View>
+          <ScrollView
+            nestedScrollEnabled
+            style={{ height: frameHeight }}
+            keyboardShouldPersistTaps="handled"
           >
-            <Defs>
-              <Marker
-                id="connection-arrow"
-                markerWidth="7"
-                markerHeight="7"
-                refX="6"
-                refY="3.5"
-                orient="auto"
-                markerUnits="userSpaceOnUse"
-              >
-                <Path d="M 0 0 L 7 3.5 L 0 7 Z" fill={Colors.teal} />
-              </Marker>
-              <Marker
-                id="latest-arrow"
-                markerWidth="8"
-                markerHeight="8"
-                refX="7"
-                refY="4"
-                orient="auto"
-                markerUnits="userSpaceOnUse"
-              >
-                <Path d="M 0 0 L 8 4 L 0 8 Z" fill={Colors.gold} />
-              </Marker>
-            </Defs>
-            {connections.map((edge) => {
-              const isLatest =
-                latest?.from === edge.from && latest?.to === edge.to;
-              return (
-                <Path
-                  key={`${edge.from}-${edge.to}`}
-                  d={edgePath(edge)}
-                  fill="none"
-                  stroke={isLatest ? Colors.gold : Colors.teal}
-                  strokeWidth={isLatest ? 2.5 : 1.5}
-                  opacity={isLatest ? 1 : 0.55}
-                  markerEnd={`url(#${isLatest ? "latest-arrow" : "connection-arrow"})`}
-                />
-              );
-            })}
-          </Svg>
-          {numbers.map((number) => {
-            const { x, y } = positions.get(number);
-            const factors = savedFactors[number]?.slice().sort((a, b) => a - b);
-            const isSelected = phase === "factors" && selected.includes(number);
-            const isChosen = number === chosen && phase !== "choose";
-            const disabled =
-              phase === "sum" ||
-              (phase === "choose" && (number < 2 || number > 30)) ||
-              (phase === "factors" && !STARTING_NUMBERS.includes(number));
-            return (
-              <Pressable
-                key={number}
-                ref={(node) => {
-                  if (nodeRefs) nodeRefs.current[number] = node;
-                }}
-                collapsable={false}
-                accessibilityHint={
-                  factors
-                    ? `Saved factors: ${factors.join(", ")}. Open to edit.`
-                    : undefined
-                }
-                accessibilityRole="button"
-                accessibilityLabel={`${phase === "factors" ? "Factor" : "Number"} ${number}`}
-                accessibilityState={{ disabled, selected: isSelected }}
-                disabled={disabled}
-                onPress={() => onNumberPress(number)}
-                style={({ pressed }) => [
-                  styles.circle,
-                  {
-                    left: x - radius,
-                    top: y - radius,
-                    width: diameter,
-                    height: diameter,
-                    borderRadius: radius,
-                  },
-                  factors && styles.recorded,
-                  isChosen && styles.chosen,
-                  isSelected && styles.selected,
-                  phase === "choose" && disabled && styles.unavailable,
-                  pressed && styles.pressed,
-                ]}
-              >
-                <Text
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  style={[
-                    styles.number,
-                    isSelected && styles.selectedNumber,
-                    number > 999 && { fontSize: 11 },
-                  ]}
+            <ScrollView
+              horizontal
+              nestedScrollEnabled
+              style={{ width }}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View style={{ width: graphWidth, height }}>
+                <Svg
+                  width={graphWidth}
+                  height={height}
+                  style={StyleSheet.absoluteFill}
+                  pointerEvents="none"
+                  accessible={false}
                 >
-                  {number}
-                </Text>
-                {factors && (
-                  <Text
-                    numberOfLines={4}
-                    style={[
-                      styles.factorSummary,
-                      { fontSize: diameter < 90 ? 9 : 11 },
-                    ]}
-                  >
-                    {factors.length
-                      ? factors.slice(0, 8).join(", ") +
-                        (factors.length > 8 ? ` +${factors.length - 8}` : "")
-                      : "—"}
-                  </Text>
-                )}
-              </Pressable>
-            );
-          })}
+                  <Defs>
+                    <Marker
+                      id="connection-arrow"
+                      markerWidth="7"
+                      markerHeight="7"
+                      refX="6"
+                      refY="3.5"
+                      orient="auto"
+                      markerUnits="userSpaceOnUse"
+                    >
+                      <Path d="M 0 0 L 7 3.5 L 0 7 Z" fill={Colors.teal} />
+                    </Marker>
+                    <Marker
+                      id="latest-arrow"
+                      markerWidth="8"
+                      markerHeight="8"
+                      refX="7"
+                      refY="4"
+                      orient="auto"
+                      markerUnits="userSpaceOnUse"
+                    >
+                      <Path d="M 0 0 L 8 4 L 0 8 Z" fill={Colors.gold} />
+                    </Marker>
+                  </Defs>
+                  {connections.map((edge) => {
+                    const isLatest =
+                      latest?.from === edge.from && latest?.to === edge.to;
+                    return (
+                      <Path
+                        key={`${edge.from}-${edge.to}`}
+                        d={edgePath(edge)}
+                        fill="none"
+                        stroke={isLatest ? Colors.gold : Colors.teal}
+                        strokeWidth={isLatest ? 2.5 : 1.5}
+                        opacity={isLatest ? 1 : 0.55}
+                        markerEnd={`url(#${isLatest ? "latest-arrow" : "connection-arrow"})`}
+                      />
+                    );
+                  })}
+                </Svg>
+                {numbers.map((number) => {
+                  const { x, y } = positions.get(number);
+                  const factors = savedFactors[number]
+                    ?.slice()
+                    .sort((a, b) => a - b);
+                  const isSelected =
+                    phase === "factors" && selected.includes(number);
+                  const isChosen = number === chosen && phase !== "choose";
+                  const completed = connections.some(
+                    (edge) => edge.from === number,
+                  );
+                  const disabled =
+                    completed ||
+                    phase === "sum" ||
+                    (phase === "choose" && (number < 2 || number > 30)) ||
+                    (phase === "factors" && !STARTING_NUMBERS.includes(number));
+                  return (
+                    <Pressable
+                      key={number}
+                      ref={(node) => {
+                        if (nodeRefs) nodeRefs.current[number] = node;
+                      }}
+                      collapsable={false}
+                      accessibilityHint={
+                        completed
+                          ? `Completed.${factors ? ` Factors: ${factors.join(", ")}.` : ""}`
+                          : disabled
+                            ? "Result node. Starting numbers are limited to 2 through 30."
+                            : factors
+                              ? `Saved factors: ${factors.join(", ")}. Open to edit.`
+                              : "Explore this number."
+                      }
+                      accessibilityRole="button"
+                      accessibilityLabel={`${phase === "factors" ? "Factor" : "Number"} ${number}`}
+                      accessibilityState={{ disabled, selected: isSelected }}
+                      disabled={disabled}
+                      onPress={() => onNumberPress(number)}
+                      style={({ pressed }) => [
+                        styles.circle,
+                        {
+                          left: x - radius,
+                          top: y - radius,
+                          width: diameter,
+                          height: diameter,
+                          borderRadius: radius,
+                        },
+                        factors && styles.recorded,
+                        isChosen && styles.chosen,
+                        isSelected && styles.selected,
+                        latest?.to === number && styles.latestNode,
+                        pressed && styles.pressed,
+                      ]}
+                    >
+                      <Text
+                        adjustsFontSizeToFit
+                        numberOfLines={1}
+                        style={[
+                          styles.number,
+                          {
+                            fontSize:
+                              diameter >= 120 ? 28 : diameter >= 65 ? 22 : 16,
+                          },
+                          isSelected && styles.selectedNumber,
+                          number > 999 && { fontSize: 11 },
+                        ]}
+                      >
+                        {number}
+                      </Text>
+                      {factors && diameter >= 80 && (
+                        <Text
+                          numberOfLines={4}
+                          style={[
+                            styles.factorSummary,
+                            {
+                              fontSize: diameter < 100 ? 11 : 13,
+                              lineHeight: diameter < 100 ? 14 : 17,
+                            },
+                          ]}
+                        >
+                          {factors.length
+                            ? factors.slice(0, 8).join(", ") +
+                              (factors.length > 8
+                                ? ` +${factors.length - 8}`
+                                : "")
+                            : "—"}
+                        </Text>
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </ScrollView>
+          </ScrollView>
         </View>
       )}
       <View
@@ -244,7 +299,7 @@ const styles = StyleSheet.create({
   },
   chosen: { borderColor: Colors.orange, borderWidth: 2.5 },
   selected: { backgroundColor: Colors.teal, borderColor: Colors.teal },
-  unavailable: { opacity: 0.5 },
+  latestNode: { borderColor: Colors.gold, borderWidth: 2.5 },
   pressed: { opacity: 0.7, transform: [{ scale: 0.95 }] },
   number: { color: Colors.textPrimary, fontSize: 17, fontWeight: "700" },
   selectedNumber: { color: Colors.background },
