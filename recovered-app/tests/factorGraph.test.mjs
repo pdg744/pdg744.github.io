@@ -95,3 +95,16 @@ test("incoming branches are symmetric and independent of discovery order", () =>
   assert.deepEqual(graph, layoutFactorGraph([...edges].reverse(), {}, 342));
   assert.ok(graph.width > 342);
 });
+
+test("zero terminates a continued chain below one", () => {
+  const graph = layoutFactorGraph(
+    [
+      { from: 17, to: 1 },
+      { from: 1, to: 0 },
+    ],
+    {},
+    272,
+  );
+  assert.equal(graph.positions.get(1).x, graph.positions.get(0).x);
+  assert.ok(graph.positions.get(1).y < graph.positions.get(0).y);
+});

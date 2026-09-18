@@ -3,7 +3,11 @@ import { layoutFactorGraph } from "../game/factorGraph.js";
 import { ScrollView, Pressable, StyleSheet, Text, View } from "react-native";
 import Svg, { Path, Defs, Marker } from "react-native-svg";
 import { Colors } from "../constants/theme.js";
-import { STARTING_NUMBERS } from "../game/factorAndAdd.js";
+import {
+  STARTING_NUMBERS,
+  explorationLimit,
+  MAX_EXPLORATIONS,
+} from "../game/factorAndAdd.js";
 
 export default function FactorNumberBoard({
   width,
@@ -133,11 +137,12 @@ export default function FactorNumberBoard({
                   const completed = connections.some(
                     (edge) => edge.from === number,
                   );
-                  const disabled =
-                    completed ||
-                    phase === "sum" ||
-                    (phase === "choose" && (number < 2 || number > 30)) ||
-                    (phase === "factors" && !STARTING_NUMBERS.includes(number));
+                  const limit = explorationLimit(
+                    number,
+                    connections,
+                    savedFactors,
+                  );
+                  const disabled = phase !== "choose" || !!limit;
                   return (
                     <Pressable
                       key={number}
@@ -149,7 +154,7 @@ export default function FactorNumberBoard({
                         completed
                           ? `Completed.${factors ? ` Factors: ${factors.join(", ")}.` : ""}`
                           : disabled
-                            ? "Result node. Starting numbers are limited to 2 through 30."
+                            ? limit || "Result node."
                             : factors
                               ? `Saved factors: ${factors.join(", ")}. Open to edit.`
                               : "Explore this number."
@@ -190,6 +195,17 @@ export default function FactorNumberBoard({
                       >
                         {number}
                       </Text>
+                      {limit && limit !== "Completed" && (
+                        <Text
+                          style={{
+                            color: Colors.textSecondary,
+                            fontSize: 10,
+                            textAlign: "center",
+                          }}
+                        >
+                          {number === 0 ? "End" : "Limit reached"}
+                        </Text>
+                      )}
                       {factors && diameter >= 80 && (
                         <Text
                           numberOfLines={4}
@@ -216,6 +232,11 @@ export default function FactorNumberBoard({
             </ScrollView>
           </ScrollView>
         </View>
+      )}
+      {Object.keys(savedFactors).length >= MAX_EXPLORATIONS && (
+        <Text style={{ color: Colors.textSecondary, textAlign: "center" }}>
+          Graph limit: 128 explored numbers. Start over to explore more.
+        </Text>
       )}
       <View
         style={{
@@ -254,6 +275,10 @@ export default function FactorNumberBoard({
               collapsable={false}
               accessibilityRole="button"
               accessibilityLabel={`Number ${number}`}
+              disabled={!!explorationLimit(number, connections, savedFactors)}
+              accessibilityHint={
+                explorationLimit(number, connections, savedFactors) || undefined
+              }
               onPress={() => onNumberPress(number)}
               style={({ pressed }) => ({
                 width: 42,

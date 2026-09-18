@@ -8,7 +8,7 @@ export function layoutFactorGraph(connections, savedFactors, viewportWidth) {
         .map(Number),
     ]),
   ].sort((a, b) => a - b);
-  const anchors = new Set([1, 6]);
+  const anchors = new Set([0, 6]);
   const parent = new Map();
   for (const number of numbers) {
     const destinations = connections

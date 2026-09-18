@@ -23,6 +23,9 @@ import FactorFocusCircle from "../components/FactorFocusCircle.jsx";
 import FactorNumberBoard from "../components/FactorNumberBoard.jsx";
 import {
   addConnection,
+  explorationLimit,
+  FACTOR_DIGITS,
+  SUM_DIGITS,
   factorsOf,
   factorsToAdd,
   hasAllFactors,
@@ -250,7 +253,7 @@ export default function FactorAndAddScreen() {
         : "Add the factors.";
 
   async function selectNumber(number) {
-    if (transitioning || connections.some((edge) => edge.from === number))
+    if (transitioning || explorationLimit(number, connections, savedFactors))
       return;
     setFeedback("");
     boardScroll.current = currentScroll.current;
@@ -272,10 +275,13 @@ export default function FactorAndAddScreen() {
     if (
       pair.some(
         (value) =>
-          !/^\d+$/.test(value) || Number(value) < 1 || Number(value) > 30,
+          !/^\d+$/.test(value) ||
+          Number(value) < 1 ||
+          !Number.isSafeInteger(Number(value)) ||
+          Number(value) > chosen,
       )
     ) {
-      setFeedback("Enter 1–30 in both boxes.");
+      setFeedback(`Enter 1–${chosen} in both boxes.`);
       return;
     }
     const values = pair.map(Number);
@@ -546,14 +552,18 @@ export default function FactorAndAddScreen() {
                   prompt={`What are the factors of ${chosen}?`}
                   pairedValue={pairedInput}
                   onPairedChange={(value) => {
-                    if (/^\d*$/.test(value)) {
+                    if (/^\d*$/.test(value) && value.length <= FACTOR_DIGITS) {
                       setPairedInput(value);
                       setFeedback("");
                     }
                   }}
                   value={phase === "sum" ? sum : factorInput}
                   onChange={(value) => {
-                    if (/^\d*$/.test(value)) {
+                    if (
+                      /^\d*$/.test(value) &&
+                      value.length <=
+                        (phase === "sum" ? SUM_DIGITS : FACTOR_DIGITS)
+                    ) {
                       if (phase === "sum") setSum(value);
                       else setFactorInput(value);
                       setFeedback("");

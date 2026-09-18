@@ -10,14 +10,14 @@ Cards are ordered by priority within each column. Review contains implemented wo
 | Backlog | Next | In progress | Review | Done |
 | --- | --- | --- | --- | --- |
 | [QA-01 · Check real devices and browsers](#qa-01-check-real-devices-and-browsers) | — | — | [SAVE-01 · Restore progress after refresh](#save-01-restore-progress-after-refresh) | [FA-00 · Recover the app and establish the activity](#fa-00-recover-the-app-and-establish-the-activity) |
-| [FA-07 · Continue discovered chains](#fa-07-continue-discovered-chains) | | | [FA-06 · Always check answers](#fa-06-always-check-answers) | |
+| | | | [FA-06 · Always check answers](#fa-06-always-check-answers) | [FA-07 · Continue discovered chains](#fa-07-continue-discovered-chains) |
 | | | | [FA-01 · Fit longer lists inside the circle](#fa-01-fit-longer-lists-inside-the-circle) | |
 | | | | [FA-02 · Clarify the primary action](#fa-02-clarify-the-primary-action) | |
 | | | | [FA-03 · Scale the graph to its content](#fa-03-scale-the-graph-to-its-content) | |
 | | | | [FA-04 · Give new results visual emphasis](#fa-04-give-new-results-visual-emphasis) | |
 | | | | [FA-05 · Make pair removal discoverable](#fa-05-make-pair-removal-discoverable) | |
 
-**Current review:** The five design cards plus refresh persistence and always-on correctness are implemented locally and ready for user review. Twenty-nine automated tests pass; web and native exports build. Refresh checks cover drafts, sums, graphs, Diffy generation transitions, completion, variation, and New Game. Earlier design checks covered desktop and 320/390 px layouts, explicit pair removal/resubmission, four correct pairs, and an outside-range result. Historical unchecked-mode checks are superseded by FA-06. Real devices remain under QA-01. These passes are included in the current source checkpoint; the live app export has not been replaced.
+**Current review:** The five design cards plus refresh persistence and always-on correctness are implemented locally and ready for user review. Thirty-four automated tests pass; web and native exports build. Refresh checks cover drafts, sums, graphs, Diffy generation transitions, completion, variation, and New Game. Earlier design checks covered desktop and 320/390 px layouts, explicit pair removal/resubmission, four correct pairs, and an outside-range result. Historical unchecked-mode checks are superseded by FA-06. Real devices remain under QA-01. The earlier recovered app was published successfully by GitHub Pages (run 35399254573). FA-07 is validated locally and its updated public/app export is prepared for the next commit and push.
 
 ## Working agreements
 
@@ -34,7 +34,7 @@ Cards are ordered by priority within each column. Review contains implemented wo
 - Refresh recovery is the highest priority. Start with automatic saving in the same browser; accounts, cross-device sync, and a broader product model are later decisions.
 - The UI should speak for itself. Do not add instructional or investigation prompts in this pass.
 - Always enforce answer correctness when accepting input. FA-06 supersedes the earlier requirements to support Check answers off; historical implementation and validation notes below describe the previous behavior.
-- Continuing discovered chains is agreed but not urgent; track it in Backlog.
+- Continuing discovered chains is implemented in FA-07.
 
 ## Cards
 
@@ -81,6 +81,8 @@ Cards are ordered by priority within each column. Review contains implemented wo
 
 ### FA-07: Continue discovered chains
 
+**Owner:** Codex
+
 **Problem:** Results outside the initial 2–30 picker cannot be explored, stopping chains such as 24 → 36.
 
 **Acceptance criteria**
@@ -91,7 +93,7 @@ Cards are ordered by priority within each column. Review contains implemented wo
 - Revisited nodes, merged chains, and loops remain usable and survive refresh.
 - Define supported numeric/resource limits and handle them without hangs or incorrect arithmetic.
 
-**Priority:** Backlog; refresh recovery comes first. The initial picker can remain 2–30.
+**Completed / evidence (2026-09-18):** Discovered positive results through 1,000,000 can be explored; the initial picker remains 2–30. Trial division generates complete factor sets. Inputs and validated snapshots support larger numbers; completed nodes remain display-only so merged chains and loops retain existing work. One can be explored as 1 × 1, then connects to terminal zero. Graphs allow 128 explored numbers; limit nodes remain visible with an explanation. Thirty-four tests pass, covering larger factor sets, cycles, merges, zero, numeric limits and persistence. Chromium walkthrough completed 24 → 36 → 55 → 17 → 1 → 0 at 390 px with reduced motion and 320 px with animations, with refresh after every connection and during a draft pair. Large-factor-set browser checks covered 83,160 (128 factors) and 1,000,000, including a scrollable sum and the disabled 1,480,437 result. Web, Astro and native exports build.
 
 ### FA-01: Fit longer lists inside the circle
 

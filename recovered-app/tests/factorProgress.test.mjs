@@ -109,7 +109,7 @@ test("unchecked, duplicate and nonfinite edges cannot restore", () => {
       { from: 24, to: 36 },
       { from: 24, to: 36 },
     ],
-    [{ from: 31, to: 1 }],
+    [{ from: 1000001, to: 1 }],
     [{ from: 6, to: Infinity }],
     [null],
   ])
@@ -138,13 +138,68 @@ test("malformed shapes and out-of-bounds snapshots safely fail validation", () =
       { pairs: Array(16).fill([1, 6]) },
       { savedPairs: null },
       { savedFactors: [] },
-      { factorInput: "123" },
+      { factorInput: "12345678" },
       { pairedInput: "-1" },
-      { sum: "1234567" },
+      { sum: "123456789" },
       { sum: 6 },
       { connections: null },
     ].map((changes) => ({ ...complete(), ...changes })),
   ]) {
     assert.equal(validateFactorProgress(value), null);
+  }
+});
+
+test("continued chains, merged paths, cycles and terminal zero survive serialization", () => {
+  const state = {
+    ...emptyFactorProgress(),
+    phase: "factors",
+    chosen: 36,
+    selected: [1, 36],
+    pairs: [[1, 36]],
+    factorInput: "3",
+    pairedInput: "12",
+    savedFactors: { 36: [1, 36] },
+    savedPairs: { 36: [[1, 36]] },
+    connections: [
+      { from: 24, to: 36 },
+      { from: 36, to: 55 },
+      { from: 55, to: 17 },
+      { from: 17, to: 1 },
+      { from: 1, to: 0 },
+      { from: 7, to: 1 },
+      { from: 220, to: 284 },
+      { from: 284, to: 220 },
+      { from: 6, to: 6 },
+    ],
+    latest: { from: 1, to: 0 },
+  };
+  assert.deepEqual(
+    validateFactorProgress(JSON.parse(JSON.stringify(state))),
+    state,
+  );
+  assert.equal(validateFactorProgress({ ...state, chosen: 0 }), null);
+  assert.equal(
+    validateFactorProgress({ ...state, connections: [{ from: 0, to: 0 }] }),
+    null,
+  );
+});
+test("complete larger factor sets and upper-bound results restore", async () => {
+  const { factorsOf, properFactorSum } =
+    await import("../game/factorAndAdd.js");
+  for (const chosen of [1, 36, 83160, 1000000]) {
+    const selected = factorsOf(chosen);
+    const pairs = selected
+      .filter((n) => n * n <= chosen)
+      .map((n) => [n, chosen / n]);
+    const state = {
+      ...emptyFactorProgress(),
+      phase: "sum",
+      chosen,
+      selected,
+      pairs,
+      sum: String(properFactorSum(chosen)),
+      connections: [{ from: chosen, to: properFactorSum(chosen) }],
+    };
+    assert.deepEqual(validateFactorProgress(state), state);
   }
 });

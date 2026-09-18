@@ -12,6 +12,8 @@ import {
 import Svg, { Path } from "react-native-svg";
 import { Colors } from "../constants/theme.js";
 
+import { FACTOR_DIGITS, SUM_DIGITS } from "../game/factorAndAdd.js";
+
 const measure = (node) =>
   new Promise((resolve) => {
     if (!node) return resolve(null);
@@ -53,7 +55,11 @@ export default function FactorEntry({
   const [atSum, setAtSum] = useState(summing);
   const canAdd =
     [value, pairedValue].every(
-      (item) => /^\d+$/.test(item) && Number(item) >= 1 && Number(item) <= 30,
+      (item) =>
+        /^\d+$/.test(item) &&
+        Number(item) >= 1 &&
+        Number.isSafeInteger(Number(item)) &&
+        Number(item) <= number,
     ) && [value, pairedValue].some((item) => !factors.includes(Number(item)));
   const addends = factors.filter((factor) => factor !== number);
   const stageHeight = Math.floor(circleSize * (circleSize < 330 ? 0.86 : 0.82));
@@ -70,8 +76,13 @@ export default function FactorEntry({
   const cellStyle = { width: cellSize, height: cellSize, borderRadius: 14 };
   const savedStyle = { width: savedSize, height: savedSize, borderRadius: 10 };
   const sumStyle = { width: sumSize, height: sumSize, borderRadius: 10 };
-  const textStyle = { fontSize: 20 };
-  const savedTextStyle = { fontSize: savedSize < 36 ? 16 : 20 };
+  const textStyle = {
+    fontSize:
+      number >= 10000 ? 10 : number >= 1000 ? 13 : number >= 100 ? 16 : 20,
+  };
+  const savedTextStyle = {
+    fontSize: Math.min(textStyle.fontSize, savedSize < 36 ? 16 : 20),
+  };
   const fadeOut = transition.interpolate({
     inputRange: [0, 0.3, 1],
     outputRange: [1, 0, 0],
@@ -297,7 +308,7 @@ export default function FactorEntry({
             value={summing ? "" : value}
             onChangeText={onChange}
             keyboardType="number-pad"
-            maxLength={2}
+            maxLength={FACTOR_DIGITS}
             editable={!summing}
             onSubmitEditing={() => secondInput.current?.focus()}
             submitBehavior="submit"
@@ -311,7 +322,7 @@ export default function FactorEntry({
             value={pairedValue}
             onChangeText={onPairedChange}
             keyboardType="number-pad"
-            maxLength={2}
+            maxLength={FACTOR_DIGITS}
             editable={!summing}
             onSubmitEditing={onAdd}
             submitBehavior="submit"
@@ -338,12 +349,14 @@ export default function FactorEntry({
           )}
         </View>
       </Animated.View>
-      <View
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
         pointerEvents={summing && atSum ? "auto" : "none"}
         aria-hidden={!summing}
         accessibilityElementsHidden={!summing}
         importantForAccessibility={!summing ? "no-hide-descendants" : "auto"}
-        style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}
+        style={StyleSheet.absoluteFill}
       >
         <View style={[styles.row, { marginTop: 0 }]}>
           {addends.map((factor, index) => (
@@ -383,7 +396,7 @@ export default function FactorEntry({
                 value={summing ? value : ""}
                 onChangeText={onChange}
                 keyboardType="number-pad"
-                maxLength={6}
+                maxLength={SUM_DIGITS}
                 editable={summing && atSum}
                 onSubmitEditing={onAdd}
                 submitBehavior="submit"
@@ -393,7 +406,7 @@ export default function FactorEntry({
             </Animated.View>
           )}
         </View>
-      </View>
+      </ScrollView>
       {sprites.map((sprite) => (
         <Animated.View
           key={sprite.key}
