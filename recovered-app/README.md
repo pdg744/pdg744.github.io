@@ -45,7 +45,7 @@ Diffy Squares already follows that structure. Its game rules are in `game/diffy.
 
 ## Factor and Add
 
-Choose a number from 2–30, enter its factors, then add them excluding the number itself. Submitted factors stay in editable boxes that shrink and wrap inside the focused circle. Next animates the factors into an equation and focuses the sum input. Completing a sum draws a connection on the number board; factors and connections remain available during the session. Check answers can be switched off for exploration. Back moves up one step.
+Choose a number from 2–30, enter its factors, then add them excluding the number itself. Submitted multiplication pairs retain their boxes inside the focused circle. Next animates the factors into an equation and focuses the sum input. Completing a sum animates the input into a graph node and returns to a graph of explored numbers. Unvisited numbers remain in a compact picker below the graph; factors, pairs, and connections remain available during the session. Check answers can be switched off for exploration. Back moves up one step.
 
 Progress is held in memory and resets on reload. Browser checks cover factor entry, wrapping, the sum transition, automatic focus, and step-by-step Back navigation.
 
@@ -57,7 +57,7 @@ The current website still uses the old `../public/app/` export. Builds here writ
 
 - Production web export builds.
 - iOS and Android Hermes exports compile.
-- Eight rule tests pass, including 1,000 Diffy Squares comparisons against the original bundle and Factor and Add rules.
+- Ten rule and graph-layout tests pass, including 1,000 Diffy Squares comparisons against the original bundle and Factor and Add rules.
 - Browser: intro → topics → game, inputs, incorrect-answer feedback/correction, five-level progression to zero, variation, fresh start and the all-zero case.
 - Layout inspected at 1280×720, 390×844 and 320×568.
 - Restart during the final drawing animation leaves the new input screen intact.

@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Colors } from "../constants/theme.js";
 
 const FactorFocusCircle = forwardRef(function FactorFocusCircle(
-  { number, factors, size, onRemove, children },
+  { number, factors, size, onRemove, children, showNumber = true },
   ref,
 ) {
   return (
@@ -15,7 +15,7 @@ const FactorFocusCircle = forwardRef(function FactorFocusCircle(
         { width: size, height: size, borderRadius: size / 2 },
       ]}
     >
-      <Text style={styles.number}>{number}</Text>
+      {showNumber && <Text style={styles.number}>{number}</Text>}
       <ScrollView
         nestedScrollEnabled
         keyboardShouldPersistTaps="handled"

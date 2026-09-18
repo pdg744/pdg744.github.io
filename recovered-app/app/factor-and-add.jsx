@@ -36,6 +36,7 @@ export default function FactorAndAddScreen() {
   const scrollRef = useRef(null);
   const rootRef = useRef(null);
   const focusRef = useRef(null);
+  const sumInputRef = useRef(null);
   const nodeRefs = useRef({});
   const boardScroll = useRef(0);
   const currentScroll = useRef(0);
@@ -71,11 +72,15 @@ export default function FactorAndAddScreen() {
     });
   const { width } = useWindowDimensions();
   const [phase, setPhase] = useState("choose");
+  const previousPhase = useRef("choose");
   useEffect(() => {
-    scrollRef.current?.scrollTo({
-      y: phase === "choose" ? boardScroll.current : 0,
-      animated: false,
-    });
+    if (phase === "choose" || previousPhase.current === "choose") {
+      scrollRef.current?.scrollTo({
+        y: phase === "choose" ? boardScroll.current : 0,
+        animated: false,
+      });
+    }
+    previousPhase.current = phase;
     let active = true;
     // Wait for the new scene and its scroll offset before measuring the shared circle.
     const frame = requestAnimationFrame(() =>
@@ -88,6 +93,9 @@ export default function FactorAndAddScreen() {
             : focusRef.current,
         );
         const root = await measure(rootRef.current);
+        const sourceTarget = pending.source
+          ? await measure(nodeRefs.current[pending.source.number])
+          : null;
         if (!active) return;
         pendingZoom.current = null;
         if (!target || !root || reduceMotion) {
@@ -102,12 +110,20 @@ export default function FactorAndAddScreen() {
         animation.setValue(0);
         setZoom({
           number: pending.number,
+          result: pending.result,
+          source: sourceTarget
+            ? {
+                number: pending.source.number,
+                from: relative(pending.source.from),
+                to: relative(sourceTarget),
+              }
+            : null,
           from: relative(pending.from),
           to: relative(target),
         });
         Animated.timing(animation, {
           toValue: 1,
-          duration: 420,
+          duration: pending.result ? 1500 : 650,
           easing: Easing.inOut(Easing.cubic),
           useNativeDriver: false,
         }).start(({ finished }) => {
@@ -126,7 +142,10 @@ export default function FactorAndAddScreen() {
   const [chosen, setChosen] = useState(null);
   const [selected, setSelected] = useState([]);
   const [savedFactors, setSavedFactors] = useState({});
+  const [pairs, setPairs] = useState([]);
+  const [savedPairs, setSavedPairs] = useState({});
   const [factorInput, setFactorInput] = useState("");
+  const [pairedInput, setPairedInput] = useState("");
   const [enforce, setEnforce] = useState(true);
   const [sum, setSum] = useState("");
   const [feedback, setFeedback] = useState("");
@@ -152,25 +171,40 @@ export default function FactorAndAddScreen() {
     }
     setChosen(number);
     setSelected(savedFactors[number] || []);
+    setPairs(savedPairs[number] || []);
     setFactorInput("");
+    setPairedInput("");
     setSum("");
     setPhase("factors");
   }
   function addFactor() {
-    const factor = Number(factorInput);
-    if (!/^\d+$/.test(factorInput) || factor < 1 || factor > 30) {
-      setFeedback("Enter 1–30.");
+    const pair = [factorInput, pairedInput];
+    if (
+      pair.some(
+        (value) =>
+          !/^\d+$/.test(value) || Number(value) < 1 || Number(value) > 30,
+      )
+    ) {
+      setFeedback("Enter 1–30 in both boxes.");
       return;
     }
-    if (selected.includes(factor)) {
+    const values = pair.map(Number);
+    if (enforce && values[0] * values[1] !== chosen) {
+      setFeedback(`The pair should multiply to ${chosen}.`);
+      return;
+    }
+    if (values.every((factor) => selected.includes(factor))) {
       setFeedback("Already added.");
       return;
     }
-    setSelected((previous) => [...previous, factor]);
+    setSelected((previous) => [...new Set([...previous, ...values])]);
+    setPairs((previous) => [...previous, values]);
     setFactorInput("");
+    setPairedInput("");
     setFeedback("");
   }
   function saveFactors() {
+    setSavedPairs((previous) => ({ ...previous, [chosen]: pairs }));
     setSavedFactors((previous) => ({
       ...previous,
       [chosen]: [...selected],
@@ -203,6 +237,7 @@ export default function FactorAndAddScreen() {
     setPhase("sum");
   }
   async function finishSum() {
+    if (transitioning) return;
     if (!/^\d+$/.test(sum)) {
       setFeedback("Enter a whole number.");
       return;
@@ -216,10 +251,31 @@ export default function FactorAndAddScreen() {
       setFeedback("Check your sum.");
       return;
     }
+    const [from, sourceCircle] = await Promise.all([
+      measure(sumInputRef.current),
+      measure(focusRef.current),
+    ]);
+    if (from && !reduceMotion) {
+      pendingZoom.current = {
+        number: total,
+        from,
+        result: true,
+        source:
+          sourceCircle && total !== chosen
+            ? { number: chosen, from: sourceCircle }
+            : null,
+      };
+      animation.setValue(0);
+      setTransitioning(true);
+    }
+    boardScroll.current = 0;
+    saveFactors();
+    Keyboard.dismiss();
+    setFeedback("");
     const edge = { from: chosen, to: total };
     setConnections((previous) => addConnection(previous, chosen, total));
     setLatest(edge);
-    await returnToBoard();
+    setPhase("choose");
   }
   function previousStep() {
     if (transitioning) return;
@@ -274,39 +330,48 @@ export default function FactorAndAddScreen() {
                 thumbColor={Colors.textPrimary}
               />
             </View>
-            {phase === "choose" && (
-              <Text
-                accessibilityRole="header"
-                accessibilityLiveRegion="polite"
-                style={styles.prompt}
-              >
-                {prompt}
-              </Text>
-            )}
-            {phase === "choose" && latest && (
-              <Text accessibilityLiveRegion="polite" style={styles.latest}>
-                {latest.from} → {latest.to}
-              </Text>
-            )}
+            {phase === "choose" &&
+              connections.length === 0 &&
+              Object.keys(savedFactors).length === 0 && (
+                <Text
+                  accessibilityRole="header"
+                  accessibilityLiveRegion="polite"
+                  style={styles.prompt}
+                >
+                  {prompt}
+                </Text>
+              )}
           </View>
           {phase === "choose" && (
-            <FactorNumberBoard
-              width={boardWidth}
-              phase={phase}
-              chosen={chosen}
-              selected={selected}
-              connections={connections}
-              latest={latest}
-              onNumberPress={selectNumber}
-              savedFactors={savedFactors}
-              nodeRefs={nodeRefs}
-            />
+            <Animated.View
+              style={{
+                opacity: transitioning
+                  ? animation.interpolate({
+                      inputRange: [0, 0.3, 1],
+                      outputRange: [0, 0, 1],
+                    })
+                  : 1,
+              }}
+            >
+              <FactorNumberBoard
+                width={boardWidth}
+                phase={phase}
+                chosen={chosen}
+                selected={selected}
+                connections={connections}
+                latest={latest}
+                onNumberPress={selectNumber}
+                savedFactors={savedFactors}
+                nodeRefs={nodeRefs}
+              />
+            </Animated.View>
           )}
           {phase !== "choose" && (
             <View style={{ marginTop: 20, opacity: transitioning ? 0 : 1 }}>
               <FactorFocusCircle
                 ref={focusRef}
                 number={chosen}
+                showNumber={false}
                 factors={[]}
                 size={Math.min(boardWidth, 400)}
                 onRemove={
@@ -321,10 +386,25 @@ export default function FactorAndAddScreen() {
                 }
               >
                 <FactorEntry
+                  sumInputRef={sumInputRef}
                   factors={selected}
+                  pairs={pairs}
+                  onRemovePair={(index) => {
+                    const remaining = pairs.filter((_, i) => i !== index);
+                    setPairs(remaining);
+                    setSelected([...new Set(remaining.flat())]);
+                    setFeedback("");
+                  }}
                   number={chosen}
                   summing={phase === "sum"}
                   prompt={`What are the factors of ${chosen}?`}
+                  pairedValue={pairedInput}
+                  onPairedChange={(value) => {
+                    if (/^\d*$/.test(value)) {
+                      setPairedInput(value);
+                      setFeedback("");
+                    }
+                  }}
                   value={phase === "sum" ? sum : factorInput}
                   onChange={(value) => {
                     if (/^\d*$/.test(value)) {
@@ -376,20 +456,6 @@ export default function FactorAndAddScreen() {
               {feedback}
             </Text>
           )}
-          {phase === "choose" && connections.length > 0 && (
-            <View style={styles.connections}>
-              <View style={styles.connectionList}>
-                {connections.map((edge) => (
-                  <Text
-                    key={`${edge.from}-${edge.to}`}
-                    style={styles.connection}
-                  >
-                    {edge.from} → {edge.to}
-                  </Text>
-                ))}
-              </View>
-            </View>
-          )}
         </ScrollView>
       </KeyboardAvoidingView>
       {transitioning && (
@@ -399,29 +465,122 @@ export default function FactorAndAddScreen() {
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
         >
+          {zoom?.source && (
+            <Animated.View
+              style={{
+                position: "absolute",
+                left: animation.interpolate({
+                  inputRange: [0, 0.3, 1],
+                  outputRange: [
+                    zoom.source.from.x,
+                    zoom.source.from.x,
+                    zoom.source.to.x,
+                  ],
+                }),
+                top: animation.interpolate({
+                  inputRange: [0, 0.3, 1],
+                  outputRange: [
+                    zoom.source.from.y,
+                    zoom.source.from.y,
+                    zoom.source.to.y,
+                  ],
+                }),
+                width: animation.interpolate({
+                  inputRange: [0, 0.3, 1],
+                  outputRange: [
+                    zoom.source.from.width,
+                    zoom.source.from.width,
+                    zoom.source.to.width,
+                  ],
+                }),
+                height: animation.interpolate({
+                  inputRange: [0, 0.3, 1],
+                  outputRange: [
+                    zoom.source.from.height,
+                    zoom.source.from.height,
+                    zoom.source.to.height,
+                  ],
+                }),
+                borderRadius: animation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [
+                    zoom.source.from.width / 2,
+                    zoom.source.to.width / 2,
+                  ],
+                }),
+                opacity: animation.interpolate({
+                  inputRange: [0, 0.3, 0.8, 1],
+                  outputRange: [1, 1, 1, 0],
+                }),
+                borderWidth: 2,
+                borderColor: Colors.teal,
+                backgroundColor: Colors.surface,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Animated.Text
+                style={{
+                  color: Colors.textPrimary,
+                  fontSize: 20,
+                  fontWeight: "700",
+                  opacity: animation.interpolate({
+                    inputRange: [0, 0.3, 1],
+                    outputRange: [0, 0, 1],
+                  }),
+                }}
+              >
+                {zoom.source.number}
+              </Animated.Text>
+            </Animated.View>
+          )}
           {zoom && (
             <Animated.View
               style={{
                 position: "absolute",
                 left: animation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [zoom.from.x, zoom.to.x],
+                  inputRange: [0, 0.3, 1],
+                  outputRange: [
+                    zoom.from.x,
+                    zoom.result
+                      ? zoom.from.x + (zoom.from.width - 96) / 2
+                      : zoom.from.x,
+                    zoom.to.x,
+                  ],
                 }),
                 top: animation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [zoom.from.y, zoom.to.y],
+                  inputRange: [0, 0.3, 1],
+                  outputRange: [
+                    zoom.from.y,
+                    zoom.result
+                      ? zoom.from.y + (zoom.from.height - 96) / 2
+                      : zoom.from.y,
+                    zoom.to.y,
+                  ],
                 }),
                 width: animation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [zoom.from.width, zoom.to.width],
+                  inputRange: [0, 0.3, 1],
+                  outputRange: [
+                    zoom.from.width,
+                    zoom.result ? 96 : zoom.from.width,
+                    zoom.to.width,
+                  ],
                 }),
                 height: animation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [zoom.from.height, zoom.to.height],
+                  inputRange: [0, 0.3, 1],
+                  outputRange: [
+                    zoom.from.height,
+                    zoom.result ? 96 : zoom.from.height,
+                    zoom.to.height,
+                  ],
                 }),
                 borderRadius: animation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [zoom.from.width / 2, zoom.to.width / 2],
+                  inputRange: [0, 0.3, 1],
+                  outputRange: [
+                    zoom.result ? 14 : zoom.from.width / 2,
+                    zoom.result ? 48 : zoom.from.width / 2,
+                    zoom.to.width / 2,
+                  ],
                 }),
                 borderWidth: 2,
                 borderColor: Colors.teal,
@@ -436,7 +595,11 @@ export default function FactorAndAddScreen() {
                   fontWeight: "800",
                   fontSize: animation.interpolate({
                     inputRange: [0, 1],
-                    outputRange: phase === "choose" ? [48, 17] : [17, 48],
+                    outputRange: zoom.result
+                      ? [20, 17]
+                      : phase === "choose"
+                        ? [48, 17]
+                        : [17, 48],
                   }),
                 }}
               >
