@@ -1,7 +1,7 @@
 # MathExplorers kanban
 
 Planning board for the recovered app, currently focused on Factor and Add.
-Last updated: 2026-09-18.
+Last updated: 2026-09-19.
 
 ## Board
 
@@ -9,15 +9,20 @@ Cards are ordered by priority within each column. Review contains implemented wo
 
 | Backlog | Next | In progress | Review | Done |
 | --- | --- | --- | --- | --- |
-| [QA-01 · Check real devices and browsers](#qa-01-check-real-devices-and-browsers) | — | — | [SAVE-01 · Restore progress after refresh](#save-01-restore-progress-after-refresh) | [FA-00 · Recover the app and establish the activity](#fa-00-recover-the-app-and-establish-the-activity) |
-| | | | [FA-06 · Always check answers](#fa-06-always-check-answers) | [FA-07 · Continue discovered chains](#fa-07-continue-discovered-chains) |
-| | | | [FA-01 · Fit longer lists inside the circle](#fa-01-fit-longer-lists-inside-the-circle) | [FA-08 · Choose whether to add more pairs](#fa-08-choose-whether-to-add-more-pairs) |
-| | | | [FA-02 · Clarify the primary action](#fa-02-clarify-the-primary-action) | |
-| | | | [FA-03 · Scale the graph to its content](#fa-03-scale-the-graph-to-its-content) | |
-| | | | [FA-04 · Give new results visual emphasis](#fa-04-give-new-results-visual-emphasis) | |
-| | | | [FA-05 · Make pair removal discoverable](#fa-05-make-pair-removal-discoverable) | |
+| [QA-01 · Check real devices and browsers](#qa-01-check-real-devices-and-browsers) | — | — | — | [FA-00 · Recover the app and establish the activity](#fa-00-recover-the-app-and-establish-the-activity) |
+|  |  |  |  | [FA-07 · Continue discovered chains](#fa-07-continue-discovered-chains) |
+|  |  |  |  | [FA-08 · Choose whether to add more pairs](#fa-08-choose-whether-to-add-more-pairs) |
+|  |  |  |  | [SAVE-01 · Restore progress after refresh](#save-01-restore-progress-after-refresh) |
+|  |  |  |  | [FA-06 · Always check answers](#fa-06-always-check-answers) |
+|  |  |  |  | [FA-01 · Fit longer lists inside the circle](#fa-01-fit-longer-lists-inside-the-circle) |
+|  |  |  |  | [FA-02 · Clarify the primary action](#fa-02-clarify-the-primary-action) |
+|  |  |  |  | [FA-03 · Scale the graph to its content](#fa-03-scale-the-graph-to-its-content) |
+|  |  |  |  | [FA-04 · Give new results visual emphasis](#fa-04-give-new-results-visual-emphasis) |
+|  |  |  |  | [FA-05 · Make pair removal discoverable](#fa-05-make-pair-removal-discoverable) |
+| | | | | [FA-09 · Align factor rows and remove deletion](#fa-09-align-factor-rows-and-remove-deletion) |
+| | | | | [FA-10 · Simplify terminal node](#fa-10-simplify-terminal-node) |
 
-**Current review:** The five design cards plus refresh persistence and always-on correctness are implemented locally and ready for user review. Thirty-six automated tests pass; web and native exports build. Refresh checks cover drafts, sums, graphs, Diffy generation transitions, completion, variation, and New Game. Earlier design checks covered desktop and 320/390 px layouts, explicit pair removal/resubmission, four correct pairs, and an outside-range result. Historical unchecked-mode checks are superseded by FA-06. Real devices remain under QA-01. The earlier recovered app was published successfully by GitHub Pages (run 35399254573). FA-07 was published in f072f2d. The terminal-1 correction is verified and included in the rebuilt public/app export.
+**Current status:** All seven Review cards (SAVE-01, FA-06, and FA-01 through FA-05) were accepted by the user and moved to Done on 2026-09-19. FA-09 and FA-10 were accepted for production on 2026-09-19 and moved to Done. Review, Next, and In progress are empty. QA-01 remains in Backlog. Recorded validation: thirty-six automated tests pass; web and native exports build. Refresh checks cover drafts, sums, graphs, Diffy generation transitions, completion, variation, and New Game. Earlier design checks covered desktop and 320/390 px layouts, explicit pair removal/resubmission, four correct pairs, and an outside-range result. Historical unchecked-mode checks are superseded by FA-06. Real devices remain under QA-01. The earlier recovered app was published successfully by GitHub Pages (run 35399254573). FA-07 was published in f072f2d. The terminal-1 correction is verified and included in the rebuilt public/app export.
 
 ## Working agreements
 
@@ -164,6 +169,8 @@ Cards are ordered by priority within each column. Review contains implemented wo
 
 ### FA-05: Make pair removal discoverable
 
+**Superseded interaction:** FA-09 removes pair deletion at the user's request now that correctness is enforced.
+
 **Owner:** Codex
 
 **Problem:** Clicking a saved sentence deletes it, but the sentence does not communicate that action.
@@ -219,3 +226,32 @@ Cards are ordered by priority within each column. Review contains implemented wo
 - Restore the choice or unfinished entry after refresh, including older saved work.
 
 **Implemented / evidence:** New entry stays directly under saved pairs inside the circle; the two choices sit below the circle and replace Next. Thirty-six tests pass, including persistence and migration checks. Browser checks cover continued chains, incomplete-factor feedback, refresh, focus, cancellation, pair removal, and 320/390/1280 px layouts. Real mobile keyboards remain under QA-01.
+
+### FA-09: Align factor rows and remove deletion
+
+**Owner:** Codex
+
+**Problem:** Correct accepted pairs no longer need trash controls. Saved and new pairs have different horizontal positions and box sizes.
+
+**Acceptance criteria**
+
+- Accepted pairs have no deletion control.
+- Saved and new pairs align their factor boxes, multiplication signs, equals signs, and results at desktop and phone widths.
+- Entry, cancellation, correctness checks, and measured sum transitions remain intact.
+
+**Implemented / evidence (2026-09-19):** Removed trash buttons and their callback. Saved and active rows share 44 px box dimensions, corner radii, and number sizing. Browser inspection verified saved/new row alignment on desktop and at 320 px, including adding a pair and reopening entry. All 36 tests and the web export pass. Supersedes FA-05's deletion interaction and FA-08's last-pair removal behavior.
+
+### FA-10: Simplify terminal node
+
+**Owner:** Codex
+
+**Problem:** The terminal 1 node has an unnecessary End label and latest-result highlight.
+
+**Acceptance criteria**
+
+- Show 1 without the End label, using the same teal border as completed nodes.
+- Keep 1 non-selectable. Highlight new destinations only while unfinished; completed destinations, self-loops, and their incoming edges use normal styling.
+
+**Implemented:** Removed the terminal label and excluded 1 from latest-node styling. Terminal behavior and accessibility hints are preserved. Browser verification confirms 1 displays only its number with the normal border and remains disabled. All 36 tests and the web export pass.
+
+**FA-10 follow-up (2026-09-19):** Terminal 1 now uses the completed-node teal border. Latest-result highlighting applies only to unfinished destinations, so self-loops such as 6 → 6 and merges into completed nodes do not leave gold nodes or arrows. Refreshed browser inspection verified the graph with terminal 1 and 6 → 6; all 36 tests and the web export pass.

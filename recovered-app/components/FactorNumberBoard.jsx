@@ -26,6 +26,11 @@ export default function FactorNumberBoard({
     [connections, savedFactors, width],
   );
   const { numbers } = graph;
+  // Completed destinations (including terminal 1 and self-loops) are settled.
+  const highlightedNumber =
+    latest?.to > 1 && !connections.some((edge) => edge.from === latest.to)
+      ? latest.to
+      : null;
   const unexplored = STARTING_NUMBERS.filter(
     (number) => number >= 2 && !numbers.includes(number),
   );
@@ -112,7 +117,7 @@ export default function FactorNumberBoard({
                   </Defs>
                   {connections.map((edge) => {
                     const isLatest =
-                      latest?.from === edge.from && latest?.to === edge.to;
+                      highlightedNumber === edge.to && latest?.from === edge.from;
                     return (
                       <Path
                         key={`${edge.from}-${edge.to}`}
@@ -173,10 +178,10 @@ export default function FactorNumberBoard({
                           height: diameter,
                           borderRadius: radius,
                         },
-                        factors && styles.recorded,
+                        (number === 1 || completed || factors) && styles.recorded,
                         isChosen && styles.chosen,
                         isSelected && styles.selected,
-                        latest?.to === number && styles.latestNode,
+                        highlightedNumber === number && styles.latestNode,
                         pressed && styles.pressed,
                       ]}
                     >
@@ -195,7 +200,7 @@ export default function FactorNumberBoard({
                       >
                         {number}
                       </Text>
-                      {limit && limit !== "Completed" && (
+                      {number > 1 && limit && limit !== "Completed" && (
                         <Text
                           style={{
                             color: Colors.textSecondary,
@@ -203,7 +208,7 @@ export default function FactorNumberBoard({
                             textAlign: "center",
                           }}
                         >
-                          {number <= 1 ? "End" : "Limit reached"}
+                          Limit reached
                         </Text>
                       )}
                       {factors && diameter >= 80 && (

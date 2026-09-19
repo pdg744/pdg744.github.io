@@ -9,7 +9,6 @@ import {
   Text,
   TextInput,
 } from "react-native";
-import Svg, { Path } from "react-native-svg";
 import { Colors } from "../constants/theme.js";
 
 import { FACTOR_DIGITS, SUM_DIGITS } from "../game/factorAndAdd.js";
@@ -29,7 +28,6 @@ export default function FactorEntry({
   onCancelEntry,
   factors,
   pairs,
-  onRemovePair,
   value,
   sumInputRef,
   unitFactorRef,
@@ -65,7 +63,6 @@ export default function FactorEntry({
     ) && [value, pairedValue].some((item) => !factors.includes(Number(item)));
   const addends = factors.filter((factor) => factor !== number);
   const stageHeight = Math.floor(circleSize * (circleSize < 330 ? 0.86 : 0.82));
-  const savedSize = circleSize < 330 ? 28 : circleSize < 400 ? 36 : 44;
   const cellSize = 44;
   const sumSize =
     factors.length > 18
@@ -76,15 +73,13 @@ export default function FactorEntry({
           ? 34
           : 44;
   const cellStyle = { width: cellSize, height: cellSize, borderRadius: 14 };
-  const savedStyle = { width: savedSize, height: savedSize, borderRadius: 10 };
+  const savedStyle = cellStyle;
   const sumStyle = { width: sumSize, height: sumSize, borderRadius: 10 };
   const textStyle = {
     fontSize:
       number >= 10000 ? 10 : number >= 1000 ? 13 : number >= 100 ? 16 : 20,
   };
-  const savedTextStyle = {
-    fontSize: Math.min(textStyle.fontSize, savedSize < 36 ? 16 : 20),
-  };
+  const savedTextStyle = textStyle;
   const fadeOut = transition.interpolate({
     inputRange: [0, 0.3, 1],
     outputRange: [1, 0, 0],
@@ -277,37 +272,6 @@ export default function FactorEntry({
                 ))}
                 {symbol("=")}
                 <Text style={[styles.factor, savedTextStyle]}>{number}</Text>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Remove pair ${pair[0]} times ${pair[1]}`}
-                  onPress={() => onRemovePair(row)}
-                  hitSlop={4}
-                  style={({ pressed }) => ({
-                    width: savedSize,
-                    height: savedSize,
-                    marginLeft: 6,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: 8,
-                    backgroundColor: pressed ? Colors.border : "transparent",
-                  })}
-                >
-                  <Svg
-                    width={16}
-                    height={16}
-                    viewBox="0 0 24 24"
-                    accessible={false}
-                  >
-                    <Path
-                      d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 10v7M14 10v7"
-                      fill="none"
-                      stroke={Colors.textSecondary}
-                      strokeWidth={1.7}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </Svg>
-                </Pressable>
               </View>
             ))}
             {entryOpen ? (

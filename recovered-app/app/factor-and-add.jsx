@@ -555,13 +555,6 @@ export default function FactorAndAddScreen() {
                   automaticSum={automaticSum}
                   factors={selected}
                   pairs={pairs}
-                  onRemovePair={(index) => {
-                    const remaining = pairs.filter((_, i) => i !== index);
-                    setPairs(remaining);
-                    if (!remaining.length) setEntryOpen(true);
-                    setSelected([...new Set(remaining.flat())]);
-                    setFeedback("");
-                  }}
                   number={chosen}
                   summing={phase === "sum"}
                   prompt={`What are the factors of ${chosen}?`}
