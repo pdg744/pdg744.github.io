@@ -7,13 +7,15 @@ Plan and track work on the [repo kanban board](../KANBAN.md).
 
 ## Run locally
 
-Use Node 20.19+ (verified here with Node 26) and npm:
+The app uses Expo SDK 57 (Expo 57.0.24), with matching React Native and Expo module versions. Use Node 20.19.4+, 22.13+, 24.3+, or 25+ (verified here with Node 26) and npm:
 
 ```sh
 cd recovered-app
 npm ci
 npm run web
 ```
+
+For Expo Go on a phone connected to the same Wi-Fi, run `npm run start -- --lan --clear` and scan the terminal QR code. After an SDK upgrade, stop any previous development server before restarting it.
 
 For a production-style preview at the same `/app/` base path as the deployed site:
 
@@ -47,15 +49,19 @@ Diffy Squares already follows that structure. Its game rules are in `game/diffy.
 
 ## Factor and Add
 
-Choose a number from 2–30, enter its factors, then add them excluding the number itself. Submitted multiplication pairs retain their boxes inside the focused circle, aligned with the new input row. Accepted pairs have no deletion control because correctness is enforced. New pair inputs appear directly below saved pairs. After each submission, equally styled “Add another factor pair” and “That's all the factors” buttons appear below the circle while the inputs are hidden. Choosing to finish checks completeness, then animates the factors into an equation and focuses the sum input. Cancel closes an extra input row; refresh restores the choice or unfinished entry. Completing a sum animates the input into a graph node and returns to a graph of explored numbers. Unvisited numbers remain in a compact picker below the graph; factors, pairs, and connections are saved automatically. Factor pairs and sums are always checked before acceptance. Back moves up one step. Prime factors connect directly to 1 without a sum prompt. Discovered positive results can be selected to continue chains beyond 30, including 24 → 36 → 55 → 17 → 1. One is a terminal node and cannot be opened. Saved work from the earlier version that allowed 1 → 0 is restored to the graph with that final edge removed. Completed nodes are display-only. Exploration supports numbers up to 1,000,000 and 128 explored numbers per graph; larger results remain visible with a limit label. Factor generation uses trial division through the square root; all arithmetic remains exact within these limits. The graph uses vertical columns and symmetric branches, automatically sizes to the screen, and keeps the number picker below it. Start over asks for confirmation before clearing Factor and Add progress.
+Choose a number from 2–30, enter its factors, then add them excluding the number itself. Submitted multiplication pairs retain their boxes inside the focused circle, aligned with the new input row. Accepted pairs have no deletion control because correctness is enforced. New pair inputs appear directly below saved pairs. Typing an unused 1 or an unambiguous first factor moves focus to the second box. Correct pairs save automatically, opening and focusing another row while factors remain. Once all factors are found, “That's all the factors” continues to the sum. Other ambiguous prefixes remain editable so multi-digit factors can be entered. Choosing to finish checks completeness, then animates the factors into an equation and focuses the sum input. The next row focuses the left input immediately. There is no Cancel action during pair entry. Compact saved rows keep ordinary factor sets visible together; exceptionally long lists from discovered numbers retain overflow scrolling. Refresh restores unfinished entry. Completing a sum animates the input into a graph node and returns to a graph of explored numbers. Unvisited numbers remain in a compact picker below the graph; factors, pairs, and connections are saved automatically. Factor pairs and sums are always checked before acceptance. Back moves up one step. Prime factors connect directly to 1 without a sum prompt. Discovered positive results can be selected to continue chains beyond 30, including 24 → 36 → 55 → 17 → 1. One is a terminal node and cannot be opened. Saved work from the earlier version that allowed 1 → 0 is restored to the graph with that final edge removed. Completed nodes are display-only. Exploration supports numbers up to 1,000,000 and 128 explored numbers per graph; larger results remain visible with a limit label. Factor generation uses trial division through the square root; all arithmetic remains exact within these limits. The graph packs branches by their occupied space and automatically fits the screen. Dense graphs on narrow screens run sideways when that makes the numbers larger; smaller graphs retain vertical columns. The number picker disappears when exhausted. Unfinished nodes use a gold fill or outline. The three-line menu opens inline Odds, Evens, and Primes color toggles above the visible graph; prime coloring takes priority over parity. Factor entry focuses after the opening transition and scales to fit above the keyboard. Start over asks for confirmation before clearing Factor and Add progress.
 
 ## Saved progress
 
-Both activities automatically save their current step and unfinished input in this browser. Refresh restores Factor and Add pairs, factors and connections, and Diffy Squares starting inputs, current generation, partial answers and completion. Returning to an activity also restores its work. Diffy Squares New Game/Fresh Start replaces its saved work; Try a Variation retains the starting numbers as a new draft.
+Both activities automatically save their current step and unfinished input on this device (or in this browser on web). Refresh restores Factor and Add pairs, factors and connections, and Diffy Squares starting inputs, current generation, partial answers and completion. Returning to an activity also restores its work. Diffy Squares New Game/Fresh Start replaces its saved work; Try a Variation retains the starting numbers as a new draft.
 
 The shared `utils/progressStorage.js` adapter stores versioned snapshots under `mathexplorers.progress.<activity>`. Activity validators reject corrupt or incompatible records and reconstruct derived state. Animation state is not stored; interrupted transitions restore to a usable mathematical state.
 
-This MVP uses browser localStorage, without accounts or cross-device sync. Clearing site data removes progress. If storage is blocked or full, play continues with a memory fallback, but refresh recovery is unavailable. Native exports also use memory only; durable native persistence is outside this MVP.
+Web uses browser localStorage. Native iOS/Android uses Expo SQLite-backed localStorage, installed by the root layout before activities mount. Saves are synchronous and use the same versioned snapshots and validators on both platforms. There are no accounts or cross-device sync. Clearing site/app data or deleting the app removes progress. If storage is blocked or full, play continues with a memory fallback, but relaunch recovery is unavailable. Expo Go and the installed app have separate saves. The user verified progress restoration after force-closing and reopening Expo Go on a physical iPhone on 2026-09-19. Repeat in the standalone TestFlight build; see the [release checklist](RELEASE.md).
+
+## App Store preparation
+
+See the [first iPhone release checklist](RELEASE.md) for native persistence checks, EAS production setup, and remaining App Store decisions.
 
 ## Publishing
 

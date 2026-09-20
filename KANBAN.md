@@ -9,7 +9,7 @@ Cards are ordered by priority within each column. Review contains implemented wo
 
 | Backlog | Next | In progress | Review | Done |
 | --- | --- | --- | --- | --- |
-| [QA-01 · Check real devices and browsers](#qa-01-check-real-devices-and-browsers) | — | — | — | [FA-00 · Recover the app and establish the activity](#fa-00-recover-the-app-and-establish-the-activity) |
+| [QA-01 · Check real devices and browsers](#qa-01-check-real-devices-and-browsers) | — | — |  | [FA-00 · Recover the app and establish the activity](#fa-00-recover-the-app-and-establish-the-activity) |
 |  |  |  |  | [FA-07 · Continue discovered chains](#fa-07-continue-discovered-chains) |
 |  |  |  |  | [FA-08 · Choose whether to add more pairs](#fa-08-choose-whether-to-add-more-pairs) |
 |  |  |  |  | [SAVE-01 · Restore progress after refresh](#save-01-restore-progress-after-refresh) |
@@ -21,8 +21,12 @@ Cards are ordered by priority within each column. Review contains implemented wo
 |  |  |  |  | [FA-05 · Make pair removal discoverable](#fa-05-make-pair-removal-discoverable) |
 | | | | | [FA-09 · Align factor rows and remove deletion](#fa-09-align-factor-rows-and-remove-deletion) |
 | | | | | [FA-10 · Simplify terminal node](#fa-10-simplify-terminal-node) |
+| | | | | [FA-11 · Advance factor entry automatically](#fa-11-advance-factor-entry-automatically) |
+| | | | | [DS-01 · Keep keypad open between differences](#ds-01-keep-keypad-open-between-differences) |
+| | | | | [SAVE-02 · Save native progress across restarts](#save-02-save-native-progress-across-restarts) |
+| | | | [REL-01 · Prepare iPhone build identity and artwork](#rel-01-prepare-iphone-build-identity-and-artwork) | |
 
-**Current status:** All seven Review cards (SAVE-01, FA-06, and FA-01 through FA-05) were accepted by the user and moved to Done on 2026-09-19. FA-09 and FA-10 were accepted for production on 2026-09-19 and moved to Done. Review, Next, and In progress are empty. QA-01 remains in Backlog. Recorded validation: thirty-six automated tests pass; web and native exports build. Refresh checks cover drafts, sums, graphs, Diffy generation transitions, completion, variation, and New Game. Earlier design checks covered desktop and 320/390 px layouts, explicit pair removal/resubmission, four correct pairs, and an outside-range result. Historical unchecked-mode checks are superseded by FA-06. Real devices remain under QA-01. The earlier recovered app was published successfully by GitHub Pages (run 35399254573). FA-07 was published in f072f2d. The terminal-1 correction is verified and included in the rebuilt public/app export.
+**Current status:** The user confirmed both activities play well in Expo Go on a physical iPhone on 2026-09-19. FA-11 and DS-01 are accepted and Done. Latest validation: 37 tests pass and native exports build. Android and broader browser/device coverage remain open under QA-01.  All seven Review cards (SAVE-01, FA-06, and FA-01 through FA-05) were accepted by the user and moved to Done on 2026-09-19. FA-09 and FA-10 were accepted for production on 2026-09-19 and moved to Done. SAVE-02 is Done after the user confirmed the iPhone restart test passed. REL-01 is in Review; Next and In progress are empty. QA-01 remains in Backlog. Recorded validation: thirty-six automated tests pass; web and native exports build. Refresh checks cover drafts, sums, graphs, Diffy generation transitions, completion, variation, and New Game. Earlier design checks covered desktop and 320/390 px layouts, explicit pair removal/resubmission, four correct pairs, and an outside-range result. Historical unchecked-mode checks are superseded by FA-06. Real devices remain under QA-01. The earlier recovered app was published successfully by GitHub Pages (run 35399254573). FA-07 was published in f072f2d. The terminal-1 correction is verified and included in the rebuilt public/app export.
 
 ## Working agreements
 
@@ -255,3 +259,65 @@ Cards are ordered by priority within each column. Review contains implemented wo
 **Implemented:** Removed the terminal label and excluded 1 from latest-node styling. Terminal behavior and accessibility hints are preserved. Browser verification confirms 1 displays only its number with the normal border and remains disabled. All 36 tests and the web export pass.
 
 **FA-10 follow-up (2026-09-19):** Terminal 1 now uses the completed-node teal border. Latest-result highlighting applies only to unfinished destinations, so self-loops such as 6 → 6 and merges into completed nodes do not leave gold nodes or arrows. Refreshed browser inspection verified the graph with terminal 1 and 6 → 6; all 36 tests and the web export pass.
+
+### FA-11: Advance factor entry automatically
+
+**Status:** Done; accepted after the user confirmed both activities play well on iPhone in Expo Go (2026-09-19).
+
+**Problem:** Moving between factor inputs and opening another pair requires unnecessary taps.
+
+**Acceptance criteria**
+
+- An unused 1 advances immediately; other unambiguous correct first factors focus the second box.
+- Preserve other ambiguous prefixes for multi-digit input.
+- Correct pairs save automatically and focus a fresh row while factors remain, keeping the keyboard open.
+- Invalid and duplicate pairs cannot be accepted; explicit submission remains available.
+- Keep the final “That's all the factors” action before the sum.
+
+**Evidence:** 37 automated tests pass, including factor-prefix cases. Native and web export checks recorded in the task; the user subsequently confirmed the iPhone experience plays well. This supersedes FA-08's between-pair choice requirement.
+
+**FA-11 iPhone follow-up:** Removed the delayed animation-frame focus handoff and the pair-entry Cancel button. Removed the extra action row and compacted saved rows to fit ordinary factor sets without scrolling. Exceptional discovered numbers with many pairs retain overflow scrolling to avoid hiding factors. Accepted in the iPhone playtest.
+
+**FA-11 follow-up:** Removed the factor-pair + button. Correct pairs advance automatically; incorrect entries remain editable without a submit button.
+
+**FA-11 addition layout experiment:** Sum stage now uses vertical addition with right-aligned digits, a plus on the final addend, a horizontal rule, and the answer beneath. Factor sprites target the stacked addends. Accepted in the iPhone playtest.
+
+**FA-11 sum follow-up:** Removed Connect. Entering the correct sum now automatically returns to the graph; incomplete or incorrect sums remain editable. Duplicate sum submissions are guarded.
+
+### DS-01: Keep keypad open between differences
+
+**Status:** Done; accepted after the user confirmed both activities play well on iPhone in Expo Go (2026-09-19).
+
+**Problem:** Accepting a correct difference disabled the focused input before the next input received focus, briefly closing and reopening the iOS number pad.
+
+**Change:** Focus the next unanswered node synchronously in the input event, before React commits the completed field's disabled state. Preserve the existing dismissal when a whole generation is complete.
+
+**Acceptance:** The keypad stays open when moving between unanswered nodes, and correct inputs remain locked. Automated tests and native export checked in the task; the user confirmed successful play on a physical iPhone in Expo Go.
+
+### SAVE-02: Save native progress across restarts
+
+**Status:** Done; the user confirmed the iPhone force-close/reopen persistence test passed on 2026-09-19.
+
+**Problem:** Native activities previously used memory-only progress, so closing the app lost discoveries and drafts.
+
+**Implemented:** Install Expo SQLite-backed localStorage in the root layout before activity mount. Reuse existing synchronous versioned snapshots, validation, and storage-failure fallback for both activities; web retains browser storage. This supersedes SAVE-01's native-memory-only limitation.
+
+**Acceptance criteria**
+
+- Both activities restore graph/generation state and unfinished input after force-closing and reopening the app.
+- Explicit restart replaces saved progress; corrupt storage cannot prevent play.
+- Web persistence continues working.
+
+**Validation:** 37 existing rule/persistence tests pass. Native and web export validation recorded in the task. The user confirmed native progress restoration after force-closing and reopening Expo Go on iPhone. Standalone TestFlight validation remains part of release preparation.
+
+**Release preparation:** Added recovered-app/RELEASE.md and a store-distribution EAS production profile. Apple organization enrollment is underway under Experiential Education, LLC. Account linking, permanent bundle identifier, app icon, listing details, signed build, and TestFlight remain to do.
+
+### REL-01: Prepare iPhone build identity and artwork
+
+**Status:** Review.
+
+**Implemented:** Derived app icon and launch mark from the existing vector logo. Configured an opaque 1024px icon, black launch background, portrait orientation, iPhone-targeted settings, clean Expo slug/URL scheme, and proposed bundle ID xyz.mathexplorers.app. Nothing registered or uploaded.
+
+**Acceptance:** Review icon artwork and confirm bundle identity before the first signed build; verify launch appearance and orientation in TestFlight. See recovered-app/RELEASE.md for account-linking and submission steps.
+
+**REL-01 Expo account setup:** Created and linked @pgaf/math-explorers on 2026-09-19 (project ID 3a981964-1473-432d-aae7-265694bea0ee). No Apple signing or build submission performed. Apple organization enrollment remains underway.

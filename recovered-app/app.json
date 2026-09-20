@@ -1,9 +1,9 @@
 {
   "expo": {
     "name": "MathExplorers",
-    "slug": "math-explorers-recovered",
+    "slug": "math-explorers",
     "version": "1.0.0",
-    "scheme": "math-explorers-recovered",
+    "scheme": "mathexplorers",
     "userInterfaceStyle": "dark",
     "web": {
       "bundler": "metro",
@@ -12,10 +12,35 @@
     },
     "plugins": [
       "expo-router",
-      "expo-video"
+      "expo-video",
+      "expo-status-bar",
+      "expo-sqlite",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#000000",
+          "image": "./assets/splash-mark.png",
+          "imageWidth": 200,
+          "resizeMode": "contain"
+        }
+      ]
     ],
     "experiments": {
       "baseUrl": "/app"
-    }
+    },
+    "icon": "./assets/app-icon.png",
+    "orientation": "portrait",
+    "backgroundColor": "#000000",
+    "ios": {
+      "bundleIdentifier": "xyz.mathexplorers.app",
+      "supportsTablet": false
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3a981964-1473-432d-aae7-265694bea0ee"
+      }
+    },
+    "owner": "pgaf"
   }
 }

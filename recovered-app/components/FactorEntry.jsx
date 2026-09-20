@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Animated,
   Easing,
-  Pressable,
   ScrollView,
   View,
   StyleSheet,
@@ -11,7 +10,7 @@ import {
 } from "react-native";
 import { Colors } from "../constants/theme.js";
 
-import { FACTOR_DIGITS, SUM_DIGITS } from "../game/factorAndAdd.js";
+import { FACTOR_DIGITS, SUM_DIGITS, isCompleteFactorInput } from "../game/factorAndAdd.js";
 
 const measure = (node) =>
   new Promise((resolve) => {
@@ -22,10 +21,10 @@ const measure = (node) =>
   });
 
 export default function FactorEntry({
+  transitioning = false,
   circleSize,
   entryOpen,
   addAnother,
-  onCancelEntry,
   factors,
   pairs,
   value,
@@ -43,7 +42,6 @@ export default function FactorEntry({
 }) {
   const root = useRef(null);
   const sources = useRef({});
-  const pairList = useRef(null);
   const pairViewport = useRef(null);
   const targets = useRef({});
   const input = useRef(null);
@@ -53,33 +51,28 @@ export default function FactorEntry({
   const transition = useRef(new Animated.Value(summing ? 1 : 0)).current;
   const [sprites, setSprites] = useState([]);
   const [atSum, setAtSum] = useState(summing);
-  const canAdd =
-    [value, pairedValue].every(
-      (item) =>
-        /^\d+$/.test(item) &&
-        Number(item) >= 1 &&
-        Number.isSafeInteger(Number(item)) &&
-        Number(item) <= number,
-    ) && [value, pairedValue].some((item) => !factors.includes(Number(item)));
   const addends = factors.filter((factor) => factor !== number);
   const stageHeight = Math.floor(circleSize * (circleSize < 330 ? 0.86 : 0.82));
   const cellSize = 44;
-  const sumSize =
-    factors.length > 18
-      ? 26
-      : factors.length > 10
-        ? 32
-        : circleSize < 330
-          ? 34
-          : 44;
+  const sumTop = circleSize * 0.1 + 40;
+  const sumRowHeight = Math.min(32, Math.max(20,
+    Math.floor((stageHeight - sumTop - 64) / Math.max(1, addends.length))));
+  const sumFontSize = Math.min(24, sumRowHeight - 3);
+  const sumWidth = Math.max(104, String(number).length * sumFontSize * 0.65 + 24);
   const cellStyle = { width: cellSize, height: cellSize, borderRadius: 14 };
-  const savedStyle = cellStyle;
-  const sumStyle = { width: sumSize, height: sumSize, borderRadius: 10 };
+  const rowGap = 4;
+  const availableRowsHeight = stageHeight - circleSize * 0.1 - (circleSize < 330 ? 48 : 58) - circleSize * 0.05 - 12 - (entryOpen ? cellSize + rowGap : 0);
+  const savedSize = Math.min(cellSize, Math.max(18, Math.floor(availableRowsHeight / Math.max(1, pairs.length) - rowGap)));
+  const savedStyle = { width: savedSize, height: savedSize, borderRadius: 10 };
+  // Preserve access for exceptional discovered numbers with dozens of pairs.
+  const needsOverflow = pairs.length * (savedSize + rowGap) > availableRowsHeight;
+  const PairContainer = needsOverflow ? ScrollView : View;
+  const sumStyle = { width: sumWidth, height: 44, borderRadius: 10 };
   const textStyle = {
     fontSize:
       number >= 10000 ? 10 : number >= 1000 ? 13 : number >= 100 ? 16 : 20,
   };
-  const savedTextStyle = textStyle;
+  const savedTextStyle = { fontSize: Math.min(textStyle.fontSize, savedSize * 0.55) };
   const fadeOut = transition.interpolate({
     inputRange: [0, 0.3, 1],
     outputRange: [1, 0, 0],
@@ -169,14 +162,29 @@ export default function FactorEntry({
     };
   }, [summing, reduceMotion, transition, pairs]);
 
-  useEffect(() => {
-    if (summing) return;
-    const frame = requestAnimationFrame(() => {
-      if (entryOpen) input.current?.focus();
-      else addAnother.current?.focus();
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [entryOpen, summing]);
+  useLayoutEffect(() => {
+    if (summing || transitioning) return;
+    // Initial entry must wait until the board's zoom transition reveals the field.
+    // Focus the cleared left field in the same commit, before a new row is painted.
+    if (entryOpen) input.current?.focus();
+    else addAnother.current?.focus();
+  }, [entryOpen, summing, pairs.length, transitioning]);
+
+  function changeFactor(text, second = false) {
+    if (!/^\d*$/.test(text) || text.length > FACTOR_DIGITS) return;
+    (second ? onPairedChange : onChange)(text);
+    const first = second ? value : text;
+    const last = second ? text : pairedValue;
+    if (
+      first && last && Number(first) * Number(last) === number &&
+      [first, last].some((item) => !factors.includes(Number(item)))
+    ) {
+      onAdd([first, last]);
+    } else if (!second && text.length > value.length &&
+      isCompleteFactorInput(number, text, factors)) {
+      secondInput.current?.focus();
+    }
+  }
 
   const symbol = (text, width = 26) => (
     <Text style={[styles.operator, { width }]}>{text}</Text>
@@ -226,19 +234,10 @@ export default function FactorEntry({
             marginBottom: circleSize * 0.05,
           }}
         >
-          <ScrollView
-            ref={pairList}
-            nestedScrollEnabled
-            keyboardShouldPersistTaps="handled"
-            scrollEnabled={!summing && !sprites.length}
-            onContentSizeChange={() => {
-              if (!summing) pairList.current?.scrollToEnd({ animated: false });
-            }}
-            contentContainerStyle={{
-              gap: circleSize < 330 ? 4 : 8,
-              alignItems: "center",
-              paddingBottom: 8,
-            }}
+          <PairContainer
+            {...(needsOverflow
+              ? { keyboardShouldPersistTaps: "handled", contentContainerStyle: { gap: rowGap, alignItems: "center" } }
+              : { style: { gap: rowGap, alignItems: "center" } })}
           >
             {pairs.map((pair, row) => (
               <View
@@ -290,7 +289,7 @@ export default function FactorEntry({
                     ref={input}
                     accessibilityLabel="First factor"
                     value={summing ? "" : value}
-                    onChangeText={onChange}
+                    onChangeText={(text) => changeFactor(text)}
                     keyboardType="number-pad"
                     maxLength={FACTOR_DIGITS}
                     editable={!summing}
@@ -304,7 +303,7 @@ export default function FactorEntry({
                     ref={secondInput}
                     accessibilityLabel="Second factor"
                     value={pairedValue}
-                    onChangeText={onPairedChange}
+                    onChangeText={(text) => changeFactor(text, true)}
                     keyboardType="number-pad"
                     maxLength={FACTOR_DIGITS}
                     editable={!summing}
@@ -316,70 +315,44 @@ export default function FactorEntry({
                   {symbol("=")}
                   <Text style={[styles.factor, textStyle]}>{number}</Text>
                 </View>
-                <View
-                  style={{
-                    height: cellSize + 6,
-                    paddingTop: 6,
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 12,
-                  }}
-                >
-                  <View style={cellStyle}>
-                    {!summing && canAdd && (
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel="Add factor pair"
-                        onPress={onAdd}
-                        style={[
-                          styles.plusButton,
-                          cellStyle,
-                          {
-                            backgroundColor: Colors.orange,
-                            borderColor: Colors.orange,
-                          },
-                        ]}
-                      >
-                        <Text
-                          style={[styles.plus, { color: Colors.background }]}
-                        >
-                          +
-                        </Text>
-                      </Pressable>
-                    )}
-                  </View>
-                  {pairs.length > 0 && !summing && (
-                    <Pressable
-                      accessibilityRole="button"
-                      onPress={onCancelEntry}
-                      style={{ padding: 12 }}
-                    >
-                      <Text style={{ color: Colors.textSecondary }}>
-                        Cancel
-                      </Text>
-                    </Pressable>
-                  )}
-                </View>
               </>
             ) : null}
-          </ScrollView>
+          </PairContainer>
         </View>
       </Animated.View>
+      {summing && (
+        <Animated.Text
+          accessibilityRole="header"
+          style={[
+            styles.question,
+            {
+              position: "absolute",
+              top: circleSize * 0.1,
+              width: "100%",
+              fontSize: circleSize < 330 ? 20 : 24,
+              lineHeight: circleSize < 330 ? 24 : 29,
+              opacity: reveal,
+            },
+          ]}
+        >
+          Now add them!
+        </Animated.Text>
+      )}
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        contentContainerStyle={{ flexGrow: 1, alignItems: "center", paddingBottom: 8 }}
         pointerEvents={summing && atSum ? "auto" : "none"}
         aria-hidden={!summing}
         accessibilityElementsHidden={!summing}
         importantForAccessibility={!summing ? "no-hide-descendants" : "auto"}
-        style={StyleSheet.absoluteFill}
+        style={[StyleSheet.absoluteFill, { top: sumTop }]}
       >
-        <View style={[styles.row, { marginTop: 0 }]}>
+        <View style={{ width: sumWidth + 28, alignItems: "flex-end" }}>
           {addends.map((factor, index) => (
-            <View key={factor} style={styles.entryPair}>
-              {index > 0 && (
+            <View key={factor} style={[styles.entryPair, { height: sumRowHeight, width: "100%", justifyContent: "flex-end" }]}>
+              {index === addends.length - 1 && addends.length > 1 && (
                 <Animated.View style={{ opacity: reveal }}>
-                  {symbol("+", 20)}
+                  {symbol("+", 28)}
                 </Animated.View>
               )}
               <View
@@ -389,9 +362,9 @@ export default function FactorEntry({
                     sumInputRef.current = node;
                 }}
                 collapsable={false}
-                style={[styles.box, sumStyle, { opacity: atSum ? 1 : 0 }]}
+                style={{ height: sumRowHeight, paddingHorizontal: 10, justifyContent: "center", opacity: atSum ? 1 : 0 }}
               >
-                <Text style={[styles.factor, textStyle]}>{factor}</Text>
+                <Text style={[styles.factor, { fontSize: sumFontSize, textAlign: "right", fontVariant: ["tabular-nums"] }]}>{factor}</Text>
               </View>
             </View>
           ))}
@@ -401,8 +374,8 @@ export default function FactorEntry({
             </Animated.Text>
           )}
           {!automaticSum && (
-            <Animated.View style={[styles.entryPair, { opacity: reveal }]}>
-              {symbol("=", 20)}
+            <Animated.View style={{ width: "100%", alignItems: "flex-end", opacity: reveal,
+              borderTopWidth: 2, borderTopColor: Colors.teal, marginTop: 5, paddingTop: 8 }}>
               <TextInput
                 ref={(node) => {
                   sumInput.current = node;
@@ -417,7 +390,7 @@ export default function FactorEntry({
                 onSubmitEditing={onAdd}
                 submitBehavior="submit"
                 returnKeyType="done"
-                style={[styles.box, styles.input, sumStyle, textStyle]}
+                style={[styles.box, styles.input, sumStyle, { fontSize: sumFontSize, textAlign: "right", paddingRight: 10, fontVariant: ["tabular-nums"] }]}
               />
             </Animated.View>
           )}
@@ -435,6 +408,7 @@ export default function FactorEntry({
             cellStyle,
             {
               position: "absolute",
+              borderWidth: transition.interpolate({ inputRange: [0, 0.78, 1], outputRange: [1.5, 1.5, 0] }),
               width: transition.interpolate({
                 inputRange: [0, 0.3, 0.78, 1],
                 outputRange: [
@@ -485,8 +459,8 @@ export default function FactorEntry({
                   outputRange: [
                     savedTextStyle.fontSize,
                     savedTextStyle.fontSize,
-                    textStyle.fontSize,
-                    textStyle.fontSize,
+                    sumFontSize,
+                    sumFontSize,
                   ],
                 }),
               },
@@ -545,14 +519,4 @@ const styles = StyleSheet.create({
     padding: 2,
     backgroundColor: Colors.surface,
   },
-  plusButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 1.5,
-    borderColor: Colors.teal,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  plus: { color: Colors.teal, fontSize: 28, lineHeight: 32 },
 });

@@ -7,7 +7,20 @@ import {
   factorsToAdd,
   properFactorSum,
   addConnection,
+  isCompleteFactorInput,
 } from "../game/factorAndAdd.js";
+
+test("factor entry advances on one and unambiguous factors without accepting invalid drafts", () => {
+  assert.equal(isCompleteFactorInput(12, "1"), true);
+  assert.equal(isCompleteFactorInput(12, "2"), true);
+  assert.equal(isCompleteFactorInput(12, "12"), true);
+  assert.equal(isCompleteFactorInput(24, "2"), false);
+  assert.equal(isCompleteFactorInput(24, "24"), true);
+  assert.equal(isCompleteFactorInput(12, "1", [1, 12]), false);
+  for (const draft of ["", "0", "5", "-2", "2x"]) {
+    assert.equal(isCompleteFactorInput(12, draft), false);
+  }
+});
 
 test("board includes all thirty numbers and factors include the number itself", () => {
   assert.equal(STARTING_NUMBERS.length, 30);

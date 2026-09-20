@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+    <linearGradient id="cubeTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F5C030"/>
+      <stop offset="100%" style="stop-color:#ECA020"/>
+    </linearGradient>
+    <linearGradient id="cubeLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E07520"/>
+      <stop offset="100%" style="stop-color:#C86010"/>
+    </linearGradient>
+    <linearGradient id="cubeRight" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#D05510"/>
+      <stop offset="100%" style="stop-color:#B84808"/>
+    </linearGradient>
+  </defs>
+<rect width="1024" height="1024" fill="#F7F1E3"/>
+<g transform="translate(512 512) scale(1.3) translate(-512 -415)">
+
+  <circle cx="512" cy="415" r="215" fill="none" stroke="#4AADA0" stroke-width="24"/>
+  <polygon points="339,242  481,341  512,415" fill="#1C3D50"/>
+  <polygon points="339,242  392,368  512,415" fill="#2E6B7A"/>
+  <polygon points="339,242  392,368  512,415  481,341" fill="none" stroke="#1C3D50" stroke-width="7" stroke-linejoin="round"/>
+  <line x1="339" y1="242" x2="512" y2="415" stroke="#1C3D50" stroke-width="7"/>
+  <polygon points="685,242  543,341  512,415" fill="#2E6B7A"/>
+  <polygon points="685,242  632,368  512,415" fill="#1C3D50"/>
+  <polygon points="685,242  543,341  512,415  632,368" fill="none" stroke="#1C3D50" stroke-width="7" stroke-linejoin="round"/>
+  <line x1="685" y1="242" x2="512" y2="415" stroke="#1C3D50" stroke-width="7"/>
+  <polygon points="685,588  618,459  512,415" fill="#2E6B7A"/>
+  <polygon points="685,588  556,521  512,415" fill="#1C3D50"/>
+  <polygon points="685,588  618,459  512,415  556,521" fill="none" stroke="#1C3D50" stroke-width="7" stroke-linejoin="round"/>
+  <line x1="685" y1="588" x2="512" y2="415" stroke="#1C3D50" stroke-width="7"/>
+  <polygon points="339,588  406,459  512,415" fill="#1C3D50"/>
+  <polygon points="339,588  468,521  512,415" fill="#2E6B7A"/>
+  <polygon points="339,588  406,459  512,415  468,521" fill="none" stroke="#1C3D50" stroke-width="7" stroke-linejoin="round"/>
+  <line x1="339" y1="588" x2="512" y2="415" stroke="#1C3D50" stroke-width="7"/>
+  <polygon points="512,120  468,309  512,415" fill="#E8711A"/>
+  <polygon points="512,120  556,309  512,415" fill="#1C3D50"/>
+  <polygon points="512,120  556,309  512,415  468,309" fill="none" stroke="#1C3D50" stroke-width="9" stroke-linejoin="round"/>
+  <line x1="512" y1="120" x2="512" y2="415" stroke="#1C3D50" stroke-width="9"/>
+  <polygon points="512,710  468,521  512,415" fill="#1C3D50"/>
+  <polygon points="512,710  556,521  512,415" fill="#E8711A"/>
+  <polygon points="512,710  468,521  512,415  556,521" fill="none" stroke="#1C3D50" stroke-width="9" stroke-linejoin="round"/>
+  <line x1="512" y1="710" x2="512" y2="415" stroke="#1C3D50" stroke-width="9"/>
+  <polygon points="807,415  618,371  512,415" fill="#E8711A"/>
+  <polygon points="807,415  618,459  512,415" fill="#1C3D50"/>
+  <polygon points="807,415  618,459  512,415  618,371" fill="none" stroke="#1C3D50" stroke-width="9" stroke-linejoin="round"/>
+  <line x1="807" y1="415" x2="512" y2="415" stroke="#1C3D50" stroke-width="9"/>
+  <polygon points="217,415  406,371  512,415" fill="#1C3D50"/>
+  <polygon points="217,415  406,459  512,415" fill="#E8711A"/>
+  <polygon points="217,415  406,371  512,415  406,459" fill="none" stroke="#1C3D50" stroke-width="9" stroke-linejoin="round"/>
+  <line x1="217" y1="415" x2="512" y2="415" stroke="#1C3D50" stroke-width="9"/>
+  <polygon
+    points="512,300  632,368  512,436  392,368"
+    fill="url(#cubeTop)"
+    stroke="#1C3D50" stroke-width="10" stroke-linejoin="round"
+  />
+  <polygon
+    points="392,368  512,436  512,572  392,504"
+    fill="url(#cubeLeft)"
+    stroke="#1C3D50" stroke-width="10" stroke-linejoin="round"
+  />
+  <polygon
+    points="632,368  512,436  512,572  632,504"
+    fill="url(#cubeRight)"
+    stroke="#1C3D50" stroke-width="10" stroke-linejoin="round"
+  />
+  
+</g>
+</svg>

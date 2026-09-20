@@ -16,11 +16,12 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../constants/theme.js";
 import FactorEntry from "../components/FactorEntry.jsx";
 import FactorFocusCircle from "../components/FactorFocusCircle.jsx";
 import FactorNumberBoard from "../components/FactorNumberBoard.jsx";
+import FactorViewMenu from "../components/FactorViewMenu.jsx";
 import {
   addConnection,
   explorationLimit,
@@ -40,6 +41,7 @@ import logoAsset from "../assets/logo-mark.png";
 
 export default function FactorAndAddScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [initialProgress] = useState(
     () =>
       readProgress("factor-and-add", validateFactorProgress) ||
@@ -49,6 +51,7 @@ export default function FactorAndAddScreen() {
   const rootRef = useRef(null);
   const focusRef = useRef(null);
   const sumInputRef = useRef(null);
+  const sumSubmission = useRef(false);
   const addAnotherRef = useRef(null);
   const unitFactorRef = useRef(null);
   const nodeRefs = useRef({});
@@ -85,6 +88,16 @@ export default function FactorAndAddScreen() {
       );
     });
   const { width, height: viewportHeight } = useWindowDimensions();
+  const [visibleHeight, setVisibleHeight] = useState(null);
+  const [entryHeight, setEntryHeight] = useState(null);
+  useEffect(() => {
+    if (Platform.OS !== "web" || !window.visualViewport) return;
+    const viewport = window.visualViewport;
+    const updateHeight = () => setVisibleHeight(viewport.height);
+    updateHeight();
+    viewport.addEventListener("resize", updateHeight);
+    return () => viewport.removeEventListener("resize", updateHeight);
+  }, []);
   const [phase, setPhase] = useState(initialProgress.phase);
   const previousPhase = useRef("choose");
   useEffect(() => {
@@ -186,6 +199,8 @@ export default function FactorAndAddScreen() {
   const [sum, setSum] = useState(initialProgress.sum);
   const [feedback, setFeedback] = useState("");
   const [confirmRestart, setConfirmRestart] = useState(false);
+  const [boardView, setBoardView] = useState({});
+  const [boardHeadingHeight, setBoardHeadingHeight] = useState(44);
   const [connections, setConnections] = useState(initialProgress.connections);
   const [latest, setLatest] = useState(initialProgress.latest);
   useEffect(() => {
@@ -238,12 +253,15 @@ export default function FactorAndAddScreen() {
     setLatest(empty.latest);
     setFeedback("");
     setConfirmRestart(false);
+    setBoardView({});
     setPhase(empty.phase);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }
 
   const boardWidth = Math.min(600, width - 48);
-  const circleSize = Math.min(460, width - 24);
+  const circleSize = Math.min(460, width - 48);
+  const fittedCircleSize = Math.min(circleSize, entryHeight ?? circleSize);
+  const circleScale = fittedCircleSize / circleSize;
   const addends = factorsToAdd(chosen, selected);
   const automaticSum =
     hasAllFactors(chosen, selected) && addends.length === 1 && addends[0] === 1;
@@ -252,11 +270,12 @@ export default function FactorAndAddScreen() {
       ? "Pick a number · 2–30"
       : phase === "factors"
         ? `What are the factors of ${chosen}?`
-        : "Add the factors.";
+        : "Now add them!";
 
   async function selectNumber(number) {
     if (transitioning || explorationLimit(number, connections, savedFactors))
       return;
+    sumSubmission.current = false;
     setFeedback("");
     boardScroll.current = currentScroll.current;
     const from = await measure(nodeRefs.current[number]);
@@ -273,8 +292,8 @@ export default function FactorAndAddScreen() {
     setSum("");
     setPhase("factors");
   }
-  function addFactor() {
-    const pair = [factorInput, pairedInput];
+  function addFactor(submittedPair) {
+    const pair = Array.isArray(submittedPair) ? submittedPair : [factorInput, pairedInput];
     if (
       pair.some(
         (value) =>
@@ -296,9 +315,11 @@ export default function FactorAndAddScreen() {
       setFeedback("Already added.");
       return;
     }
-    Keyboard.dismiss();
-    setEntryOpen(false);
-    setSelected((previous) => [...new Set([...previous, ...values])]);
+    const nextSelected = [...new Set([...selected, ...values])];
+    const complete = hasAllFactors(chosen, nextSelected);
+    if (complete) Keyboard.dismiss();
+    setEntryOpen(!complete);
+    setSelected(nextSelected);
     setPairs((previous) => [...previous, values]);
     setFactorInput("");
     setPairedInput("");
@@ -344,7 +365,7 @@ export default function FactorAndAddScreen() {
   async function finishSum(automaticTotal, direct = false) {
     const answer =
       typeof automaticTotal === "number" ? String(automaticTotal) : sum;
-    if (transitioning) return;
+    if (transitioning || sumSubmission.current) return;
     if (!/^\d+$/.test(answer)) {
       setFeedback("Enter a whole number.");
       return;
@@ -358,6 +379,7 @@ export default function FactorAndAddScreen() {
       setFeedback("Check your sum.");
       return;
     }
+    sumSubmission.current = true;
     const [from, sourceCircle] = await Promise.all([
       measure(direct ? unitFactorRef.current : sumInputRef.current),
       measure(focusRef.current),
@@ -403,7 +425,11 @@ export default function FactorAndAddScreen() {
   }
 
   return (
-    <SafeAreaView ref={rootRef} collapsable={false} style={styles.container}>
+    <SafeAreaView
+      ref={rootRef}
+      collapsable={false}
+      style={[styles.container, visibleHeight !== null && { height: visibleHeight, maxHeight: visibleHeight }]}
+    >
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -414,8 +440,8 @@ export default function FactorAndAddScreen() {
             currentScroll.current = event.nativeEvent.contentOffset.y;
           }}
           scrollEventThrottle={16}
-          scrollEnabled={!transitioning}
-          contentContainerStyle={styles.content}
+          scrollEnabled={phase === "choose" && !transitioning}
+          contentContainerStyle={[styles.content, phase !== "choose" && styles.entryContent]}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.header}>
@@ -428,9 +454,13 @@ export default function FactorAndAddScreen() {
             </Pressable>
             <Image source={logoAsset} style={styles.logo} />
           </View>
-          <View style={styles.heading}>
+          <View style={styles.heading} onLayout={(event) => {
+            if (phase === "choose") setBoardHeadingHeight(event.nativeEvent.layout.height);
+          }}>
             {phase === "choose" && (
-              <Text style={styles.title}>Factor and Add</Text>
+              <FactorViewMenu value={boardView} onChange={setBoardView} disabled={transitioning}>
+                <Text style={styles.title}>Factor and Add</Text>
+              </FactorViewMenu>
             )}
             {phase === "choose" &&
               connections.length === 0 &&
@@ -456,8 +486,9 @@ export default function FactorAndAddScreen() {
               }}
             >
               <FactorNumberBoard
+                view={boardView}
                 width={boardWidth}
-                availableHeight={viewportHeight - 160}
+                availableHeight={viewportHeight - insets.top - insets.bottom - 168 - boardHeadingHeight}
                 phase={phase}
                 chosen={chosen}
                 selected={selected}
@@ -521,7 +552,19 @@ export default function FactorAndAddScreen() {
             </Animated.View>
           )}
           {phase !== "choose" && (
-            <View style={{ marginTop: 20, opacity: transitioning ? 0 : 1 }}>
+            <View
+              onLayout={(event) => setEntryHeight(event.nativeEvent.layout.height)}
+              style={styles.entryArea}
+            >
+              <View style={{ width: fittedCircleSize, height: fittedCircleSize, opacity: transitioning ? 0 : 1 }}>
+                <View style={{
+                  position: "absolute",
+                  width: circleSize,
+                  height: circleSize,
+                  left: (fittedCircleSize - circleSize) / 2,
+                  top: (fittedCircleSize - circleSize) / 2,
+                  transform: [{ scale: circleScale }],
+                }}>
               <FactorFocusCircle
                 ref={focusRef}
                 number={chosen}
@@ -540,16 +583,10 @@ export default function FactorAndAddScreen() {
                 }
               >
                 <FactorEntry
+                  transitioning={transitioning}
                   circleSize={circleSize}
                   entryOpen={entryOpen}
                   addAnother={addAnotherRef}
-                  onCancelEntry={() => {
-                    setFactorInput("");
-                    setPairedInput("");
-                    setEntryOpen(false);
-                    setFeedback("");
-                    Keyboard.dismiss();
-                  }}
                   sumInputRef={sumInputRef}
                   unitFactorRef={unitFactorRef}
                   automaticSum={automaticSum}
@@ -572,8 +609,12 @@ export default function FactorAndAddScreen() {
                       value.length <=
                         (phase === "sum" ? SUM_DIGITS : FACTOR_DIGITS)
                     ) {
-                      if (phase === "sum") setSum(value);
-                      else setFactorInput(value);
+                      if (phase === "sum") {
+                        setSum(value);
+                        if (value && Number(value) === properFactorSum(chosen)) {
+                          finishSum(Number(value));
+                        }
+                      } else setFactorInput(value);
                       setFeedback("");
                     }
                   }}
@@ -587,13 +628,15 @@ export default function FactorAndAddScreen() {
                   reduceMotion={reduceMotion}
                 />
               </FactorFocusCircle>
+                </View>
+              </View>
             </View>
           )}
           {phase === "factors" && !entryOpen && (
             <View
               style={[styles.actions, { width: 260, maxWidth: "100%", gap: 8 }]}
             >
-              <Pressable
+              {!hasAllFactors(chosen, selected) && <Pressable
                 ref={addAnotherRef}
                 accessibilityRole="button"
                 disabled={transitioning}
@@ -604,7 +647,7 @@ export default function FactorAndAddScreen() {
                 style={styles.choice}
               >
                 <Text style={styles.choiceText}>Add another factor pair</Text>
-              </Pressable>
+              </Pressable>}
               <Pressable
                 accessibilityRole="button"
                 disabled={transitioning}
@@ -612,25 +655,6 @@ export default function FactorAndAddScreen() {
                 style={styles.choice}
               >
                 <Text style={styles.choiceText}>That's all the factors</Text>
-              </Pressable>
-            </View>
-          )}
-          {phase === "sum" && !automaticSum && (
-            <View style={styles.actions}>
-              <Pressable
-                accessibilityRole="button"
-                disabled={!sum || transitioning}
-                style={[
-                  styles.primary,
-                  (!sum || transitioning) && styles.secondaryAction,
-                ]}
-                onPress={finishSum}
-              >
-                <Text
-                  style={[styles.primaryText, !sum && { color: Colors.teal }]}
-                >
-                  Connect →
-                </Text>
               </Pressable>
             </View>
           )}
@@ -856,6 +880,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 8,
     paddingBottom: 32,
+  },
+  entryContent: {
+    height: "100%",
+    paddingBottom: 12,
+  },
+  entryArea: {
+    flex: 1,
+    minHeight: 0,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
   header: {
     width: "100%",

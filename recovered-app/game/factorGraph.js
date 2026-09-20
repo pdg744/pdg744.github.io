@@ -42,54 +42,84 @@ export function layoutFactorGraph(connections, savedFactors, viewportWidth) {
     .sort(
       (a, b) => (anchors.has(a) ? 0 : 1) - (anchors.has(b) ? 0 : 1) || a - b,
     );
-  const spans = new Map();
-  function span(number) {
-    if (!spans.has(number)) {
-      const branches = children.get(number);
-      // Equal sibling slots keep converging branches symmetrical, even with unequal subtrees.
-      spans.set(
-        number,
-        branches.length ? branches.length * Math.max(...branches.map(span)) : 1,
-      );
-    }
-    return spans.get(number);
-  }
   const diameter =
     numbers.length <= 4
       ? Math.min(144, (viewportWidth - 52) / 2)
       : viewportWidth < 350
         ? 88
         : 108;
-  const pitch = diameter + 48;
-  const slots = roots.reduce((sum, root) => sum + span(root), 0);
-  const width = Math.max(viewportWidth, slots * pitch);
+  const pitch = diameter + 36;
+  const gap = diameter + 24;
+  // Pack by the occupied contour at each depth, not by the widest subtree.
+  // This lets a short branch use space alongside a taller neighboring branch.
+  function tree(number) {
+    const branches = children.get(number).map(tree);
+    let spacing = gap;
+    for (let i = 0; i < branches.length; i++) {
+      for (let j = i + 1; j < branches.length; j++) {
+        for (let depth = 0; depth < Math.min(branches[i].right.length, branches[j].left.length); depth++) {
+          spacing = Math.max(spacing,
+            (branches[i].right[depth] - branches[j].left[depth] + gap) / (j - i));
+        }
+      }
+    }
+    const points = new Map([[number, { x: 0, depth: 0 }]]);
+    const left = [0], right = [0];
+    branches.forEach((branch, index) => {
+      const offset = (index - (branches.length - 1) / 2) * spacing;
+      for (const [child, point] of branch.points) {
+        const x = point.x + offset, depth = point.depth + 1;
+        points.set(child, { x, depth });
+        left[depth] = Math.min(left[depth] ?? Infinity, x);
+        right[depth] = Math.max(right[depth] ?? -Infinity, x);
+      }
+    });
+    return { points, left, right };
+  }
   const positions = new Map();
+  const occupiedRight = [];
   let maxDepth = 0;
-  function place(number, center, depth) {
-    positions.set(number, { x: center, depth });
-    maxDepth = Math.max(maxDepth, depth);
-    const branches = children.get(number);
-    const spacing = branches.length
-      ? (span(number) / branches.length) * pitch
-      : 0;
-    branches.forEach((child, index) =>
-      place(
-        child,
-        center + (index - (branches.length - 1) / 2) * spacing,
-        depth + 1,
-      ),
-    );
-  }
-  let offset = (width - slots * pitch) / 2;
   for (const root of roots) {
-    const treeWidth = span(root) * pitch;
-    place(root, offset + treeWidth / 2, 0);
-    offset += treeWidth;
+    const branch = tree(root);
+    let offset = 0;
+    for (let depth = 0; depth < branch.left.length; depth++) {
+      if (occupiedRight[depth] !== undefined)
+        offset = Math.max(offset, occupiedRight[depth] - branch.left[depth] + gap);
+    }
+    for (const [number, point] of branch.points) {
+      const x = point.x + offset;
+      positions.set(number, { x, depth: point.depth });
+      maxDepth = Math.max(maxDepth, point.depth);
+      occupiedRight[point.depth] = Math.max(occupiedRight[point.depth] ?? -Infinity, x);
+    }
   }
+  const xs = [...positions.values()].map((point) => point.x);
+  const minX = xs.length ? Math.min(...xs) : 0;
+  const maxX = xs.length ? Math.max(...xs) : 0;
+  const contentWidth = maxX - minX + diameter + 48;
+  const width = Math.max(viewportWidth, contentWidth);
+  for (const point of positions.values())
+    point.x += -minX + diameter / 2 + 24 + (width - contentWidth) / 2;
   const top = diameter / 2 + 48;
   const height = Math.max(340, top + maxDepth * pitch + diameter / 2 + 24);
   const baseline = height - diameter / 2 - 24;
   for (const [number, point] of positions)
     positions.set(number, { x: point.x, y: baseline - point.depth * pitch });
   return { numbers, positions, diameter, height, width };
+}
+
+// A dense, wide tree uses the phone's height better when its arrows run sideways.
+export function fitFactorGraph(graph, width, height) {
+  const uprightScale = Math.min(1, width / graph.width, height / graph.height);
+  const sidewaysHeight = graph.width + 48; // Reserve space above self-loop arrows.
+  const sidewaysScale = Math.min(1, width / graph.height, height / sidewaysHeight);
+  const sideways = width < 500 && graph.numbers.length >= 8 && sidewaysScale > uprightScale * 1.2;
+  const scale = sideways ? sidewaysScale : uprightScale;
+  const sourceWidth = sideways ? graph.height : graph.width;
+  const sourceHeight = sideways ? sidewaysHeight : graph.height;
+  const positions = new Map([...graph.positions].map(([number, point]) => [number, {
+    x: (sideways ? point.y : point.x) * scale + (width - sourceWidth * scale) / 2,
+    y: (sideways ? graph.width - point.x + 24 : point.y) * scale + (height - sourceHeight * scale) / 2,
+  }]));
+  return { positions, scale, diameter: graph.diameter * scale, sideways };
 }

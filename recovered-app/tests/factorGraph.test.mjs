@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { layoutFactorGraph } from "../game/factorGraph.js";
+import { fitFactorGraph, layoutFactorGraph } from "../game/factorGraph.js";
+import { properFactorSum } from "../game/factorAndAdd.js";
 
 test("graph includes work and destinations, not the unvisited number grid", () => {
   const graph = layoutFactorGraph(
@@ -107,4 +108,28 @@ test("one terminates a continued chain", () => {
   );
   assert.equal(graph.positions.get(17).x, graph.positions.get(1).x);
   assert.ok(graph.positions.get(17).y < graph.positions.get(1).y);
+});
+
+test("a full starting board uses portrait space with larger, nonoverlapping circles", () => {
+  const edges = Array.from({ length: 29 }, (_, i) => ({ from: i + 2, to: properFactorSum(i + 2) }));
+  for (const [width, height] of [[272, 480], [342, 600], [382, 700]]) {
+    const graph = layoutFactorGraph(edges, {}, width);
+    const fitted = fitFactorGraph(graph, width, height);
+    assert.ok(fitted.sideways);
+    assert.ok(fitted.diameter >= 25);
+    const points = [...fitted.positions.values()];
+    for (const p of points) {
+      assert.ok(p.x >= fitted.diameter / 2 && p.x <= width - fitted.diameter / 2);
+      assert.ok(p.y >= fitted.diameter / 2 && p.y <= height - fitted.diameter / 2);
+    }
+    for (let i = 0; i < points.length; i++)
+      for (let j = i + 1; j < points.length; j++)
+        assert.ok(Math.hypot(points[i].x - points[j].x, points[i].y - points[j].y) > fitted.diameter);
+    assert.deepEqual(graph, layoutFactorGraph([...edges].reverse(), {}, width));
+  }
+});
+
+test("small graphs keep their familiar vertical orientation", () => {
+  const graph = layoutFactorGraph([{ from: 8, to: 7 }, { from: 7, to: 1 }], {}, 342);
+  assert.equal(fitFactorGraph(graph, 342, 600).sideways, false);
 });

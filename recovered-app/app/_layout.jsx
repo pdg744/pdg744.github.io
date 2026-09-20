@@ -1,4 +1,7 @@
 // Recovered from Metro module 10. See ../../recovery/README.md.
+// Install durable, synchronous device storage before any activity mounts.
+// Expo excludes this polyfill on web, which keeps the browser's own storage.
+import "expo-sqlite/localStorage/install";
 import * as Router from "expo-router";
 import * as StatusBarModule from "expo-status-bar";
 import * as React from "react";

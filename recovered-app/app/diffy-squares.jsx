@@ -539,11 +539,11 @@ function DiffySquaresScreen() {
                                   (t) =>
                                     t !== e && "correct" !== answerStates[t],
                                 );
-                              void 0 !== t &&
-                                schedule(
-                                  () => midpointRefs.current[t]?.focus(),
-                                  50,
-                                );
+                              // Transfer focus before this event's state update
+                              // disables the completed input. A delayed handoff
+                              // leaves no focused field and dismisses iOS's keypad.
+                              if (t !== undefined)
+                                midpointRefs.current[t]?.focus();
                             }
                         }}
                         inputRef={(t) => {

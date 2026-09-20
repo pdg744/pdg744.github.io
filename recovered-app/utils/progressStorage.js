@@ -1,5 +1,5 @@
-// Browser-local persistence. Native and restricted browsers retain an in-memory
-// copy for navigation; durable native storage is outside the web refresh MVP.
+// Browser localStorage, or SQLite-backed localStorage installed by the native
+// root layout. Keep an in-memory fallback when persistent storage is unavailable.
 const memory = new Map();
 const failedWrites = new Set();
 export const PROGRESS_VERSION = 1;
