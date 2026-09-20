@@ -8,6 +8,7 @@ import * as React from "react";
 import * as SafeArea from "react-native-safe-area-context";
 import * as Theme from "../constants/theme.js";
 import * as Session from "../context/SessionContext.js";
+import StarFeedback from "../components/StarFeedback.jsx";
 function RootLayout() {
   const f = React.useRef(false);
   return (
@@ -30,6 +31,7 @@ function RootLayout() {
             animation: "slide_from_right",
           }}
         />
+        <StarFeedback />
       </Session.SessionContext.Provider>
     </SafeArea.SafeAreaProvider>
   );

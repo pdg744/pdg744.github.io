@@ -254,10 +254,10 @@ export default function FactorNumberBoard({
                 alignItems: "center",
                 justifyContent: "center",
                 opacity: pressed ? 0.6 : 1,
-                backgroundColor: factorViewColor(number, view) || "transparent",
+                backgroundColor: "transparent",
               })}
             >
-              <Text style={{ color: factorViewColor(number, view) ? Colors.background : Colors.textPrimary, fontSize: 16 }}>
+              <Text style={{ color: Colors.textPrimary, fontSize: 16 }}>
                 {number}
               </Text>
             </Pressable>

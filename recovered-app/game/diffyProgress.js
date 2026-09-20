@@ -1,4 +1,5 @@
 import { buildGenerations, checkAnswer, correctDifference } from "./diffy.js";
+import { validPracticeRunId } from "./practiceStars.js";
 
 const four = (value, valid) =>
   Array.isArray(value) && value.length === 4 && value.every(valid);
@@ -21,6 +22,7 @@ export function validateDiffyProgress(data) {
       initialCorners: null,
       currentGenIndex: 0,
       userAnswers: ["", "", "", ""],
+      ...(validPracticeRunId(data.practiceRunId) ? { practiceRunId: data.practiceRunId } : {}),
     };
   if (
     !four(
@@ -61,5 +63,6 @@ export function validateDiffyProgress(data) {
     initialCorners: [...data.initialCorners],
     currentGenIndex,
     userAnswers: phase === "complete" ? ["", "", "", ""] : userAnswers,
+    ...(validPracticeRunId(data.practiceRunId) ? { practiceRunId: data.practiceRunId } : {}),
   };
 }

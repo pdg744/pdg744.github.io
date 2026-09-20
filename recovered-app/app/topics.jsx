@@ -12,6 +12,7 @@ import * as Svg from "react-native-svg";
 import * as SafeArea from "react-native-safe-area-context";
 import * as Theme from "../constants/theme.js";
 import logoAsset from "../assets/logo-mark.png";
+import PracticeSummary from "../components/PracticeSummary.jsx";
 function DiffyIcon({ size = 48 }) {
   return (
     <Svg.default width={size} height={size} viewBox={"0 0 100 100"}>
@@ -124,6 +125,7 @@ function TopicsScreen() {
         </View>
       </View>
       <ScrollView contentContainerStyle={styles.grid}>
+        <PracticeSummary />
         {activities.map((o) => (
           <Pressable
             accessibilityRole="button"

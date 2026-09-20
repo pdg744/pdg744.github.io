@@ -9,11 +9,15 @@ import {
 } from "../game/diffy";
 import { validateDiffyProgress } from "../game/diffyProgress.js";
 import { readProgress, writeProgress } from "../utils/progressStorage.js";
+import { awardStar, ensurePracticeRun } from "../utils/practiceStorage.js";
+import { newPracticeRunId } from "../game/practiceStars.js";
 export { correctDifference } from "../game/diffy";
 export function useDiffySquares() {
-  const [saved] = useState(() =>
-    readProgress("diffy-squares", validateDiffyProgress),
-  );
+  const [saved] = useState(() => {
+    const progress = readProgress("diffy-squares", validateDiffyProgress);
+    return progress ? ensurePracticeRun("diffy-squares", progress) : null;
+  });
+  const practiceRunId = useRef(saved?.practiceRunId ?? newPracticeRunId());
   const [restored, setRestored] = useState(Boolean(saved));
   const [cornerInputs, setCornerInputs] = useState(
     saved?.cornerInputs ?? EMPTY_ANSWERS,
@@ -45,6 +49,7 @@ export function useDiffySquares() {
   const [skipIntroAnimation, setSkipIntroAnimation] = useState(Boolean(saved));
   useEffect(() => {
     writeProgress("diffy-squares", {
+      practiceRunId: practiceRunId.current,
       phase,
       cornerInputs,
       initialCorners: generations[0] ?? null,
@@ -64,6 +69,7 @@ export function useDiffySquares() {
   }, []);
   const start = useCallback(
     (corners) => {
+      practiceRunId.current = newPracticeRunId();
       clearCompletion();
       setRestored(false);
       const next = buildGenerations(corners);
@@ -81,6 +87,10 @@ export function useDiffySquares() {
       text,
       correctDifference(corners, side),
     );
+    if (state === "correct" && states[side] !== "correct") {
+      const operands = [corners[side], corners[(side + 1) % 4]].sort((a, b) => b - a);
+      awardStar(`${practiceRunId.current}:difference:${_generation}:${side}`, "subtraction", operands, Number(value));
+    }
     setUserAnswers((previous) =>
       previous.map((answer, index) => (index === side ? value : answer)),
     );

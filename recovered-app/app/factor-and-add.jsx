@@ -22,6 +22,9 @@ import FactorEntry from "../components/FactorEntry.jsx";
 import FactorFocusCircle from "../components/FactorFocusCircle.jsx";
 import FactorNumberBoard from "../components/FactorNumberBoard.jsx";
 import FactorViewMenu from "../components/FactorViewMenu.jsx";
+import FactorNoticing from "../components/FactorNoticing.jsx";
+import FactorConjectures from "../components/FactorConjectures.jsx";
+import { emptyNoticing } from "../game/factorConjectures.js";
 import {
   addConnection,
   explorationLimit,
@@ -37,6 +40,8 @@ import {
   validateFactorProgress,
 } from "../game/factorProgress.js";
 import { readProgress, writeProgress } from "../utils/progressStorage.js";
+import { awardStar, ensurePracticeRun } from "../utils/practiceStorage.js";
+import { newPracticeRunId } from "../game/practiceStars.js";
 import logoAsset from "../assets/logo-mark.png";
 
 export default function FactorAndAddScreen() {
@@ -44,9 +49,10 @@ export default function FactorAndAddScreen() {
   const insets = useSafeAreaInsets();
   const [initialProgress] = useState(
     () =>
-      readProgress("factor-and-add", validateFactorProgress) ||
-      emptyFactorProgress(),
+      ensurePracticeRun("factor-and-add", readProgress("factor-and-add", validateFactorProgress) ||
+      emptyFactorProgress()),
   );
+  const [practiceRunId, setPracticeRunId] = useState(initialProgress.practiceRunId);
   const scrollRef = useRef(null);
   const rootRef = useRef(null);
   const focusRef = useRef(null);
@@ -200,11 +206,17 @@ export default function FactorAndAddScreen() {
   const [feedback, setFeedback] = useState("");
   const [confirmRestart, setConfirmRestart] = useState(false);
   const [boardView, setBoardView] = useState({});
+  const [activeView, setActiveView] = useState("data");
+  const [draggingConjecture, setDraggingConjecture] = useState(false);
   const [boardHeadingHeight, setBoardHeadingHeight] = useState(44);
   const [connections, setConnections] = useState(initialProgress.connections);
   const [latest, setLatest] = useState(initialProgress.latest);
+  const [noticing, setNoticing] = useState(initialProgress.noticing ?? null);
+  const showNoticing = phase === "choose" && !transitioning && noticing && noticing.stage !== "done" && connections.length > 0;
   useEffect(() => {
     writeProgress("factor-and-add", {
+      practiceRunId,
+      noticing,
       phase,
       chosen,
       selected,
@@ -219,6 +231,8 @@ export default function FactorAndAddScreen() {
       latest,
     });
   }, [
+    practiceRunId,
+    noticing,
     phase,
     chosen,
     selected,
@@ -233,6 +247,9 @@ export default function FactorAndAddScreen() {
     latest,
   ]);
   function startOver() {
+    setActiveView("data");
+    setNoticing(null);
+    setPracticeRunId(newPracticeRunId());
     const empty = emptyFactorProgress();
     pendingZoom.current = null;
     animation.stopAnimation();
@@ -316,6 +333,8 @@ export default function FactorAndAddScreen() {
       return;
     }
     const nextSelected = [...new Set([...selected, ...values])];
+    awardStar(`${practiceRunId}:factor:${chosen}:${[...values].sort((a, b) => a - b).join("x")}`,
+      "multiplication", values, chosen);
     const complete = hasAllFactors(chosen, nextSelected);
     if (complete) Keyboard.dismiss();
     setEntryOpen(!complete);
@@ -380,6 +399,9 @@ export default function FactorAndAddScreen() {
       return;
     }
     sumSubmission.current = true;
+    if (!automaticSum && !direct) {
+      awardStar(`${practiceRunId}:sum:${chosen}`, "addition", addends, total);
+    }
     const [from, sourceCircle] = await Promise.all([
       measure(direct ? unitFactorRef.current : sumInputRef.current),
       measure(focusRef.current),
@@ -403,6 +425,7 @@ export default function FactorAndAddScreen() {
     Keyboard.dismiss();
     setFeedback("");
     const edge = { from: chosen, to: total };
+    if (connections.length === 0 && !noticing) setNoticing(emptyNoticing());
     setConnections((previous) => addConnection(previous, chosen, total));
     setLatest(edge);
     setPhase("choose");
@@ -440,7 +463,7 @@ export default function FactorAndAddScreen() {
             currentScroll.current = event.nativeEvent.contentOffset.y;
           }}
           scrollEventThrottle={16}
-          scrollEnabled={phase === "choose" && !transitioning}
+          scrollEnabled={phase === "choose" && !transitioning && !draggingConjecture}
           contentContainerStyle={[styles.content, phase !== "choose" && styles.entryContent]}
           keyboardShouldPersistTaps="handled"
         >
@@ -457,12 +480,31 @@ export default function FactorAndAddScreen() {
           <View style={styles.heading} onLayout={(event) => {
             if (phase === "choose") setBoardHeadingHeight(event.nativeEvent.layout.height);
           }}>
-            {phase === "choose" && (
-              <FactorViewMenu value={boardView} onChange={setBoardView} disabled={transitioning}>
-                <Text style={styles.title}>Factor and Add</Text>
-              </FactorViewMenu>
+            {phase === "choose" && !showNoticing && (
+              <>
+                {activeView === "data" ? (
+                  <FactorViewMenu value={boardView} onChange={setBoardView} disabled={transitioning}>
+                    <Text style={styles.title}>Factor and Add</Text>
+                  </FactorViewMenu>
+                ) : <Text style={styles.title}>Factor and Add</Text>}
+                <View accessibilityRole="tablist" style={styles.viewTabs}>
+                  {[["data", "Data Collection"], ["conjectures", "Conjectures"]].map(([key, label]) => (
+                    <Pressable key={key} accessibilityRole="tab"
+                      accessibilityState={{ selected: activeView === key, disabled: transitioning }}
+                      disabled={transitioning}
+                      onPress={() => {
+                        setActiveView(key);
+                        setConfirmRestart(false);
+                        scrollRef.current?.scrollTo({ y: 0, animated: false });
+                      }}
+                      style={[styles.viewTab, activeView === key && styles.selectedViewTab]}>
+                      <Text style={[styles.viewTabText, activeView === key && styles.selectedViewTabText]}>{label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </>
             )}
-            {phase === "choose" &&
+            {phase === "choose" && activeView === "data" &&
               connections.length === 0 &&
               Object.keys(savedFactors).length === 0 && (
                 <Text
@@ -474,7 +516,15 @@ export default function FactorAndAddScreen() {
                 </Text>
               )}
           </View>
-          {phase === "choose" && (
+          {showNoticing && (
+            <FactorNoticing edge={connections[0]} value={noticing} onChange={setNoticing} />
+          )}
+          {phase === "choose" && !showNoticing && activeView === "conjectures" && (
+            <FactorConjectures conjectures={noticing?.conjectures ?? []} connections={connections}
+              onDragChange={setDraggingConjecture}
+              onChange={(conjectures) => setNoticing((current) => ({ ...current, conjectures }))} />
+          )}
+          {phase === "choose" && !showNoticing && activeView === "data" && (
             <Animated.View
               style={{
                 opacity: transitioning
@@ -908,6 +958,11 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     paddingVertical: 8,
   },
+  viewTabs: { flexDirection: "row", marginTop: 4, marginBottom: 12, gap: 20 },
+  viewTab: { minHeight: 44, justifyContent: "center", borderBottomWidth: 2, borderBottomColor: "transparent" },
+  selectedViewTab: { borderBottomColor: Colors.teal },
+  viewTabText: { color: Colors.textSecondary, fontSize: 16 },
+  selectedViewTabText: { color: Colors.lightTeal, fontWeight: "600" },
   heading: { width: "100%", maxWidth: 600 },
   title: {
     color: Colors.textPrimary,

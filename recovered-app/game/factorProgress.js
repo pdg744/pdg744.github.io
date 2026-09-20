@@ -6,6 +6,8 @@ import {
   FACTOR_DIGITS,
   SUM_DIGITS,
 } from "./factorAndAdd.js";
+import { validPracticeRunId } from "./practiceStars.js";
+import { validateNoticing } from "./factorConjectures.js";
 
 export function emptyFactorProgress() {
   return {
@@ -121,6 +123,7 @@ export function validateFactorProgress(value) {
   const restored = Object.fromEntries(
     Object.keys(emptyFactorProgress()).map((key) => [key, value[key]]),
   );
+  if (validPracticeRunId(value.practiceRunId)) restored.practiceRunId = value.practiceRunId;
   restored.entryOpen =
     value.entryOpen ??
     (value.pairs.length === 0 || !!value.factorInput || !!value.pairedInput);
@@ -133,6 +136,8 @@ export function validateFactorProgress(value) {
   delete restored.savedFactors[1];
   delete restored.savedPairs[1];
   if (restored.latest?.from === 1) restored.latest = null;
+  const noticing = validateNoticing(value.noticing, restored.connections);
+  if (noticing) restored.noticing = noticing;
   if (restored.chosen === 1) {
     Object.assign(restored, {
       entryOpen: true,

@@ -59,6 +59,18 @@ The shared `utils/progressStorage.js` adapter stores versioned snapshots under `
 
 Web uses browser localStorage. Native iOS/Android uses Expo SQLite-backed localStorage, installed by the root layout before activities mount. Saves are synchronous and use the same versioned snapshots and validators on both platforms. There are no accounts or cross-device sync. Clearing site/app data or deleting the app removes progress. If storage is blocked or full, play continues with a memory fallback, but relaunch recovery is unavailable. Expo Go and the installed app have separate saves. The user verified progress restoration after force-closing and reopening Expo Go on a physical iPhone on 2026-09-19. Repeat in the standalone TestFlight build; see the [release checklist](RELEASE.md).
 
+## Noticing and conjectures
+
+After the first completed example in a new Factor and Add graph, The activity guides two observations (size and parity). A one-line noticing prompt leads to the learner's description choices. A correct description reveals “I bet that always happens!” below the choices with a fade-and-rise entrance. Its arrow saves the conjecture and adds “Can you help investigate that conjecture?” beneath it; another arrow continues. Reduced-motion settings omit the entrance animation. The reflection starts after the result animation and saves unfinished choices across reloads. Existing graphs are not interrupted retroactively.
+
+Side-by-side “Data Collection” and “Conjectures” tabs switch between the graph and sorting view. The “Conjectures” view labels the size and parity guesses “Conjecture 1” and “Conjecture 2.” Each shows Examples, Counterexamples, and Unsorted drop areas together. Learners drag result chips between areas; keyboard left/right arrows and screen-reader actions also move results. Every completed graph result begins Unsorted until the learner assigns it; results can be moved between categories, and each conjecture's classifications persist across reloads. No automatic verdict is shown. Starting over clears the graph's conjectures. Reflection choices do not earn arithmetic stars.
+
+## Practice stars
+
+The activity screen shows multiplication, addition, and subtraction stars for all time or the last seven days. A correct factor pair earns one multiplication star, an entered proper-factor sum earns one addition star, and each entered Diffy difference earns one subtraction star. Automatic prime-to-one steps and restored answers earn none. A small star notification respects reduced-motion settings.
+
+The separate `practice-stars` history records each award's date, problem, skill, and stable answer ID. Game snapshots retain a practice-run ID to prevent duplicates across callbacks and reloads. Starting a fresh game permits repeat practice while preserving lifetime history. Older saves receive an ID without retroactively awarding stars. History belongs to this device/browser; clearing app data removes it. Storage failures use the existing in-memory fallback.
+
 ## App Store preparation
 
 See the [first iPhone release checklist](RELEASE.md) for native persistence checks, EAS production setup, and remaining App Store decisions.
