@@ -1,3 +1,5 @@
+import { emptyFactorProgress } from '../game/factorProgress.js';
+import { newPracticeRunId } from '../game/practiceStars.js';
 import { progressKey, readProgress, writeProgress } from './progressStorage.js';
 
 export function validateFeatureSettings(value) {
@@ -33,8 +35,20 @@ export function createFeatureSettingsStore(storage) {
     },
     set(feature, enabled) {
       if (!['stars', 'conjectures'].includes(feature) || typeof enabled !== 'boolean') return false;
-      snapshot = { ...read(), [feature]: enabled };
-      const persisted = writeProgress('feature-settings', snapshot, storage);
+      const previous = read();
+      let activitiesSaved = true;
+      if (feature === 'conjectures' && enabled && !previous.conjectures) {
+        const factorSaved = writeProgress('factor-and-add', {
+          ...emptyFactorProgress(), practiceRunId: newPracticeRunId(),
+        }, storage);
+        const diffySaved = writeProgress('diffy-squares', {
+          phase: 'input', cornerInputs: ['', '', '', ''], practiceRunId: newPracticeRunId(),
+        }, storage);
+        activitiesSaved = factorSaved && diffySaved;
+      }
+      snapshot = { ...previous, [feature]: enabled };
+      const settingsSaved = writeProgress('feature-settings', snapshot, storage);
+      const persisted = activitiesSaved && settingsSaved;
       notify();
       return persisted;
     },

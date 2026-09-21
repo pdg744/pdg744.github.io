@@ -109,10 +109,14 @@ export default function FactorNoticing({ edge, value, onChange }) {
             <TextEvent>
               <View style={{ gap: 12 }}>
                 <Text accessibilityLiveRegion="polite" style={styles.statement}>Can you prove me wrong?</Text>
-                <Pressable accessibilityRole="button" accessibilityLabel="Try another number"
-                  style={styles.continueButton} onPress={() => onChange({ ...value, stage: parity ? 'done' : 'awaitingExample' })}>
-                  <Text style={styles.continueArrow}>→</Text>
-                </Pressable>
+                <View style={[styles.choices, styles.stackedChoices]}>
+                  {['Yes! I have a counterexample.', 'Hmm...'].map((response) => (
+                    <Pressable key={response} accessibilityRole="button" style={styles.choice}
+                      onPress={() => onChange({ ...value, stage: parity ? 'done' : 'awaitingExample' })}>
+                      <Text style={styles.choiceText}>{response}</Text>
+                    </Pressable>
+                  ))}
+                </View>
               </View>
             </TextEvent>
           )}
@@ -129,8 +133,6 @@ const styles = StyleSheet.create({
   introRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   introTitle: { flexShrink: 1 },
   introArrow: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  continueButton: { alignSelf: 'center', width: 56, height: 48, borderRadius: 14, backgroundColor: Colors.teal, alignItems: 'center', justifyContent: 'center' },
-  continueArrow: { color: Colors.background, fontSize: 28 },
   arrowText: { color: Colors.lightTeal, fontSize: 28 },
   statement: { color: Colors.textPrimary, fontSize: 19, lineHeight: 27, textAlign: 'center' },
   sentence: { color: Colors.textPrimary, fontSize: 17, textAlign: 'center' },

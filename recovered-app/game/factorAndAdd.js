@@ -45,14 +45,11 @@ export function hasAllFactors(number, selected) {
   );
 }
 
-// One advances immediately; other prefixes leave room for longer factors.
+// Advance as soon as an unused factor is entered, even if it prefixes a longer factor.
 export function isCompleteFactorInput(number, text, selected = []) {
   if (!/^\d+$/.test(text)) return false;
   const value = Number(text);
-  const remaining = factorsOf(number).filter((factor) => !selected.includes(factor));
-  return remaining.includes(value) && (value === 1 || !remaining.some(
-    (factor) => factor !== value && String(factor).startsWith(String(value)),
-  ));
+  return !selected.includes(value) && factorsOf(number).includes(value);
 }
 
 export function factorsToAdd(number, selected) {

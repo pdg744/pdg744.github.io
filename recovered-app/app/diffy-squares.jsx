@@ -4,7 +4,6 @@ import * as React from "react";
 import {
   Animated,
   useWindowDimensions,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -23,7 +22,8 @@ import * as PinchZoom from "../hooks/usePinchZoom.js";
 import * as MidpointInputModule from "../components/MidpointInput.jsx";
 import * as Geometry from "../utils/geometry.js";
 import * as jsxRuntime from "react/jsx-runtime";
-import logoAsset from "../assets/logo-mark.png";
+import { useFeatureSettings } from "../hooks/useFeatureSettings.js";
+import ActivityHeader from "../components/ActivityHeader.jsx";
 const EMPTY_CORNERS = [0, 0, 0, 0];
 function DiffySquaresScreen() {
   const { width, height } = useWindowDimensions();
@@ -394,26 +394,11 @@ function DiffySquaresScreen() {
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           <View style={styles.header}>
-            <View style={styles.headerTop}>
-              <Pressable
-                accessibilityRole="button"
-                onPress={
-                  "input" === phase
-                    ? () =>
-                        router.canGoBack()
-                          ? router.back()
-                          : router.replace("/topics")
-                    : restart
-                }
-                style={styles.backButton}
-              >
-                <Text style={styles.backText}>
-                  {"input" === phase ? "\u2190 Back" : "\u2190 New Game"}
-                </Text>
-              </Pressable>
-              <Image source={logoAsset} style={styles.logo} />
-            </View>
-            <Text style={styles.title}>{"Diffy Squares"}</Text>
+            <ActivityHeader title="Diffy Squares" backLabel="Home" onBack={() => router.canGoBack() ? router.back() : router.replace('/')}>
+              {(close) => <Pressable accessibilityRole="button" style={styles.menuAction} onPress={() => { restart(); close(); }}>
+                <Text style={styles.backText}>New game</Text>
+              </Pressable>}
+            </ActivityHeader>
             <Animated.Text
               style={[
                 styles.subtitle,
@@ -657,16 +642,6 @@ function DiffySquaresScreen() {
                   {"Try a Variation"}
                 </Text>
               </Pressable>
-              <Pressable
-                accessibilityRole="button"
-                style={({ pressed: e }) => [
-                  styles.secondaryButton,
-                  e && styles.pressed,
-                ]}
-                onPress={restart}
-              >
-                <Text style={styles.secondaryButtonText}>{"Fresh Start"}</Text>
-              </Pressable>
             </View>
           )}
         </KeyboardAvoidingView>
@@ -687,27 +662,11 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 4,
   },
-  headerTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 6,
-  },
-  logo: {
-    width: 58,
-    height: 58,
-  },
-  backButton: {},
+  menuAction: { minHeight: 44, justifyContent: "center" },
   backText: {
     color: Theme.Colors.teal,
     fontSize: 16,
     fontWeight: "600",
-  },
-  title: {
-    color: Theme.Colors.textPrimary,
-    fontSize: 26,
-    fontWeight: "800",
-    letterSpacing: 0.5,
   },
   subtitle: {
     color: Theme.Colors.textSecondary,
@@ -855,4 +814,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 });
-export default DiffySquaresScreen;
+export default function DiffySquaresRoute() {
+  const { conjectures } = useFeatureSettings();
+  return <DiffySquaresScreen key={String(conjectures)} />;
+}

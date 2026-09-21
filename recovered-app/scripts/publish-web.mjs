@@ -7,7 +7,7 @@ const target = path.resolve(import.meta.dirname, '../../public/app');
 // This also preserves the existing 404 fallback and the recovery archive.
 await cp(source, target, { recursive: true });
 // Pages has no SPA rewrite: give each app route a real entry document.
-for (const route of ['practice-details', 'parent', 'topics', 'diffy-squares', 'factor-and-add']) {
+for (const route of ['practice-details', 'diffy-squares', 'factor-and-add']) {
   await mkdir(path.join(target, route), { recursive: true });
   await cp(path.join(source, 'index.html'), path.join(target, route, 'index.html'));
 }

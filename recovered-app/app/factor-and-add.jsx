@@ -4,7 +4,6 @@ import {
   AccessibilityInfo,
   Animated,
   Easing,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -22,7 +21,7 @@ import FactorEntry from "../components/FactorEntry.jsx";
 import FactorEntryFrame from "../components/FactorEntryFrame.jsx";
 import FactorFocusCircle from "../components/FactorFocusCircle.jsx";
 import FactorNumberBoard from "../components/FactorNumberBoard.jsx";
-import FactorViewMenu from "../components/FactorViewMenu.jsx";
+import FactorColorControls from "../components/FactorColorControls.jsx";
 import FactorNoticing from "../components/FactorNoticing.jsx";
 import FactorConjectures from "../components/FactorConjectures.jsx";
 import FactorClassify from "../components/FactorClassify.jsx";
@@ -46,9 +45,14 @@ import { useProblemTimer } from "../hooks/useProblemTimer.js";
 import { useFeatureSettings } from "../hooks/useFeatureSettings.js";
 import { awardStar, ensurePracticeRun } from "../utils/practiceStorage.js";
 import { newPracticeRunId } from "../game/practiceStars.js";
-import logoAsset from "../assets/logo-mark.png";
+import ActivityHeader from "../components/ActivityHeader.jsx";
 
-export default function FactorAndAddScreen() {
+export default function FactorAndAddRoute() {
+  const { conjectures } = useFeatureSettings();
+  return <FactorAndAddScreen key={String(conjectures)} />;
+}
+
+function FactorAndAddScreen() {
   const { conjectures: conjecturesEnabled } = useFeatureSettings();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -220,6 +224,7 @@ export default function FactorAndAddScreen() {
   const [selectedView, setActiveView] = useState("data");
   const activeView = conjecturesEnabled ? selectedView : "data";
   const [showConjectureHint, setShowConjectureHint] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(58);
   const [boardHeadingHeight, setBoardHeadingHeight] = useState(44);
   const [connections, setConnections] = useState(initialProgress.connections);
   const [latest, setLatest] = useState(initialProgress.latest);
@@ -480,7 +485,7 @@ export default function FactorAndAddScreen() {
       setActiveView("data");
       scrollRef.current?.scrollTo({ y: 0, animated: false });
     }
-    else router.canGoBack() ? router.back() : router.replace("/topics");
+    else router.canGoBack() ? router.back() : router.replace("/");
   }
 
   return (
@@ -503,26 +508,25 @@ export default function FactorAndAddScreen() {
           contentContainerStyle={[styles.content, phase !== "choose" && styles.entryContent]}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.header}>
-            <Pressable
-              accessibilityRole="button"
-              onPress={previousStep}
-              disabled={transitioning}
-            >
-              <Text style={styles.back}>{activeView === "conjectures" ? "← Back to exploring" : "← Back"}</Text>
-            </Pressable>
-            <Image source={logoAsset} style={styles.logo} />
-          </View>
+          <ActivityHeader title={activeView === "conjectures" ? "Conjectures" : "Factor and Add"}
+            backLabel={activeView === "conjectures" ? "Back to exploring" : "Back"} onBack={previousStep} disabled={transitioning}
+            onLayout={(event) => setHeaderHeight(event.nativeEvent.layout.height)}>
+            {phase === "choose" && !showNoticing && activeView === "data" ? (close) => <>
+              <FactorColorControls value={boardView} onChange={setBoardView} disabled={transitioning} />
+              {(connections.length > 0 || Object.keys(savedFactors).length > 0) && (
+                confirmRestart ? <>
+                  <Text style={styles.caption}>Clear this graph and start over?</Text>
+                  <Pressable accessibilityRole="button" style={styles.menuAction} disabled={transitioning} onPress={() => { startOver(); close(); }}><Text style={{ color: Colors.orange }}>Start over</Text></Pressable>
+                  <Pressable accessibilityRole="button" style={styles.menuAction} disabled={transitioning} onPress={() => setConfirmRestart(false)}><Text style={styles.back}>Cancel</Text></Pressable>
+                </> : <Pressable accessibilityRole="button" style={styles.menuAction} disabled={transitioning} onPress={() => setConfirmRestart(true)}><Text style={styles.back}>Start over</Text></Pressable>
+              )}
+            </> : null}
+          </ActivityHeader>
           <View style={styles.heading} onLayout={(event) => {
             if (phase === "choose") setBoardHeadingHeight(event.nativeEvent.layout.height);
           }}>
             {phase === "choose" && !showNoticing && (
               <>
-                {activeView === "data" ? (
-                  <FactorViewMenu value={boardView} onChange={setBoardView} disabled={transitioning}>
-                    <Text style={styles.title}>Factor and Add</Text>
-                  </FactorViewMenu>
-                ) : <Text style={styles.title}>Conjectures</Text>}
                 {conjecturesEnabled && activeView === "data" && !showNoticingOnBoard && noticing?.conjectures.length > 0 && (
                   <View style={styles.conjectureShortcut}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Open conjectures" disabled={transitioning}
@@ -580,7 +584,7 @@ export default function FactorAndAddScreen() {
               <FactorNumberBoard
                 view={boardView}
                 width={boardWidth}
-                availableHeight={viewportHeight - insets.top - insets.bottom - 168 - boardHeadingHeight}
+                availableHeight={viewportHeight - insets.top - insets.bottom - 110 - headerHeight - boardHeadingHeight}
                 phase={phase}
                 chosen={chosen}
                 selected={selected}
@@ -590,57 +594,6 @@ export default function FactorAndAddScreen() {
                 savedFactors={savedFactors}
                 nodeRefs={nodeRefs}
               />
-              {(connections.length > 0 ||
-                Object.keys(savedFactors).length > 0) && (
-                <View style={{ alignItems: "center", marginTop: 24 }}>
-                  {confirmRestart ? (
-                    <>
-                      <Text
-                        style={{
-                          color: Colors.textSecondary,
-                          textAlign: "center",
-                        }}
-                      >
-                        Clear this graph and start over?
-                      </Text>
-                      <View
-                        style={{ flexDirection: "row", gap: 24, marginTop: 8 }}
-                      >
-                        <Pressable
-                          accessibilityRole="button"
-                          onPress={() => setConfirmRestart(false)}
-                          style={{ padding: 12 }}
-                        >
-                          <Text style={{ color: Colors.textSecondary }}>
-                            Cancel
-                          </Text>
-                        </Pressable>
-                        <Pressable
-                          accessibilityRole="button"
-                          onPress={startOver}
-                          disabled={transitioning}
-                          style={{ padding: 12 }}
-                        >
-                          <Text style={{ color: Colors.orange }}>
-                            Start over
-                          </Text>
-                        </Pressable>
-                      </View>
-                    </>
-                  ) : (
-                    <Pressable
-                      accessibilityRole="button"
-                      onPress={() => setConfirmRestart(true)}
-                      disabled={transitioning}
-                      style={{ padding: 12 }}
-                    >
-                      <Text style={{ color: Colors.textSecondary }}>
-                        Start over
-                      </Text>
-                    </Pressable>
-                  )}
-                </View>
-              )}
             </Animated.View>
           )}
           {phase !== "choose" && (
@@ -963,15 +916,7 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingBottom: 12,
   },
-  header: {
-    width: "100%",
-    maxWidth: 600,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 6,
-  },
-  logo: { width: 58, height: 58 },
+  menuAction: { minHeight: 44, justifyContent: "center" },
   back: {
     color: Colors.teal,
     fontSize: 16,
@@ -982,12 +927,6 @@ const styles = StyleSheet.create({
   conjectureButton: { minWidth: 44, minHeight: 44, borderRadius: 22, backgroundColor: Colors.surface, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: Colors.teal },
   conjectureMark: { color: Colors.lightTeal, fontSize: 26, fontWeight: "700" },
   heading: { width: "100%", maxWidth: 600 },
-  title: {
-    color: Colors.textPrimary,
-    fontSize: 26,
-    fontWeight: "800",
-    letterSpacing: 0.5,
-  },
   caption: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19 },
   prompt: {
     color: Colors.textPrimary,

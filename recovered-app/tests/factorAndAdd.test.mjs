@@ -10,12 +10,19 @@ import {
   isCompleteFactorInput,
 } from "../game/factorAndAdd.js";
 
-test("factor entry advances on one and unambiguous factors without accepting invalid drafts", () => {
+test("factor entry advances on valid unused factors, including prefixes of longer factors", () => {
   assert.equal(isCompleteFactorInput(12, "1"), true);
   assert.equal(isCompleteFactorInput(12, "2"), true);
   assert.equal(isCompleteFactorInput(12, "12"), true);
-  assert.equal(isCompleteFactorInput(24, "2"), false);
+  assert.equal(isCompleteFactorInput(24, "2"), true);
   assert.equal(isCompleteFactorInput(24, "24"), true);
+  for (const [number, draft] of [[20, "2"], [30, "3"], [48, "4"], [120, "12"]]) {
+    assert.equal(isCompleteFactorInput(number, draft), true);
+    assert.equal(isCompleteFactorInput(number, draft, [Number(draft)]), false);
+  }
+  // An incomplete prefix that is not itself a factor must stay in the first field.
+  assert.equal(isCompleteFactorInput(46, "4"), false);
+  assert.equal(isCompleteFactorInput(46, "46"), true);
   assert.equal(isCompleteFactorInput(12, "1", [1, 12]), false);
   for (const draft of ["", "0", "5", "-2", "2x"]) {
     assert.equal(isCompleteFactorInput(12, draft), false);

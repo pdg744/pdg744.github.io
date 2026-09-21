@@ -12,7 +12,7 @@ export default function PracticeDetails() {
   const days = params.days === '7' ? 7 : null;
   return <SafeAreaView style={styles.screen}>
     <ScrollView contentContainerStyle={styles.content}>
-      <Pressable accessibilityRole="button" accessibilityLabel="Back to parent" onPress={() => router.canGoBack() ? router.back() : router.replace('/parent')} style={styles.back}><Text style={styles.arrow}>←</Text></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Home" onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.back}><Text style={styles.arrow}>←</Text></Pressable>
       <Text style={styles.title}>{type.label}</Text>
       <Text style={styles.period}>{days ? 'Last 7 days' : 'All time'}</Text>
       <ProblemHistory key={`${type.id}:${days}`} type={type.id} days={days} />

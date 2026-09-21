@@ -5,9 +5,9 @@ import { Colors } from '../constants/theme.js';
 import { PRACTICE_TYPES, practiceTotals } from '../game/practiceStars.js';
 import { usePracticeStars } from '../hooks/usePracticeStars.js';
 
-export default function PracticeSummary({ onSelect }) {
+export default function PracticeSummary({ onSelect, initialDays = null, showStars = true }) {
   const { events } = usePracticeStars();
-  const [days, setDays] = useState(null);
+  const [days, setDays] = useState(initialDays);
   const [now, setNow] = useState(Date.now);
   useFocusEffect(useCallback(() => { setNow(Date.now()); }, []));
   const Total = onSelect ? Pressable : View;
@@ -25,8 +25,8 @@ export default function PracticeSummary({ onSelect }) {
       </View>
       <View style={styles.totals}>
         {PRACTICE_TYPES.map((type) => (
-          <Total key={type.id} style={styles.total} onPress={onSelect ? () => onSelect(type.id, days) : undefined} accessibilityRole={onSelect ? "button" : undefined} accessible accessibilityLabel={`${type.label}: ${totals[type.id]} ${totals[type.id] === 1 ? 'star' : 'stars'}`}>
-            <Text style={styles.stars}>★ {totals[type.id].toLocaleString()}</Text>
+          <Total key={type.id} style={styles.total} onPress={onSelect ? () => onSelect(type.id, days) : undefined} accessibilityRole={onSelect ? "button" : undefined} accessible accessibilityLabel={`${type.label}: ${totals[type.id]} ${showStars ? (totals[type.id] === 1 ? 'star' : 'stars') : (totals[type.id] === 1 ? 'answer' : 'answers')}`}>
+            <Text style={[styles.stars, !showStars && styles.count]}>{showStars ? '★ ' : ''}{totals[type.id].toLocaleString()}</Text>
             <Text style={styles.label}>{type.label}</Text>
           </Total>
         ))}
@@ -41,7 +41,8 @@ const styles = StyleSheet.create({
   period: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 12, borderRadius: 10 },
   active: { backgroundColor: Colors.surfaceAlt },
   totals: { flexDirection: 'row', gap: 8 },
-  total: { flex: 1, alignItems: 'center', gap: 4 },
+  total: { flex: 1, minHeight: 64, alignItems: 'center', gap: 4 },
   stars: { color: Colors.gold, fontSize: 24, fontWeight: '800' },
+  count: { color: Colors.textPrimary, fontSize: 32 },
   label: { color: Colors.textPrimary, fontSize: 12, textAlign: 'center' },
 });

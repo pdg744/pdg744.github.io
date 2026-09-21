@@ -4,38 +4,26 @@
 import "expo-sqlite/localStorage/install";
 import * as Router from "expo-router";
 import * as StatusBarModule from "expo-status-bar";
-import * as React from "react";
 import * as SafeArea from "react-native-safe-area-context";
 import * as Theme from "../constants/theme.js";
-import * as Session from "../context/SessionContext.js";
 import StarFeedback from "../components/StarFeedback.jsx";
 import { useSyncExternalStore } from "react";
 import { featureSettingsStore } from "../utils/featureSettings.js";
 function RootLayout() {
   const { stars } = useSyncExternalStore(featureSettingsStore.subscribe, featureSettingsStore.getSnapshot, featureSettingsStore.getSnapshot);
-  const f = React.useRef(false);
   return (
     <SafeArea.SafeAreaProvider>
-      <Session.SessionContext.Provider
-        value={{
-          hasSeenIntro: () => f.current,
-          markIntroSeen: () => {
-            f.current = true;
+      <StatusBarModule.StatusBar style={"light"} />
+      <Router.Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: {
+            backgroundColor: Theme.Colors.background,
           },
+          animation: "slide_from_right",
         }}
-      >
-        <StatusBarModule.StatusBar style={"light"} />
-        <Router.Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: {
-              backgroundColor: Theme.Colors.background,
-            },
-            animation: "slide_from_right",
-          }}
-        />
-        {stars && <StarFeedback />}
-      </Session.SessionContext.Provider>
+      />
+      {stars && <StarFeedback />}
     </SafeArea.SafeAreaProvider>
   );
 }

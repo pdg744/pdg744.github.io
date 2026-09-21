@@ -19,7 +19,7 @@ test('student features default off, including malformed and partial settings', (
   assert.deepEqual(createFeatureSettingsStore(disk).getSnapshot(), { stars: false, conjectures: true });
 });
 
-test('parent toggles persist independently and notify mounted screens without clearing progress', () => {
+test('feature toggles persist independently and preserve practice history', () => {
   const disk = storage();
   const store = createFeatureSettingsStore(disk);
   const saved = { keep: 'existing data' };
@@ -34,7 +34,7 @@ test('parent toggles persist independently and notify mounted screens without cl
   store.set('stars', false);
   assert.equal(notifications, 3);
   assert.deepEqual(createFeatureSettingsStore(disk).getSnapshot(), { stars: false, conjectures: true });
-  for (const key of ['factor-and-add', 'diffy-squares', 'practice-stars', 'problem-attempts', 'family-profile']) assert.deepEqual(readProgress(key, (value) => value, disk), saved);
+  for (const key of ['practice-stars', 'problem-attempts', 'family-profile']) assert.deepEqual(readProgress(key, (value) => value, disk), saved);
   unsubscribe();
 });
 
@@ -45,6 +45,34 @@ test('refresh picks up changes made by another settings store', () => {
   createFeatureSettingsStore(disk).set('conjectures', true);
   store.refresh();
   assert.equal(store.getSnapshot().conjectures, true);
+});
+
+test('enabling conjectures resets both activities only on the off-to-on transition', () => {
+  const disk = storage();
+  const store = createFeatureSettingsStore(disk);
+  const saved = { phase: 'factors', chosen: 20, noticing: { stage: 'done' } };
+  for (const activity of ['factor-and-add', 'diffy-squares']) writeProgress(activity, saved, disk);
+  store.set('stars', true);
+  assert.deepEqual(readProgress('factor-and-add', v => v, disk), saved);
+  store.set('conjectures', true);
+  const factor = readProgress('factor-and-add', v => v, disk);
+  const diffy = readProgress('diffy-squares', v => v, disk);
+  assert.equal(factor.phase, 'choose');
+  assert.deepEqual(factor.connections, []);
+  assert.deepEqual(factor.savedFactors, {});
+  assert.equal(factor.noticing, undefined);
+  assert.equal(diffy.phase, 'input');
+  assert.deepEqual(diffy.cornerInputs, ['', '', '', '']);
+  assert.ok(factor.practiceRunId);
+  assert.ok(diffy.practiceRunId);
+  writeProgress('factor-and-add', saved, disk);
+  store.set('conjectures', true);
+  assert.deepEqual(readProgress('factor-and-add', v => v, disk), saved);
+  store.set('conjectures', false);
+  assert.deepEqual(readProgress('factor-and-add', v => v, disk), saved);
+  store.set('conjectures', true);
+  assert.equal(readProgress('factor-and-add', v => v, disk).phase, 'choose');
+  assert.notEqual(readProgress('factor-and-add', v => v, disk).practiceRunId, factor.practiceRunId);
 });
 
 test('blocked storage still applies settings for the session', () => {
