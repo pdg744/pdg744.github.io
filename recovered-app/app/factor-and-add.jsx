@@ -48,8 +48,9 @@ import { newPracticeRunId } from "../game/practiceStars.js";
 import ActivityHeader from "../components/ActivityHeader.jsx";
 
 export default function FactorAndAddRoute() {
-  const { conjectures } = useFeatureSettings();
-  return <FactorAndAddScreen key={String(conjectures)} />;
+  useFeatureSettings();
+  const runId = readProgress('factor-and-add', (value) => value?.practiceRunId);
+  return <FactorAndAddScreen key={runId ?? 'initial'} />;
 }
 
 function FactorAndAddScreen() {

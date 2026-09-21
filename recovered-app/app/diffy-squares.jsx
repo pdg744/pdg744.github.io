@@ -23,6 +23,7 @@ import * as MidpointInputModule from "../components/MidpointInput.jsx";
 import * as Geometry from "../utils/geometry.js";
 import * as jsxRuntime from "react/jsx-runtime";
 import { useFeatureSettings } from "../hooks/useFeatureSettings.js";
+import { readProgress } from "../utils/progressStorage.js";
 import ActivityHeader from "../components/ActivityHeader.jsx";
 const EMPTY_CORNERS = [0, 0, 0, 0];
 function DiffySquaresScreen() {
@@ -815,6 +816,7 @@ const styles = StyleSheet.create({
   },
 });
 export default function DiffySquaresRoute() {
-  const { conjectures } = useFeatureSettings();
-  return <DiffySquaresScreen key={String(conjectures)} />;
+  useFeatureSettings();
+  const runId = readProgress('diffy-squares', (value) => value?.practiceRunId);
+  return <DiffySquaresScreen key={runId ?? 'initial'} />;
 }

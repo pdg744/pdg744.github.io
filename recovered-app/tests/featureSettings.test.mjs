@@ -75,6 +75,24 @@ test('enabling conjectures resets both activities only on the off-to-on transiti
   assert.notEqual(readProgress('factor-and-add', v => v, disk).practiceRunId, factor.practiceRunId);
 });
 
+test('resetting conjectures keeps features enabled and preserves stars and problem history', () => {
+  const disk = storage();
+  const store = createFeatureSettingsStore(disk);
+  store.set('conjectures', true);
+  store.set('stars', true);
+  const saved = { keep: 'practice data' };
+  for (const key of ['practice-stars', 'problem-attempts']) writeProgress(key, saved, disk);
+  writeProgress('factor-and-add', { noticing: { stage: 'done' }, connections: [{ from: 6, to: 6 }] }, disk);
+  const previous = store.getSnapshot();
+  assert.equal(store.resetConjectures(), true);
+  assert.notEqual(store.getSnapshot(), previous);
+  assert.deepEqual(store.getSnapshot(), { stars: true, conjectures: true });
+  assert.deepEqual(readProgress('factor-and-add', v => v.connections, disk), []);
+  assert.equal(readProgress('factor-and-add', v => v.noticing ?? null, disk), null);
+  assert.equal(readProgress('diffy-squares', v => v.phase, disk), 'input');
+  for (const key of ['practice-stars', 'problem-attempts']) assert.deepEqual(readProgress(key, v => v, disk), saved);
+});
+
 test('blocked storage still applies settings for the session', () => {
   const disk = { getItem() { throw Error('blocked'); }, setItem() { throw Error('blocked'); } };
   const store = createFeatureSettingsStore(disk);

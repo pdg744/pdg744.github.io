@@ -21,9 +21,24 @@ export function createFeatureSettingsStore(storage) {
   const onStorage = (event) => {
     if (event.key === null || event.key === progressKey('feature-settings')) refresh();
   };
+  function resetActivities() {
+    const factorSaved = writeProgress('factor-and-add', {
+      ...emptyFactorProgress(), practiceRunId: newPracticeRunId(),
+    }, storage);
+    const diffySaved = writeProgress('diffy-squares', {
+      phase: 'input', cornerInputs: ['', '', '', ''], practiceRunId: newPracticeRunId(),
+    }, storage);
+    return factorSaved && diffySaved;
+  }
   return {
     getSnapshot: () => snapshot ?? (snapshot = read()),
     refresh,
+    resetConjectures() {
+      const persisted = resetActivities();
+      snapshot = { ...read() };
+      notify();
+      return persisted;
+    },
     subscribe(listener) {
       listeners.add(listener);
       if (listeners.size === 1) globalThis.addEventListener?.('storage', onStorage);
@@ -38,13 +53,7 @@ export function createFeatureSettingsStore(storage) {
       const previous = read();
       let activitiesSaved = true;
       if (feature === 'conjectures' && enabled && !previous.conjectures) {
-        const factorSaved = writeProgress('factor-and-add', {
-          ...emptyFactorProgress(), practiceRunId: newPracticeRunId(),
-        }, storage);
-        const diffySaved = writeProgress('diffy-squares', {
-          phase: 'input', cornerInputs: ['', '', '', ''], practiceRunId: newPracticeRunId(),
-        }, storage);
-        activitiesSaved = factorSaved && diffySaved;
+        activitiesSaved = resetActivities();
       }
       snapshot = { ...previous, [feature]: enabled };
       const settingsSaved = writeProgress('feature-settings', snapshot, storage);

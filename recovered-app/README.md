@@ -79,7 +79,7 @@ The activity screen shows multiplication, addition, and subtraction stars for al
 
 The separate `practice-stars` history records each award's date, problem, skill, and stable answer ID. Game snapshots retain a practice-run ID to prevent duplicates across callbacks and reloads. Starting a fresh game permits repeat practice while preserving lifetime history. Older saves receive an ID without retroactively awarding stars. History belongs to this device/browser; clearing app data removes it. Storage failures use the existing in-memory fallback.
 
-The logo dropdown offers **Reset practice data**, with a confirmation before clearing all stars and solved/unfinished problem history on this device. The reset control is hidden when there is no practice data, including immediately after resetting; no success message is shown. Current activity saves are preserved. Timers start fresh after a reset, including when returning to a previously opened problem. If storage is unavailable, the reset applies to the session and the screen explains that it could not be saved.
+Each logo-dropdown row has a Reset action only while its feature is enabled and has data. Stars resets stars and solved/unfinished problem history; Conjectures starts both activities fresh and clears conjectures and counterexamples while preserving practice history. Both require confirmation and disappear after reset, with no success message. Current activity saves are preserved. Timers start fresh after a reset, including when returning to a previously opened problem. If storage is unavailable, the reset applies to the session and the screen explains that it could not be saved.
 
 ## App Store preparation
 
