@@ -1,6 +1,6 @@
 // Recovered from Metro module 700. See ../../recovery/README.md.
 import * as React from "react";
-import { Animated, StyleSheet, TextInput } from "react-native";
+import { Animated, Platform, StyleSheet, TextInput } from "react-native";
 import * as Theme from "../constants/theme.js";
 import * as Shake from "../hooks/useShake.js";
 import * as Geometry from "../utils/geometry.js";
@@ -24,7 +24,8 @@ function MidpointInput({
     "incorrect" === state && shake();
   }, [state]);
   const boxSize = Geometry.midpointBoxSize(genIndex, outerSide);
-  const fontSize = Math.max(9, 16 - 2 * genIndex);
+  // iOS browsers zoom focused fields smaller than 16px, moving the whole board.
+  const fontSize = Platform.OS === "web" ? 16 : Math.max(9, 16 - 2 * genIndex);
   const borderColor =
     "correct" === state
       ? Theme.Colors.teal

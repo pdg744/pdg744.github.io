@@ -409,26 +409,30 @@ function DiffySquaresScreen() {
                 <Text style={styles.backText}>New game</Text>
               </Pressable>}
             </ActivityHeader>
-            <Animated.Text
-              style={[
-                styles.subtitle,
-                {
-                  opacity: inputPhaseOpacity,
-                },
-              ]}
-            >
-              {"Enter a number at each corner"}
-            </Animated.Text>
-            <Animated.Text
-              style={[
-                styles.stepCounter,
-                {
-                  opacity: playingPhaseOpacity,
-                },
-              ]}
-            >
-              {"playing" === phase ? `Level ${displayGeneration + 1}` : ""}
-            </Animated.Text>
+            <View style={Platform.OS === "web" && styles.webStatusRow}>
+              <Animated.Text
+                style={[
+                  styles.subtitle,
+                  Platform.OS === "web" && styles.webStatusText,
+                  {
+                    opacity: inputPhaseOpacity,
+                  },
+                ]}
+              >
+                {"Enter a number at each corner"}
+              </Animated.Text>
+              <Animated.Text
+                style={[
+                  styles.stepCounter,
+                  Platform.OS === "web" && styles.webStatusText,
+                  {
+                    opacity: playingPhaseOpacity,
+                  },
+                ]}
+              >
+                {"playing" === phase ? `Level ${displayGeneration + 1}` : ""}
+              </Animated.Text>
+            </View>
           </View>
           <BoardContainer
             style={styles.flex}
@@ -437,7 +441,7 @@ function DiffySquaresScreen() {
               keyboardShouldPersistTaps: "handled",
             } : {})}
           >
-            <View style={[styles.squareWrapper, { minHeight: SQUARE_SIZE + 16 }]}>
+            <View style={[styles.squareWrapper, Platform.OS === "web" && styles.webSquareWrapper, { minHeight: SQUARE_SIZE + 16 }]}>
               {
                 <Animated.View
                   style={{
@@ -704,6 +708,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 8,
   },
+  // Anchor the web board beneath the header instead of re-centering whenever
+  // the keyboard, browser chrome, or action buttons change the available height.
+  webSquareWrapper: {
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: "auto",
+  },
+  webStatusRow: { height: 22 },
+  webStatusText: { position: "absolute", top: 0, left: 0 },
   cornerInputWrapper: {
     position: "absolute",
     width: 36,
