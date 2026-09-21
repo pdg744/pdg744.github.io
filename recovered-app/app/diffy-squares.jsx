@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -24,11 +25,19 @@ import * as Geometry from "../utils/geometry.js";
 import * as jsxRuntime from "react/jsx-runtime";
 import { useFeatureSettings } from "../hooks/useFeatureSettings.js";
 import { readProgress } from "../utils/progressStorage.js";
+import AdvanceButton from "../components/AdvanceButton.jsx";
 import ActivityHeader from "../components/ActivityHeader.jsx";
 const EMPTY_CORNERS = [0, 0, 0, 0];
+const BoardContainer = Platform.OS === "web" ? ScrollView : View;
 function DiffySquaresScreen() {
   const { width, height } = useWindowDimensions();
-  const SQUARE_SIZE = Math.max(100, Math.min(width - 48, height - 294, 300));
+  // A browser keypad can resize the viewport height during the answer animation.
+  // Keep its coordinate system stable; short web viewports scroll instead.
+  const SQUARE_SIZE = Math.max(100, Math.min(
+    width - 48,
+    Platform.OS === "web" ? 300 : height - 294,
+    300,
+  ));
   const OUTER_SIDE = SQUARE_SIZE - 2 * Visualization.VIZ_PADDING;
   const INITIAL_POINTS = [
     [Visualization.VIZ_PADDING, Visualization.VIZ_PADDING],
@@ -421,230 +430,239 @@ function DiffySquaresScreen() {
               {"playing" === phase ? `Level ${displayGeneration + 1}` : ""}
             </Animated.Text>
           </View>
-          <View style={styles.squareWrapper}>
-            {
-              <Animated.View
-                style={{
-                  width: SQUARE_SIZE,
-                  height: SQUARE_SIZE,
-                  transform: [
-                    {
-                      scale: zoomScale,
-                    },
-                  ],
-                }}
-                {...panResponder.panHandlers}
-              >
-                <Visualization.default
-                  generations={visibleGenerations}
-                  size={SQUARE_SIZE}
-                  animateGenIndex={animateGenIndex}
-                  showLabels={showLabels}
-                  suppressNewestLabels={suppressNewestLabels}
-                />
-                {"input" === phase &&
-                  showCornerInputs &&
-                  [0, 1, 2, 3].map((e) => (
-                    <Animated.View
-                      style={[
-                        styles.cornerInputWrapper,
-                        CORNER_INPUT_POSITIONS[e],
-                        {
-                          opacity: cornerOpacity,
-                        },
-                      ]}
-                      key={e}
-                    >
-                      <TextInput
-                        ref={(t) => {
-                          cornerRefs.current[e] = t;
-                        }}
-                        accessibilityLabel={
-                          [
-                            "Top left",
-                            "Top right",
-                            "Bottom right",
-                            "Bottom left",
-                          ][e] + " corner"
-                        }
-                        style={styles.cornerInput}
-                        keyboardType={"number-pad"}
-                        maxLength={4}
-                        value={cornerInputs[e]}
-                        onFocus={() => setHasFocusedInput(true)}
-                        onChangeText={(t) => {
-                          const o = [...cornerInputs];
-                          o[e] = t.replace(/[^0-9]/g, "");
-                          setCornerInputs(o);
-                        }}
-                        placeholder={"?"}
-                        placeholderTextColor={"#444"}
-                        onSubmitEditing={() =>
-                          cornerRefs.current[(e + 1) % 4]?.focus()
-                        }
-                      />
-                    </Animated.View>
-                  ))}
-                {shouldShowMidpoints &&
-                  [0, 1, 2, 3].map((e) => {
-                    const [t, o] = displayMidpoints[e];
-                    return (
-                      <MidpointInputModule.default
-                        side={e}
-                        state={
-                          isFlying
-                            ? flyingAnswers.current.states[e]
-                            : answerStates[e]
-                        }
-                        value={
-                          isFlying
-                            ? flyingAnswers.current.values[e]
-                            : userAnswers[e]
-                        }
-                        genIndex={currentGenIndex}
-                        outerSide={OUTER_SIDE}
-                        enterAnim={midpointEnterScale}
-                        flyX={flyAnimations[e].x}
-                        flyY={flyAnimations[e].y}
-                        opacityAnim={flyAnimations[e].opacity}
-                        onChangeText={(t, o) => {
-                          if (answersLocked.current) return;
-                          const { isCorrect: n, allCorrect: s } = setAnswer(
-                            e,
-                            t,
-                            currentCorners,
-                            currentGenIndex,
-                            answerStates,
-                          );
-                          if (n)
-                            if (s) completeGeneration(midpointPositions);
-                            else {
-                              const t = [1, 2, 3, 0]
-                                .map((t) => (e + t) % 4)
-                                .find(
-                                  (t) =>
-                                    t !== e && "correct" !== answerStates[t],
-                                );
-                              // Transfer focus before this event's state update
-                              // disables the completed input. A delayed handoff
-                              // leaves no focused field and dismisses iOS's keypad.
-                              if (t !== undefined)
-                                midpointRefs.current[t]?.focus();
-                            }
-                        }}
-                        inputRef={(t) => {
-                          midpointRefs.current[e] = t;
-                        }}
-                        x={t}
-                        y={o}
+          <BoardContainer
+            style={styles.flex}
+            {...(Platform.OS === "web" ? {
+              contentContainerStyle: { flexGrow: 1 },
+              keyboardShouldPersistTaps: "handled",
+            } : {})}
+          >
+            <View style={[styles.squareWrapper, { minHeight: SQUARE_SIZE + 16 }]}>
+              {
+                <Animated.View
+                  style={{
+                    width: SQUARE_SIZE,
+                    height: SQUARE_SIZE,
+                    flexShrink: 0,
+                    transform: [
+                      {
+                        scale: zoomScale,
+                      },
+                    ],
+                  }}
+                  {...panResponder.panHandlers}
+                >
+                  <Visualization.default
+                    generations={visibleGenerations}
+                    size={SQUARE_SIZE}
+                    animateGenIndex={animateGenIndex}
+                    showLabels={showLabels}
+                    suppressNewestLabels={suppressNewestLabels}
+                  />
+                  {"input" === phase &&
+                    showCornerInputs &&
+                    [0, 1, 2, 3].map((e) => (
+                      <Animated.View
+                        style={[
+                          styles.cornerInputWrapper,
+                          CORNER_INPUT_POSITIONS[e],
+                          {
+                            opacity: cornerOpacity,
+                          },
+                        ]}
                         key={e}
-                      />
-                    );
-                  })}
+                      >
+                        <TextInput
+                          ref={(t) => {
+                            cornerRefs.current[e] = t;
+                          }}
+                          accessibilityLabel={
+                            [
+                              "Top left",
+                              "Top right",
+                              "Bottom right",
+                              "Bottom left",
+                            ][e] + " corner"
+                          }
+                          style={styles.cornerInput}
+                          keyboardType={"number-pad"}
+                          maxLength={4}
+                          value={cornerInputs[e]}
+                          onFocus={() => setHasFocusedInput(true)}
+                          onChangeText={(t) => {
+                            const o = [...cornerInputs];
+                            o[e] = t.replace(/[^0-9]/g, "");
+                            setCornerInputs(o);
+                          }}
+                          placeholder={"?"}
+                          placeholderTextColor={"#444"}
+                          onSubmitEditing={() =>
+                            cornerRefs.current[(e + 1) % 4]?.focus()
+                          }
+                        />
+                      </Animated.View>
+                    ))}
+                  {shouldShowMidpoints &&
+                    [0, 1, 2, 3].map((e) => {
+                      const [t, o] = displayMidpoints[e];
+                      return (
+                        <MidpointInputModule.default
+                          side={e}
+                          state={
+                            isFlying
+                              ? flyingAnswers.current.states[e]
+                              : answerStates[e]
+                          }
+                          value={
+                            isFlying
+                              ? flyingAnswers.current.values[e]
+                              : userAnswers[e]
+                          }
+                          genIndex={currentGenIndex}
+                          outerSide={OUTER_SIDE}
+                          enterAnim={midpointEnterScale}
+                          flyX={flyAnimations[e].x}
+                          flyY={flyAnimations[e].y}
+                          opacityAnim={flyAnimations[e].opacity}
+                          onChangeText={(t, o) => {
+                            if (answersLocked.current) return;
+                            const { isCorrect: n, allCorrect: s } = setAnswer(
+                              e,
+                              t,
+                              currentCorners,
+                              currentGenIndex,
+                              answerStates,
+                            );
+                            if (n)
+                              if (s) completeGeneration(midpointPositions);
+                              else {
+                                const t = [1, 2, 3, 0]
+                                  .map((t) => (e + t) % 4)
+                                  .find(
+                                    (t) =>
+                                      t !== e && "correct" !== answerStates[t],
+                                  );
+                                // Transfer focus before this event's state update
+                                // disables the completed input. A delayed handoff
+                                // leaves no focused field and dismisses iOS's keypad.
+                                if (t !== undefined)
+                                  midpointRefs.current[t]?.focus();
+                              }
+                          }}
+                          inputRef={(t) => {
+                            midpointRefs.current[e] = t;
+                          }}
+                          x={t}
+                          y={o}
+                          key={e}
+                        />
+                      );
+                    })}
+                </Animated.View>
+              }
+            </View>
+            {"playing" === phase && (
+              <Animated.View
+                style={[
+                  styles.hintRow,
+                  {
+                    opacity: playingPhaseOpacity,
+                  },
+                ]}
+              >
+                <Text style={styles.hintText}>
+                  {"Fill in the difference between the neighboring corners"}
+                </Text>
               </Animated.View>
-            }
-          </View>
-          {"playing" === phase && (
+            )}
             <Animated.View
               style={[
-                styles.hintRow,
+                styles.actions,
                 {
-                  opacity: playingPhaseOpacity,
+                  opacity: inputPhaseOpacity,
                 },
               ]}
             >
-              <Text style={styles.hintText}>
-                {"Fill in the difference between the neighboring corners"}
-              </Text>
+              {"input" === phase && !hasFocusedInput && (
+                <Pressable
+                  accessibilityRole="button"
+                  style={({ pressed: e }) => [
+                    styles.diceButton,
+                    e && styles.pressed,
+                  ]}
+                  onPress={() => {
+                    setHasFocusedInput(false);
+                    setCornerInputs(
+                      [
+                        Math.floor(10 * Math.random()),
+                        Math.floor(10 * Math.random()),
+                        Math.floor(10 * Math.random()),
+                        Math.floor(10 * Math.random()),
+                      ].map(String),
+                    );
+                  }}
+                >
+                  <Text style={styles.diceText}>
+                    {"\ud83c\udfb2 Roll Random"}
+                  </Text>
+                </Pressable>
+              )}
+              {"input" === phase && (
+                <Pressable
+                  accessibilityRole="button"
+                  style={({ pressed: e }) => [
+                    styles.primaryButton,
+                    !canStart && styles.primaryButtonDisabled,
+                    e && canStart && styles.pressed,
+                  ]}
+                  onPress={startGame}
+                  disabled={!canStart}
+                >
+                  <Text style={styles.primaryButtonText}>{"Start \u2192"}</Text>
+                </Pressable>
+              )}
             </Animated.View>
-          )}
-          <Animated.View
-            style={[
-              styles.actions,
-              {
-                opacity: inputPhaseOpacity,
-              },
-            ]}
-          >
-            {"input" === phase && !hasFocusedInput && (
-              <Pressable
-                accessibilityRole="button"
-                style={({ pressed: e }) => [
-                  styles.diceButton,
-                  e && styles.pressed,
-                ]}
-                onPress={() => {
-                  setHasFocusedInput(false);
-                  setCornerInputs(
-                    [
-                      Math.floor(10 * Math.random()),
-                      Math.floor(10 * Math.random()),
-                      Math.floor(10 * Math.random()),
-                      Math.floor(10 * Math.random()),
-                    ].map(String),
-                  );
-                }}
-              >
-                <Text style={styles.diceText}>
-                  {"\ud83c\udfb2 Roll Random"}
+            {"complete" === phase && (
+              <View style={styles.actions}>
+                <Text style={styles.celebrationText}>
+                  {totalSteps <= 3
+                    ? "That was quick \u2014 only " +
+                      totalSteps +
+                      " level" +
+                      (1 !== totalSteps ? "s" : "") +
+                      "!"
+                    : totalSteps <= 7
+                      ? totalSteps + " levels to reach zero."
+                      : totalSteps <= 12
+                        ? "Whoa \u2014 " +
+                          totalSteps +
+                          " levels! Most numbers collapse way faster."
+                        : "That's rare. " +
+                          totalSteps +
+                          " levels \u2014 you found something."}
                 </Text>
-              </Pressable>
-            )}
-            {"input" === phase && (
-              <Pressable
-                accessibilityRole="button"
-                style={({ pressed: e }) => [
-                  styles.primaryButton,
-                  !canStart && styles.primaryButtonDisabled,
-                  e && canStart && styles.pressed,
-                ]}
-                onPress={startGame}
-                disabled={!canStart}
-              >
-                <Text style={styles.primaryButtonText}>{"Start \u2192"}</Text>
-              </Pressable>
-            )}
-          </Animated.View>
-          {"complete" === phase && (
-            <View style={styles.actions}>
-              <Text style={styles.celebrationText}>
-                {totalSteps <= 3
-                  ? "That was quick \u2014 only " +
-                    totalSteps +
-                    " level" +
-                    (1 !== totalSteps ? "s" : "") +
-                    "!"
-                  : totalSteps <= 7
-                    ? totalSteps + " levels to reach zero."
-                    : totalSteps <= 12
-                      ? "Whoa \u2014 " +
-                        totalSteps +
-                        " levels! Most numbers collapse way faster."
-                      : "That's rare. " +
-                        totalSteps +
-                        " levels \u2014 you found something."}
-              </Text>
-              <Text style={styles.curiosityPrompt}>
-                {totalSteps <= 3
-                  ? "What do you notice? \n What do you wonder?"
-                  : "Can you find a combo that lasts even longer?"}
-              </Text>
-              <Pressable
-                accessibilityRole="button"
-                style={({ pressed: e }) => [
-                  styles.primaryButton,
-                  e && styles.pressed,
-                ]}
-                onPress={() => {
-                  if (initialCorners) restart(initialCorners.map(String));
-                }}
-              >
-                <Text style={styles.primaryButtonText}>
-                  {"Try a Variation"}
+                <Text style={styles.curiosityPrompt}>
+                  {totalSteps <= 3
+                    ? "What do you notice? \n What do you wonder?"
+                    : "Can you find a combo that lasts even longer?"}
                 </Text>
-              </Pressable>
-            </View>
-          )}
+                <AdvanceButton
+                  accessibilityRole="button"
+                  style={({ pressed: e }) => [
+                    styles.primaryButton,
+                    e && styles.pressed,
+                  ]}
+                  onPress={() => {
+                    if (initialCorners) restart(initialCorners.map(String));
+                  }}
+                >
+                  <Text style={styles.primaryButtonText}>
+                    {"Try a Variation"}
+                  </Text>
+                </AdvanceButton>
+              </View>
+            )}
+          </BoardContainer>
         </KeyboardAvoidingView>
       </SafeArea.SafeAreaView>
     </jsxRuntime.Fragment>

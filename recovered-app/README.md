@@ -55,6 +55,8 @@ Start with numbers 1–16 (1 completes when reached as a terminal result). Finis
 
 The app opens directly to activities. The Math Explorers logo and chevron reveal Stars, Conjectures, and the practice reset control directly. Enabling Stars shows tappable totals on home, defaulting to the last seven days, with all-time totals available. Tapping a skill opens its problem history. There is no role selection or name entry. Existing saved activity and practice data are preserved.
 
+On web, Enter activates a sole visible forward action (conjecture Continue, completed factor entry, or Try a Variation). Inputs and focused controls keep their normal keyboard behavior; choices, resets, hidden actions, and open dropdowns never auto-advance.
+
 ## Saved progress
 
 Both activities automatically save their current step and unfinished input on this device (or in this browser on web). Refresh restores Factor and Add pairs, factors and connections, and Diffy Squares starting inputs, current generation, partial answers and completion. Returning to an activity also restores its work. Diffy Squares has the same compact header; its arrow returns home and its dropdown offers New game, which replaces saved work; Try a Variation retains the starting numbers as a new draft.

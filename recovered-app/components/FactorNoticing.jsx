@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import AdvanceButton from './AdvanceButton.jsx';
 import { Colors } from '../constants/theme.js';
 import { conjectureFromExample, numberChange, numberParity } from '../game/factorConjectures.js';
 
@@ -71,9 +72,9 @@ export default function FactorNoticing({ edge, value, onChange }) {
       {intro ? (
         <View style={styles.introRow}>
           <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.title, styles.introTitle]}>{parity ? 'I noticed something else!' : 'I noticed something!'}</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Continue" style={styles.introArrow} onPress={() => onChange({ ...value, stage: kind })}>
+          <AdvanceButton accessibilityRole="button" accessibilityLabel="Continue" style={styles.introArrow} onPress={() => onChange({ ...value, stage: kind })}>
             <Text style={styles.arrowText}>→</Text>
-          </Pressable>
+          </AdvanceButton>
         </View>
       ) : (
         <>
@@ -99,9 +100,9 @@ export default function FactorNoticing({ edge, value, onChange }) {
             <TextEvent delay={1200}>
               <View style={styles.introRow}>
                 <Text accessibilityLiveRegion="polite" style={[styles.title, styles.introTitle]}>I bet that always happens!</Text>
-                {!formed && <Pressable accessibilityRole="button" accessibilityLabel="Continue" style={styles.introArrow} onPress={makeConjecture}>
+                {!formed && <AdvanceButton accessibilityRole="button" accessibilityLabel="Continue" style={styles.introArrow} onPress={makeConjecture}>
                   <Text style={styles.arrowText}>→</Text>
-                </Pressable>}
+                </AdvanceButton>}
               </View>
             </TextEvent>
           )}

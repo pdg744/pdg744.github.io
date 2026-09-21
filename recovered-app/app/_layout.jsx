@@ -6,6 +6,7 @@ import * as Router from "expo-router";
 import * as StatusBarModule from "expo-status-bar";
 import * as SafeArea from "react-native-safe-area-context";
 import * as Theme from "../constants/theme.js";
+import EnterToAdvance from "../components/EnterToAdvance";
 import StarFeedback from "../components/StarFeedback.jsx";
 import { useSyncExternalStore } from "react";
 import { featureSettingsStore } from "../utils/featureSettings.js";
@@ -13,6 +14,7 @@ function RootLayout() {
   const { stars } = useSyncExternalStore(featureSettingsStore.subscribe, featureSettingsStore.getSnapshot, featureSettingsStore.getSnapshot);
   return (
     <SafeArea.SafeAreaProvider>
+      <EnterToAdvance />
       <StatusBarModule.StatusBar style={"light"} />
       <Router.Stack
         screenOptions={{

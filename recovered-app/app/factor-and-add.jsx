@@ -47,6 +47,7 @@ import { useProblemTimer } from "../hooks/useProblemTimer.js";
 import { useFeatureSettings } from "../hooks/useFeatureSettings.js";
 import { awardStar, ensurePracticeRun } from "../utils/practiceStorage.js";
 import { newPracticeRunId } from "../game/practiceStars.js";
+import AdvanceButton from "../components/AdvanceButton.jsx";
 import ActivityHeader from "../components/ActivityHeader.jsx";
 
 export default function FactorAndAddRoute() {
@@ -677,14 +678,14 @@ function FactorAndAddScreen() {
               >
                 <Text style={styles.choiceText}>Add another factor pair</Text>
               </Pressable>}
-              <Pressable
+              <AdvanceButton enterEnabled={hasAllFactors(chosen, selected)}
                 accessibilityRole="button"
                 disabled={transitioning}
                 onPress={finishFactors}
                 style={styles.choice}
               >
                 <Text style={styles.choiceText}>That's all the factors</Text>
-              </Pressable>
+              </AdvanceButton>
             </View>
           )}
           {!!feedback && (
