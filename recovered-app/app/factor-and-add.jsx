@@ -20,14 +20,16 @@ import { Colors } from "../constants/theme.js";
 import FactorEntry from "../components/FactorEntry.jsx";
 import FactorEntryFrame from "../components/FactorEntryFrame.jsx";
 import FactorFocusCircle from "../components/FactorFocusCircle.jsx";
+import NumberUnlockCelebration from "../components/NumberUnlockCelebration.jsx";
 import FactorNumberBoard from "../components/FactorNumberBoard.jsx";
 import FactorColorControls from "../components/FactorColorControls.jsx";
 import FactorNoticing from "../components/FactorNoticing.jsx";
 import FactorConjectures from "../components/FactorConjectures.jsx";
-import FactorClassify from "../components/FactorClassify.jsx";
-import { emptyNoticing, noticeNextExample } from "../game/factorConjectures.js";
+import FactorConjectureCard from "../components/FactorConjectureCard.jsx";
+import { emptyNoticing, noticeNextExample, currentConjecture } from "../game/factorConjectures.js";
 import {
   addConnection,
+  startingNumberProgress,
   explorationLimit,
   FACTOR_DIGITS,
   SUM_DIGITS,
@@ -224,7 +226,6 @@ function FactorAndAddScreen() {
   const [boardView, setBoardView] = useState({});
   const [selectedView, setActiveView] = useState("data");
   const activeView = conjecturesEnabled ? selectedView : "data";
-  const [showConjectureHint, setShowConjectureHint] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(58);
   const [boardHeadingHeight, setBoardHeadingHeight] = useState(44);
   const [connections, setConnections] = useState(initialProgress.connections);
@@ -233,7 +234,6 @@ function FactorAndAddScreen() {
   useEffect(() => {
     if (!conjecturesEnabled) {
       setActiveView("data");
-      setShowConjectureHint(false);
     } else if (!noticing && connections.length > 0) {
       setNoticing(emptyNoticing());
     }
@@ -242,13 +242,16 @@ function FactorAndAddScreen() {
   const noticingIntro = noticing?.stage === "sizeIntro" || noticing?.stage === "parityIntro";
   const classifying = conjecturesEnabled && (noticing?.stage === "classify" || noticing?.stage === "classified");
   const showNoticing = noticingReady && !noticingIntro && !classifying && noticing.stage !== "awaitingExample" && activeView === "data";
-  useEffect(() => {
-    if (!conjecturesEnabled || noticing?.stage !== "awaitingExample") return;
-    setShowConjectureHint(true);
-    const timer = setTimeout(() => setShowConjectureHint(false), 5000);
-    return () => clearTimeout(timer);
-  }, [conjecturesEnabled, noticing?.stage]);
   const showNoticingOnBoard = noticingReady && noticingIntro && activeView === "data";
+  const liveConjecture = !conjecturesEnabled ? null : classifying
+    ? noticing.conjectures.find(item => item.kind === (noticing.targetKind ?? 'size'))
+    : currentConjecture(noticing, connections);
+  const showLiveConjecture = liveConjecture && activeView === "data" && !showNoticing && !showNoticingOnBoard;
+  function openConjectures() {
+    setActiveView("conjectures");
+    setConfirmRestart(false);
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }
   useEffect(() => {
     writeProgress("factor-and-add", {
       practiceRunId,
@@ -318,7 +321,7 @@ function FactorAndAddScreen() {
     hasAllFactors(chosen, selected) && addends.length === 1 && addends[0] === 1;
   const prompt =
     phase === "choose"
-      ? "Pick a number · 2–30"
+      ? "Pick a number"
       : phase === "factors"
         ? `What are the factors of ${chosen}?`
         : "Now add them!";
@@ -526,24 +529,18 @@ function FactorAndAddScreen() {
           <View style={styles.heading} onLayout={(event) => {
             if (phase === "choose") setBoardHeadingHeight(event.nativeEvent.layout.height);
           }}>
+            {showLiveConjecture && <FactorConjectureCard value={noticing} conjecture={liveConjecture} connections={connections}
+              ready={phase === "choose" && !transitioning} onChange={setNoticing} reduceMotion={reduceMotion}
+              onOpen={phase === "choose" && !transitioning && !classifying ? openConjectures : undefined} />}
             {phase === "choose" && !showNoticing && (
               <>
-                {conjecturesEnabled && activeView === "data" && !showNoticingOnBoard && noticing?.conjectures.length > 0 && (
+                {conjecturesEnabled && !showLiveConjecture && activeView === "data" && !showNoticingOnBoard && noticing?.conjectures.length > 0 && (
                   <View style={styles.conjectureShortcut}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Open conjectures" disabled={transitioning}
-                      style={styles.conjectureButton} onPress={() => {
-                        setActiveView("conjectures");
-                        setShowConjectureHint(false);
-                        setConfirmRestart(false);
-                        scrollRef.current?.scrollTo({ y: 0, animated: false });
-                      }}>
+                      style={styles.conjectureButton} onPress={openConjectures}>
                       <Text style={styles.conjectureMark}>!</Text>
                     </Pressable>
-                    {showConjectureHint && noticing.stage === "awaitingExample" && <Text style={styles.caption}>Conjectures live here</Text>}
                   </View>
-                )}
-                {classifying && !transitioning && activeView === "data" && (
-                  <FactorClassify key={`${noticing.targetKind ?? "size"}:${noticing.targetEdge.from}:${noticing.targetEdge.to}`} value={noticing} connections={connections} onChange={setNoticing} />
                 )}
                 {showNoticingOnBoard && (
                   <View style={{ marginBottom: 12 }}>
@@ -882,6 +879,9 @@ function FactorAndAddScreen() {
           )}
         </View>
       )}
+      <NumberUnlockCelebration unlockedThrough={startingNumberProgress(connections).last}
+        ready={phase === "choose" && !transitioning && activeView === "data" && !showNoticing}
+        reduceMotion={reduceMotion} />
     </SafeAreaView>
   );
 }

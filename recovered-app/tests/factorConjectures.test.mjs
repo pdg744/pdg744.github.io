@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { classifyNoticingExample, classifyExample, continueConjectureQuestions, isConjectureDisproved, classifySizeExample, noticeNextExample, conjectureFromExample, conjectureEdgeKey, groupConjectureConnections, conjectureEvidence, conjectureText, emptyNoticing, numberChange, numberParity, validateNoticing } from '../game/factorConjectures.js';
+import { finishConjectureResponse, currentConjecture, classifyNoticingExample, classifyExample, continueConjectureQuestions, isConjectureDisproved, classifySizeExample, noticeNextExample, conjectureFromExample, conjectureEdgeKey, groupConjectureConnections, conjectureEvidence, conjectureText, emptyNoticing, numberChange, numberParity, validateNoticing } from '../game/factorConjectures.js';
 import { emptyFactorProgress, validateFactorProgress } from '../game/factorProgress.js';
 
 test('observations cover increase, decrease, equality and both parities', () => {
@@ -160,4 +160,35 @@ test('legacy incorrect sorting is returned to the question queue', () => {
   const restored = validateNoticing({ ...emptyNoticing(), stage: 'done', conjectures: [guess] }, [edge]);
   assert.deepEqual(restored.conjectures[0].classifications, {});
   assert.equal(isConjectureDisproved(restored.conjectures[0], [edge]), false);
+});
+
+test('current conjecture survives supporting examples and retires only confirmed counterexamples', () => {
+  const edges = [{ from: 4, to: 3 }, { from: 3, to: 1 }, { from: 6, to: 6 }];
+  const size = conjectureFromExample('size', edges[0]);
+  const parity = conjectureFromExample('parity', edges[0]);
+  assert.equal(currentConjecture(null, edges), null);
+  assert.equal(currentConjecture({ stage: 'awaitingExample', conjectures: [size] }, edges), size);
+  assert.equal(currentConjecture({ stage: 'done', conjectures: [size, parity] }, edges), parity);
+  assert.equal(currentConjecture({ stage: 'classify', targetKind: 'size', conjectures: [size, parity] }, edges), size);
+  const supported = { ...size, classifications: { '3:1': 'examples' } };
+  assert.equal(currentConjecture({ stage: 'done', conjectures: [supported] }, edges), supported);
+  const disproved = { ...size, classifications: { '6:6': 'counterexamples' } };
+  assert.equal(currentConjecture({ stage: 'done', conjectures: [disproved] }, edges), null);
+});
+
+test('in-place answers keep a supported challenge active and advance a disproved challenge', () => {
+  const seed = { from: 2, to: 1 };
+  const start = { ...emptyNoticing(), stage: 'awaitingExample', sizeChoice: 'smaller', conjectures: [conjectureFromExample('size', seed)] };
+  const support = { from: 4, to: 3 };
+  const question = noticeNextExample(start, support);
+  assert.equal(finishConjectureResponse(question, [seed, support]), question);
+  const next = finishConjectureResponse(classifyNoticingExample(question, 'examples'), [seed, support]);
+  assert.equal(next.stage, 'awaitingExample');
+  assert.equal(next.targetEdge, undefined);
+  assert.equal(next.conjectures[0].classifications['4:3'], 'examples');
+  assert.deepEqual(validateNoticing(next, [seed, support]), next);
+  const counter = { from: 6, to: 6 };
+  const found = classifyNoticingExample(noticeNextExample(next, counter), 'counterexamples');
+  assert.equal(finishConjectureResponse(found, [seed, support, counter]).stage, 'parityIntro');
+  assert.equal(isConjectureDisproved(found.conjectures[0], [seed, support, counter]), true);
 });

@@ -1,5 +1,5 @@
 export const STARTING_NUMBERS = Array.from(
-  { length: 30 },
+  { length: 16 },
   (_, index) => index + 1,
 );
 
@@ -10,6 +10,27 @@ export const FACTOR_DIGITS = 7;
 export const SUM_DIGITS = 8;
 export const supportedNumber = (number) =>
   Number.isSafeInteger(number) && number >= 1 && number <= MAX_FACTOR_NUMBER;
+
+// Finished sums unlock batches; merely discovering or partly factoring a number does not.
+export function startingNumberProgress(connections) {
+  const completed = new Set(connections.map((edge) => edge.from));
+  if (connections.some((edge) => edge.to === 1)) completed.add(1);
+  let first = 1;
+  let last = STARTING_NUMBERS.length;
+  while (last < MAX_FACTOR_NUMBER) {
+    let finished = true;
+    for (let number = first; number <= last; number++) {
+      if (!completed.has(number)) { finished = false; break; }
+    }
+    if (!finished) break;
+    first = last + 1;
+    last = Math.min(last + 8, MAX_FACTOR_NUMBER);
+  }
+  let count = 0;
+  for (let number = first; number <= last; number++) if (completed.has(number)) count++;
+  return { first, last, completed: count, total: last - first + 1,
+    numbers: Array.from({ length: last }, (_, index) => index + 1) };
+}
 
 export function explorationLimit(number, connections, savedFactors) {
   if (number === 0 || number === 1) return "End of chain";

@@ -85,6 +85,16 @@ export function isConjectureDisproved(conjecture, connections) {
     && classifyExample(conjecture, edge) === 'counterexamples');
 }
 
+// Keep one current challenge visible; only learner-confirmed counterexamples retire it.
+export function currentConjecture(noticing, connections) {
+  if (!noticing) return null;
+  const open = noticing.conjectures.filter((item) => !isConjectureDisproved(item, connections));
+  if (['classify', 'classified'].includes(noticing.stage)) {
+    return open.find((item) => item.kind === (noticing.targetKind ?? 'size')) ?? null;
+  }
+  return open.at(-1) ?? null;
+}
+
 export function nextConjectureQuestion(noticing, connections, preferredEdge) {
   const ordered = preferredEdge
     ? [preferredEdge, ...connections.filter((edge) => conjectureEdgeKey(edge) !== conjectureEdgeKey(preferredEdge)).reverse()]
@@ -119,4 +129,15 @@ export function classifyNoticingExample(noticing, group) {
 export function continueConjectureQuestions(noticing, connections) {
   if (!noticing.conjectures.some((item) => item.kind === 'parity')) return { ...noticing, stage: 'parityIntro' };
   return nextConjectureQuestion(noticing, connections, noticing.targetEdge);
+}
+
+export function finishConjectureResponse(noticing, connections) {
+  if (noticing.stage !== 'classified') return noticing;
+  const conjecture = noticing.conjectures.find(item => item.kind === (noticing.targetKind ?? 'size'));
+  if (!conjecture || !noticing.targetEdge) return noticing;
+  if (classifyExample(conjecture, noticing.targetEdge) === 'counterexamples') {
+    return continueConjectureQuestions(noticing, connections);
+  }
+  const { targetEdge, targetKind, ...rest } = noticing;
+  return { ...rest, stage: noticing.conjectures.some(item => item.kind === 'parity') ? 'done' : 'awaitingExample' };
 }

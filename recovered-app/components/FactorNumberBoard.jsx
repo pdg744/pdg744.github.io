@@ -6,7 +6,7 @@ import { factorGraphEdge } from "../game/factorGraphEdge.js";
 import { factorViewColor } from "../game/factorViews.js";
 import { Colors } from "../constants/theme.js";
 import {
-  STARTING_NUMBERS,
+  startingNumberProgress,
   explorationLimit,
   MAX_EXPLORATIONS,
 } from "../game/factorAndAdd.js";
@@ -34,7 +34,8 @@ export default function FactorNumberBoard({
     latest?.to > 1 && !connections.some((edge) => edge.from === latest.to)
       ? latest.to
       : null;
-  const unexplored = STARTING_NUMBERS.filter(
+  const progress = startingNumberProgress(connections);
+  const unexplored = progress.numbers.filter(
     (number) => number >= 2 && !numbers.includes(number),
   );
   const pickerRows = Math.ceil(
