@@ -16,25 +16,30 @@ function Choices({ options, value, onChange, label, stacked = false, disabled = 
     </View>
   );
 }
-function TextEvent({ children }) {
+function TextEvent({ children, delay = 180 }) {
   const progress = useRef(new Animated.Value(0)).current;
+  const [revealed, setRevealed] = useState(false);
   useEffect(() => {
     let active = true;
     let animation;
+    let timer;
     AccessibilityInfo.isReduceMotionEnabled().then((reduceMotion) => {
       if (!active) return;
-      animation = Animated.timing(progress, {
-        toValue: 1, delay: reduceMotion ? 0 : 180, duration: reduceMotion ? 0 : 450,
-        easing: Easing.out(Easing.cubic), useNativeDriver: true,
-      });
-      animation.start();
+      timer = setTimeout(() => {
+        setRevealed(true);
+        animation = Animated.timing(progress, {
+          toValue: 1, duration: reduceMotion ? 0 : 450,
+          easing: Easing.out(Easing.cubic), useNativeDriver: true,
+        });
+        animation.start();
+      }, delay);
     });
-    return () => { active = false; animation?.stop(); };
-  }, [progress]);
+    return () => { active = false; clearTimeout(timer); animation?.stop(); };
+  }, [progress, delay]);
   return (
     <Animated.View style={[styles.textEvent, { opacity: progress,
       transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }] }]}>
-      {children}
+      {revealed && children}
     </Animated.View>
   );
 }
@@ -91,7 +96,7 @@ export default function FactorNoticing({ edge, value, onChange }) {
           )}
           {!!feedback && <Text accessibilityRole="alert" style={styles.feedback}>{feedback}</Text>}
           {(bet || formed) && (
-            <TextEvent>
+            <TextEvent delay={1200}>
               <View style={styles.introRow}>
                 <Text accessibilityLiveRegion="polite" style={[styles.title, styles.introTitle]}>I bet that always happens!</Text>
                 {!formed && <Pressable accessibilityRole="button" accessibilityLabel="Continue" style={styles.introArrow} onPress={makeConjecture}>
@@ -102,11 +107,11 @@ export default function FactorNoticing({ edge, value, onChange }) {
           )}
           {formed && (
             <TextEvent>
-              <View style={styles.introRow}>
-                <Text accessibilityLiveRegion="polite" style={[styles.statement, styles.introTitle]}>Can you help investigate that conjecture?</Text>
-                <Pressable accessibilityRole="button" accessibilityLabel="Continue investigating"
-                  style={styles.introArrow} onPress={() => onChange({ ...value, stage: parity ? 'done' : 'parityIntro' })}>
-                  <Text style={styles.arrowText}>→</Text>
+              <View style={{ gap: 12 }}>
+                <Text accessibilityLiveRegion="polite" style={styles.statement}>Can you prove me wrong?</Text>
+                <Pressable accessibilityRole="button" accessibilityLabel="Try another number"
+                  style={styles.continueButton} onPress={() => onChange({ ...value, stage: parity ? 'done' : 'awaitingExample' })}>
+                  <Text style={styles.continueArrow}>→</Text>
                 </Pressable>
               </View>
             </TextEvent>
@@ -124,6 +129,8 @@ const styles = StyleSheet.create({
   introRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   introTitle: { flexShrink: 1 },
   introArrow: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  continueButton: { alignSelf: 'center', width: 56, height: 48, borderRadius: 14, backgroundColor: Colors.teal, alignItems: 'center', justifyContent: 'center' },
+  continueArrow: { color: Colors.background, fontSize: 28 },
   arrowText: { color: Colors.lightTeal, fontSize: 28 },
   statement: { color: Colors.textPrimary, fontSize: 19, lineHeight: 27, textAlign: 'center' },
   sentence: { color: Colors.textPrimary, fontSize: 17, textAlign: 'center' },

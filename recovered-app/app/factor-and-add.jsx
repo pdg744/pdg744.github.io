@@ -24,7 +24,8 @@ import FactorNumberBoard from "../components/FactorNumberBoard.jsx";
 import FactorViewMenu from "../components/FactorViewMenu.jsx";
 import FactorNoticing from "../components/FactorNoticing.jsx";
 import FactorConjectures from "../components/FactorConjectures.jsx";
-import { emptyNoticing } from "../game/factorConjectures.js";
+import FactorClassify from "../components/FactorClassify.jsx";
+import { emptyNoticing, noticeNextExample } from "../game/factorConjectures.js";
 import {
   addConnection,
   explorationLimit,
@@ -207,12 +208,22 @@ export default function FactorAndAddScreen() {
   const [confirmRestart, setConfirmRestart] = useState(false);
   const [boardView, setBoardView] = useState({});
   const [activeView, setActiveView] = useState("data");
-  const [draggingConjecture, setDraggingConjecture] = useState(false);
+  const [showConjectureHint, setShowConjectureHint] = useState(false);
   const [boardHeadingHeight, setBoardHeadingHeight] = useState(44);
   const [connections, setConnections] = useState(initialProgress.connections);
   const [latest, setLatest] = useState(initialProgress.latest);
   const [noticing, setNoticing] = useState(initialProgress.noticing ?? null);
-  const showNoticing = phase === "choose" && !transitioning && noticing && noticing.stage !== "done" && connections.length > 0;
+  const noticingReady = phase === "choose" && !transitioning && noticing && noticing.stage !== "done" && connections.length > 0;
+  const noticingIntro = noticing?.stage === "sizeIntro" || noticing?.stage === "parityIntro";
+  const classifying = noticing?.stage === "classify" || noticing?.stage === "classified";
+  const showNoticing = noticingReady && !noticingIntro && !classifying && noticing.stage !== "awaitingExample" && activeView === "data";
+  useEffect(() => {
+    if (noticing?.stage !== "awaitingExample") return;
+    setShowConjectureHint(true);
+    const timer = setTimeout(() => setShowConjectureHint(false), 5000);
+    return () => clearTimeout(timer);
+  }, [noticing?.stage]);
+  const showNoticingOnBoard = noticingReady && noticingIntro && activeView === "data";
   useEffect(() => {
     writeProgress("factor-and-add", {
       practiceRunId,
@@ -426,6 +437,7 @@ export default function FactorAndAddScreen() {
     setFeedback("");
     const edge = { from: chosen, to: total };
     if (connections.length === 0 && !noticing) setNoticing(emptyNoticing());
+    else setNoticing((current) => noticeNextExample(current, edge, addConnection(connections, chosen, total)));
     setConnections((previous) => addConnection(previous, chosen, total));
     setLatest(edge);
     setPhase("choose");
@@ -444,6 +456,10 @@ export default function FactorAndAddScreen() {
     setFeedback("");
     if (phase === "sum") setPhase("factors");
     else if (phase === "factors") returnToBoard();
+    else if (activeView === "conjectures") {
+      setActiveView("data");
+      scrollRef.current?.scrollTo({ y: 0, animated: false });
+    }
     else router.canGoBack() ? router.back() : router.replace("/topics");
   }
 
@@ -463,7 +479,7 @@ export default function FactorAndAddScreen() {
             currentScroll.current = event.nativeEvent.contentOffset.y;
           }}
           scrollEventThrottle={16}
-          scrollEnabled={phase === "choose" && !transitioning && !draggingConjecture}
+          scrollEnabled={phase === "choose" && !transitioning}
           contentContainerStyle={[styles.content, phase !== "choose" && styles.entryContent]}
           keyboardShouldPersistTaps="handled"
         >
@@ -473,7 +489,7 @@ export default function FactorAndAddScreen() {
               onPress={previousStep}
               disabled={transitioning}
             >
-              <Text style={styles.back}>← Back</Text>
+              <Text style={styles.back}>{activeView === "conjectures" ? "← Back to exploring" : "← Back"}</Text>
             </Pressable>
             <Image source={logoAsset} style={styles.logo} />
           </View>
@@ -486,22 +502,29 @@ export default function FactorAndAddScreen() {
                   <FactorViewMenu value={boardView} onChange={setBoardView} disabled={transitioning}>
                     <Text style={styles.title}>Factor and Add</Text>
                   </FactorViewMenu>
-                ) : <Text style={styles.title}>Factor and Add</Text>}
-                <View accessibilityRole="tablist" style={styles.viewTabs}>
-                  {[["data", "Data Collection"], ["conjectures", "Conjectures"]].map(([key, label]) => (
-                    <Pressable key={key} accessibilityRole="tab"
-                      accessibilityState={{ selected: activeView === key, disabled: transitioning }}
-                      disabled={transitioning}
-                      onPress={() => {
-                        setActiveView(key);
+                ) : <Text style={styles.title}>Conjectures</Text>}
+                {activeView === "data" && !showNoticingOnBoard && noticing?.conjectures.length > 0 && (
+                  <View style={styles.conjectureShortcut}>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Open conjectures" disabled={transitioning}
+                      style={styles.conjectureButton} onPress={() => {
+                        setActiveView("conjectures");
+                        setShowConjectureHint(false);
                         setConfirmRestart(false);
                         scrollRef.current?.scrollTo({ y: 0, animated: false });
-                      }}
-                      style={[styles.viewTab, activeView === key && styles.selectedViewTab]}>
-                      <Text style={[styles.viewTabText, activeView === key && styles.selectedViewTabText]}>{label}</Text>
+                      }}>
+                      <Text style={styles.conjectureMark}>!</Text>
                     </Pressable>
-                  ))}
-                </View>
+                    {showConjectureHint && noticing.stage === "awaitingExample" && <Text style={styles.caption}>Conjectures live here</Text>}
+                  </View>
+                )}
+                {classifying && !transitioning && activeView === "data" && (
+                  <FactorClassify key={`${noticing.targetKind ?? "size"}:${noticing.targetEdge.from}:${noticing.targetEdge.to}`} value={noticing} connections={connections} onChange={setNoticing} />
+                )}
+                {showNoticingOnBoard && (
+                  <View style={{ marginBottom: 12 }}>
+                    <FactorNoticing edge={connections[0]} value={noticing} onChange={setNoticing} />
+                  </View>
+                )}
               </>
             )}
             {phase === "choose" && activeView === "data" &&
@@ -521,8 +544,7 @@ export default function FactorAndAddScreen() {
           )}
           {phase === "choose" && !showNoticing && activeView === "conjectures" && (
             <FactorConjectures conjectures={noticing?.conjectures ?? []} connections={connections}
-              onDragChange={setDraggingConjecture}
-              onChange={(conjectures) => setNoticing((current) => ({ ...current, conjectures }))} />
+              />
           )}
           {phase === "choose" && !showNoticing && activeView === "data" && (
             <Animated.View
@@ -958,11 +980,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     paddingVertical: 8,
   },
-  viewTabs: { flexDirection: "row", marginTop: 4, marginBottom: 12, gap: 20 },
-  viewTab: { minHeight: 44, justifyContent: "center", borderBottomWidth: 2, borderBottomColor: "transparent" },
-  selectedViewTab: { borderBottomColor: Colors.teal },
-  viewTabText: { color: Colors.textSecondary, fontSize: 16 },
-  selectedViewTabText: { color: Colors.lightTeal, fontWeight: "600" },
+  conjectureShortcut: { flexDirection: "row", alignItems: "center", gap: 10, marginVertical: 8 },
+  conjectureButton: { minWidth: 44, minHeight: 44, borderRadius: 22, backgroundColor: Colors.surface, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: Colors.teal },
+  conjectureMark: { color: Colors.lightTeal, fontSize: 26, fontWeight: "700" },
   heading: { width: "100%", maxWidth: 600 },
   title: {
     color: Colors.textPrimary,

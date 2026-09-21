@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { conjectureFromExample, conjectureEdgeKey, groupConjectureConnections, conjectureEvidence, conjectureText, emptyNoticing, numberChange, numberParity, validateNoticing } from '../game/factorConjectures.js';
+import { classifyNoticingExample, classifyExample, continueConjectureQuestions, isConjectureDisproved, classifySizeExample, noticeNextExample, conjectureFromExample, conjectureEdgeKey, groupConjectureConnections, conjectureEvidence, conjectureText, emptyNoticing, numberChange, numberParity, validateNoticing } from '../game/factorConjectures.js';
 import { emptyFactorProgress, validateFactorProgress } from '../game/factorProgress.js';
 
 test('observations cover increase, decrease, equality and both parities', () => {
@@ -73,8 +73,91 @@ test('all graph results start unsorted and only learner classifications move the
 
 test('learner sorting survives reload and ignores stale or invalid classifications', () => {
   const edge = { from: 10, to: 8 };
-  const guess = { ...conjectureFromExample('size', edge), classifications: { '10:8': 'counterexamples', '6:6': 'examples', garbage: 'bad' } };
+  const guess = { ...conjectureFromExample('size', edge), classifications: { '10:8': 'examples', '6:6': 'examples', garbage: 'bad' } };
   const value = { ...emptyNoticing(), stage: 'done', conjectures: [guess] };
   const restored = validateNoticing(JSON.parse(JSON.stringify(value)), [edge]);
-  assert.deepEqual(restored.conjectures[0].classifications, { '10:8': 'counterexamples' });
+  assert.deepEqual(restored.conjectures[0].classifications, { '10:8': 'examples' });
+});
+
+test('the first challenge waits for another completed example before offering parity', () => {
+  const seed = { from: 2, to: 1 };
+  const next = { from: 6, to: 6 };
+  const waiting = { ...emptyNoticing(), stage: 'awaitingExample', sizeChoice: 'smaller', conjectures: [conjectureFromExample('size', seed)] };
+  assert.deepEqual(validateNoticing(waiting, [seed]), waiting);
+  const prompt = noticeNextExample(waiting, next);
+  assert.equal(prompt.stage, 'classify');
+  assert.deepEqual(validateNoticing(prompt, [seed, next]), prompt);
+  assert.equal(classifyNoticingExample(prompt, 'examples'), prompt);
+  const classified = classifyNoticingExample(prompt, 'counterexamples');
+  assert.equal(classified.stage, 'classified');
+  assert.equal(classified.conjectures[0].classifications['6:6'], 'counterexamples');
+  assert.deepEqual(validateNoticing(classified, [seed, next]), classified);
+  assert.equal(noticeNextExample(classified, { from: 3, to: 1 }), classified);
+  assert.equal(validateNoticing(prompt, [seed]), null);
+  assert.equal(noticeNextExample(null, next), null);
+});
+
+test('supporting examples and equality are classified against the actual conjecture', () => {
+  const edge = { from: 6, to: 6 };
+  const guess = conjectureFromExample('size', edge);
+  assert.equal(classifySizeExample(guess, { from: 28, to: 28 }), 'examples');
+  assert.equal(classifySizeExample(guess, { from: 12, to: 16 }), 'counterexamples');
+  const value = { ...emptyNoticing(), stage: 'classify', targetEdge: edge, conjectures: [guess] };
+  const next = classifyNoticingExample(value, 'examples');
+  assert.equal(next.conjectures[0].classifications['6:6'], 'examples');
+  assert.equal(value.conjectures[0].classifications, undefined);
+});
+
+test('ongoing questions review one conjecture at a time and persist the active kind', () => {
+  const seed = { from: 2, to: 1 }, edge = { from: 4, to: 3 };
+  const guesses = ['size', 'parity'].map((kind) => ({ ...conjectureFromExample(kind, seed), classifications: { '2:1': 'examples' } }));
+  const start = { ...emptyNoticing(), stage: 'done', conjectures: guesses };
+  const first = noticeNextExample(start, edge, [seed, edge]);
+  assert.equal(first.targetKind, 'size');
+  const answered = classifyNoticingExample(first, 'examples');
+  const second = continueConjectureQuestions(answered, [seed, edge]);
+  assert.equal(second.targetKind, 'parity');
+  assert.equal(second.stage, 'classify');
+  assert.deepEqual(validateNoticing(second, [seed, edge]), second);
+  assert.equal(classifyNoticingExample(second, 'counterexamples'), second);
+  const finished = continueConjectureQuestions(classifyNoticingExample(second, 'examples'), [seed, edge]);
+  assert.equal(finished.stage, 'done');
+  assert.equal(finished.targetEdge, undefined);
+  assert.equal(noticeNextExample(finished, edge, [seed, edge]).stage, 'done');
+});
+
+test('a confirmed counterexample ends prompts for that conjecture', () => {
+  const seed = { from: 2, to: 1 }, edge = { from: 6, to: 6 };
+  const size = conjectureFromExample('size', seed);
+  const parity = conjectureFromExample('parity', seed);
+  let value = noticeNextExample({ ...emptyNoticing(), stage: 'done', conjectures: [size, parity] }, edge, [seed, edge]);
+  assert.equal(isConjectureDisproved(size, [seed, edge]), false);
+  value = classifyNoticingExample(value, 'counterexamples');
+  assert.equal(isConjectureDisproved(value.conjectures[0], [seed, edge]), true);
+  value = continueConjectureQuestions(value, [seed, edge]);
+  assert.equal(value.targetKind, 'parity');
+  value = continueConjectureQuestions(classifyNoticingExample(value, 'counterexamples'), [seed, edge]);
+  assert.equal(value.stage, 'done');
+  assert.equal(noticeNextExample(value, { from: 12, to: 16 }, [seed, edge, { from: 12, to: 16 }]).stage, 'done');
+});
+
+test('irrelevant parity results are skipped and unreviewed results can be prompted later', () => {
+  const seed = { from: 2, to: 1 }, odd = { from: 3, to: 1 };
+  const size = { ...conjectureFromExample('size', seed), classifications: { '2:1': 'examples', '3:1': 'examples' } };
+  const parity = { ...conjectureFromExample('parity', seed), classifications: { '2:1': 'examples' } };
+  assert.equal(classifyExample(parity, odd), null);
+  const value = { ...emptyNoticing(), stage: 'done', conjectures: [size, parity] };
+  assert.equal(noticeNextExample(value, odd, [seed, odd]).stage, 'done');
+  const older = { from: 4, to: 3 };
+  const queued = noticeNextExample(value, odd, [seed, older, odd]);
+  assert.deepEqual(queued.targetEdge, older);
+  assert.equal(queued.targetKind, 'size');
+});
+
+test('legacy incorrect sorting is returned to the question queue', () => {
+  const edge = { from: 2, to: 1 };
+  const guess = { ...conjectureFromExample('size', edge), classifications: { '2:1': 'counterexamples' } };
+  const restored = validateNoticing({ ...emptyNoticing(), stage: 'done', conjectures: [guess] }, [edge]);
+  assert.deepEqual(restored.conjectures[0].classifications, {});
+  assert.equal(isConjectureDisproved(restored.conjectures[0], [edge]), false);
 });
