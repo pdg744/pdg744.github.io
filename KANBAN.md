@@ -9,6 +9,8 @@ Cards are ordered by priority within each column. Review contains implemented wo
 
 | Backlog | Next | In progress | Review | Done |
 | --- | --- | --- | --- | --- |
+| | | | [FAMILY-02 · Inspect solved problems](#family-02-inspect-solved-problems) | |
+| | | | [FAMILY-01 · Local family flow](#family-01-local-family-flow) | |
 | [QA-01 · Check real devices and browsers](#qa-01-check-real-devices-and-browsers) | — | — |  | [FA-00 · Recover the app and establish the activity](#fa-00-recover-the-app-and-establish-the-activity) |
 |  |  |  |  | [FA-07 · Continue discovered chains](#fa-07-continue-discovered-chains) |
 |  |  |  |  | [FA-08 · Choose whether to add more pairs](#fa-08-choose-whether-to-add-more-pairs) |
@@ -321,3 +323,25 @@ Cards are ordered by priority within each column. Review contains implemented wo
 **Acceptance:** Review icon artwork and confirm bundle identity before the first signed build; verify launch appearance and orientation in TestFlight. See recovered-app/RELEASE.md for account-linking and submission steps.
 
 **REL-01 Expo account setup:** Created and linked @pgaf/math-explorers on 2026-09-19 (project ID 3a981964-1473-432d-aae7-265694bea0ee). No Apple signing or build submission performed. Apple organization enrollment remains underway.
+
+### FAMILY-01: Local family flow
+
+**Status:** Review. **Owner:** Codex.
+
+**Scope:** One child profile on this device, a student activity home, and a parent view of saved activity and practice. Existing saves remain attached to this single local learner. No accounts or classroom features.
+
+**Acceptance:** Profile survives restart; both activities resume existing work; parent view reflects saved progress; blank names are rejected; web and native exports build.
+
+**Validation:** 65 tests pass; web, iOS and Android exports build. Browser checks verified blank-name rejection, profile creation, reload persistence, student navigation, and resuming the existing 10-number Factor graph. Parent layout inspected at desktop and phone viewport. Native device verification remains open. Not deployed.
+
+**FAMILY-01 review update:** Home now presents only the logo and Parent / Child choices. Child opens activities without requiring a profile; Parent opens setup or progress. Removed greetings, activity taglines and repeated action instructions. Both views return to home with an accessible back arrow.
+
+### FAMILY-02: Inspect solved problems
+
+**Status:** Review. **Owner:** Codex.
+
+**Scope:** Parent can inspect recorded multiplication and addition equations, completion times and foreground duration per problem. Separate skill tabs and incremental history. Earlier answers remain available with no invented timing.
+
+**Validation:** 67 tests pass. Web, iOS and Android exports build. Browser verified solving 1 × 14, 2 × 7, and 1 + 2 + 7, then inspecting their recorded durations after navigation/reload. Timer tests cover pauses, resume after reload, separate problems, duplicate awards and missing/invalid durations. Physical-device background timing remains to be verified. Not deployed.
+
+**FAMILY-02 review update:** Removed inline history from the overview. Parent star totals open skill details with the chosen time window. Added persistent multiplication/addition opened-attempt tracking and reconciliation with solved stars. Details prioritize unfinished attempts, then longest solve times, then untimed history. 69 tests pass; web/iOS/Android exports build. Browser verified clickable stars and an opened, unsolved factor-pair entry above solved answers after navigation. Not deployed.

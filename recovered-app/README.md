@@ -51,6 +51,12 @@ Diffy Squares already follows that structure. Its game rules are in `game/diffy.
 
 Choose a number from 2–30, enter its factors, then add them excluding the number itself. Submitted multiplication pairs retain their boxes inside the focused circle, aligned with the new input row. Accepted pairs have no deletion control because correctness is enforced. New pair inputs appear directly below saved pairs. Typing an unused 1 or an unambiguous first factor moves focus to the second box. Correct pairs save automatically, opening and focusing another row while factors remain. Once all factors are found, “That's all the factors” continues to the sum. Other ambiguous prefixes remain editable so multi-digit factors can be entered. Choosing to finish checks completeness, then animates the factors into an equation and focuses the sum input. The next row focuses the left input immediately. There is no Cancel action during pair entry. Compact saved rows keep ordinary factor sets visible together; exceptionally long lists from discovered numbers retain overflow scrolling. Refresh restores unfinished entry. Completing a sum animates the input into a graph node and returns to a graph of explored numbers. Unvisited numbers remain in a compact picker below the graph; factors, pairs, and connections are saved automatically. Factor pairs and sums are always checked before acceptance. Back moves up one step. Prime factors connect directly to 1 without a sum prompt. Discovered positive results can be selected to continue chains beyond 30, including 24 → 36 → 55 → 17 → 1. One is a terminal node and cannot be opened. Saved work from the earlier version that allowed 1 → 0 is restored to the graph with that final edge removed. Completed nodes are display-only. Exploration supports numbers up to 1,000,000 and 128 explored numbers per graph; larger results remain visible with a limit label. Factor generation uses trial division through the square root; all arithmetic remains exact within these limits. The graph packs branches by their occupied space and automatically fits the screen. Dense graphs on narrow screens run sideways when that makes the numbers larger; smaller graphs retain vertical columns. The number picker disappears when exhausted. Unfinished nodes use a gold fill or outline. The three-line menu opens inline Odds, Evens, and Primes color toggles above the visible graph; prime coloring takes priority over parity. Factor entry focuses after the opening transition and scales to fit above the keyboard. Start over asks for confirmation before clearing Factor and Add progress.
 
+## Parent and student flow
+
+The home screen offers Parent and Child. Child opens the activities at `/topics` directly, without requiring profile setup. Parent opens `/parent` to create one child profile or review existing progress. Parent setup accepts a first name or nickname; the progress view shows practice stars and the saved state of both activities. Both screens have a back arrow to the role choice. Visible copy is limited to essential labels and status.
+
+This first version supports one learner per device/browser. Creating or renaming the profile preserves the existing activity snapshots and practice history. There are no separate parent credentials, additional children, or cross-device accounts. The profile uses the same durable storage adapter as activity progress.
+
 ## Saved progress
 
 Both activities automatically save their current step and unfinished input on this device (or in this browser on web). Refresh restores Factor and Add pairs, factors and connections, and Diffy Squares starting inputs, current generation, partial answers and completion. Returning to an activity also restores its work. Diffy Squares New Game/Fresh Start replaces its saved work; Try a Variation retains the starting numbers as a new draft.
@@ -69,9 +75,13 @@ The ! opens a read-only conjecture record; “Back to exploring” returns to th
 
 ## Practice stars
 
+The Parent screen has independent Stars and Conjectures switches, both off by default, saved on this device. Stars controls the student totals and award notifications; parent practice history continues recording while these are hidden. Conjectures controls all noticing prompts, classification questions, hints, and the conjecture record in Factor and Add. Turning it off preserves existing conjectures and returns the student to the graph. Enabling it resumes saved conjectures or begins noticing from the existing graph’s first result.
+
 The activity screen shows multiplication, addition, and subtraction stars for all time or the last seven days. A correct factor pair earns one multiplication star, an entered proper-factor sum earns one addition star, and each entered Diffy difference earns one subtraction star. Automatic prime-to-one steps and restored answers earn none. A small star notification respects reduced-motion settings.
 
 The separate `practice-stars` history records each award's date, problem, skill, and stable answer ID. Game snapshots retain a practice-run ID to prevent duplicates across callbacks and reloads. Starting a fresh game permits repeat practice while preserving lifetime history. Older saves receive an ID without retroactively awarding stars. History belongs to this device/browser; clearing app data removes it. Storage failures use the existing in-memory fallback.
+
+The Parent screen offers **Reset practice data**, with a confirmation before clearing all stars and solved/unfinished problem history on this device. The child’s name and current activity saves are preserved. Timers start fresh after a reset, including when returning to a previously opened problem. If storage is unavailable, the reset applies to the session and the screen explains that it could not be saved.
 
 ## App Store preparation
 
@@ -95,3 +105,11 @@ Commit and push the staged files to `main`. The existing GitHub Pages workflow b
 - Automated persistence checks cover malformed/version-mismatched records and blocked/full storage.
 
 These browser checks use Chromium at phone-sized viewports, not actual iOS/Android devices. Native runtime behavior, Safari/Firefox and real mobile keyboards/gestures are not yet verified.
+
+## Parent problem history
+
+The parent overview shows clickable practice stars. Selecting a skill opens `/practice-details` with the selected time period. Details show unfinished attempts first, then solved equations in descending duration order; unmeasured answers sort last. More reveals another 20 entries. Details are available even before naming the local learner. Multiplication and addition attempts are recorded when the corresponding Factor and Add input opens; a solved star replaces its unfinished entry. Subtraction stars expose existing solved history, without attempt timing. Earlier recorded answers have no duration and display —. Work completed before practice history existed cannot be reconstructed as timed answers.
+
+Factor and Add records foreground time for each factor-pair entry and each sum, including retries. The next pair starts its own timer. Timers pause when the activity loses focus or the app/browser page is hidden, and resume from saved elapsed time. They checkpoint once per second and on exit; an abrupt process termination can lose up to roughly the last second. This measures time with the problem open, not attention or ability. Old unfinished work begins timing when next opened. Subtraction timing is not included in this change.
+
+Attempt tracking begins with this version; earlier abandoned problems are not reconstructed. For an unfinished factor pair, the target is shown as □ × □ = N because the learner chooses the factors. Durations measure foreground time, not attention.

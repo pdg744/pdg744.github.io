@@ -5,11 +5,12 @@ import { Colors } from '../constants/theme.js';
 import { PRACTICE_TYPES, practiceTotals } from '../game/practiceStars.js';
 import { usePracticeStars } from '../hooks/usePracticeStars.js';
 
-export default function PracticeSummary() {
+export default function PracticeSummary({ onSelect }) {
   const { events } = usePracticeStars();
   const [days, setDays] = useState(null);
   const [now, setNow] = useState(Date.now);
   useFocusEffect(useCallback(() => { setNow(Date.now()); }, []));
+  const Total = onSelect ? Pressable : View;
   const totals = practiceTotals(events, days, Math.max(now, Date.now()));
   return (
     <View style={styles.card}>
@@ -24,10 +25,10 @@ export default function PracticeSummary() {
       </View>
       <View style={styles.totals}>
         {PRACTICE_TYPES.map((type) => (
-          <View key={type.id} style={styles.total} accessible accessibilityLabel={`${type.label}: ${totals[type.id]} ${totals[type.id] === 1 ? 'star' : 'stars'}`}>
+          <Total key={type.id} style={styles.total} onPress={onSelect ? () => onSelect(type.id, days) : undefined} accessibilityRole={onSelect ? "button" : undefined} accessible accessibilityLabel={`${type.label}: ${totals[type.id]} ${totals[type.id] === 1 ? 'star' : 'stars'}`}>
             <Text style={styles.stars}>★ {totals[type.id].toLocaleString()}</Text>
             <Text style={styles.label}>{type.label}</Text>
-          </View>
+          </Total>
         ))}
       </View>
     </View>

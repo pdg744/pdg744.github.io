@@ -12,6 +12,7 @@ export function newPracticeRunId() {
 export function validStar(event) {
   if (!event || typeof event.id !== 'string' || !event.id.length || event.id.length > 256 ||
       typeof event.at !== 'string' || !Number.isFinite(Date.parse(event.at))) return false;
+  if (event.durationMs !== undefined && (!Number.isSafeInteger(event.durationMs) || event.durationMs < 0)) return false;
   const { operands, answer } = event.problem ?? {};
   if (!Array.isArray(operands) || !operands.length || operands.length > 2000 ||
       !operands.every((n) => Number.isSafeInteger(n) && n >= 0) ||

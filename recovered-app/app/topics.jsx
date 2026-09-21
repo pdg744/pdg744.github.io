@@ -13,6 +13,7 @@ import * as SafeArea from "react-native-safe-area-context";
 import * as Theme from "../constants/theme.js";
 import logoAsset from "../assets/logo-mark.png";
 import PracticeSummary from "../components/PracticeSummary.jsx";
+import { useFeatureSettings } from "../hooks/useFeatureSettings.js";
 function DiffyIcon({ size = 48 }) {
   return (
     <Svg.default width={size} height={size} viewBox={"0 0 100 100"}>
@@ -97,18 +98,17 @@ const activities = [
     id: "diffy-squares",
     label: "Diffy Squares",
     icon: "diffy-squares",
-    description: "Does it always go to zero?",
     color: Theme.Colors.orange,
   },
   {
     id: "factor-and-add",
     label: "Factor and Add",
     icon: "factor-and-add",
-    description: "Do all paths lead to 1?",
     color: Theme.Colors.teal,
   },
 ];
 function TopicsScreen() {
+  const { stars } = useFeatureSettings();
   const router = Router.useRouter();
   return (
     <SafeArea.SafeAreaView style={styles.container}>
@@ -116,16 +116,17 @@ function TopicsScreen() {
         <View style={styles.headerTop}>
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.back()}
+            accessibilityLabel="Home"
+            onPress={() => router.replace("/")}
             style={styles.backButton}
           >
-            <Text style={styles.backText}>{"\u2190 Back"}</Text>
+            <Text style={styles.backText}>{"←"}</Text>
           </Pressable>
           <Image source={logoAsset} style={styles.logo} />
         </View>
       </View>
       <ScrollView contentContainerStyle={styles.grid}>
-        <PracticeSummary />
+        {stars && <PracticeSummary />}
         {activities.map((o) => (
           <Pressable
             accessibilityRole="button"
@@ -162,7 +163,6 @@ function TopicsScreen() {
                 >
                   {o.label}
                 </Text>
-                <Text style={styles.cardDescription}>{o.description}</Text>
               </View>
             </View>
           </Pressable>
@@ -191,13 +191,16 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
   },
-  backButton: {},
+  backButton: { minWidth: 44, minHeight: 44, justifyContent: "center" },
   backText: {
     color: Theme.Colors.teal,
     fontSize: 16,
     fontWeight: "600",
   },
   grid: {
+    width: "100%",
+    maxWidth: 720,
+    alignSelf: "center",
     paddingHorizontal: 24,
     gap: 16,
     paddingBottom: 32,

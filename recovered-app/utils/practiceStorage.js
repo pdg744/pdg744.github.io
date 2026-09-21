@@ -1,4 +1,5 @@
 import { readProgress, writeProgress, progressKey } from './progressStorage.js';
+import { resetProblemHistory } from './problemTimer.js';
 import { newPracticeRunId, validPracticeRunId, validStar, validatePracticeHistory } from '../game/practiceStars.js';
 
 export function ensurePracticeRun(activity, progress) {
@@ -23,6 +24,13 @@ export function createPracticeStore(storage) {
   }
   return {
     getSnapshot,
+    reset() {
+      const historySaved = resetProblemHistory(storage);
+      snapshot = { events: [] };
+      const starsSaved = writeProgress('practice-stars', snapshot, storage);
+      notify();
+      return historySaved && starsSaved;
+    },
     subscribe(listener) {
       listeners.add(listener);
       if (listeners.size === 1) globalThis.addEventListener?.('storage', onStorage);
@@ -44,6 +52,6 @@ export function createPracticeStore(storage) {
 }
 
 export const practiceStore = createPracticeStore();
-export function awardStar(id, type, operands, answer) {
-  return practiceStore.award({ id, type, problem: { operands, answer }, at: new Date().toISOString() });
+export function awardStar(id, type, operands, answer, durationMs) {
+  return practiceStore.award({ id, type, problem: { operands, answer }, ...(durationMs === undefined ? {} : { durationMs }), at: new Date().toISOString() });
 }

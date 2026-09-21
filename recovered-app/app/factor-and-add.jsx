@@ -19,6 +19,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../constants/theme.js";
 import FactorEntry from "../components/FactorEntry.jsx";
+import FactorEntryFrame from "../components/FactorEntryFrame.jsx";
 import FactorFocusCircle from "../components/FactorFocusCircle.jsx";
 import FactorNumberBoard from "../components/FactorNumberBoard.jsx";
 import FactorViewMenu from "../components/FactorViewMenu.jsx";
@@ -41,11 +42,14 @@ import {
   validateFactorProgress,
 } from "../game/factorProgress.js";
 import { readProgress, writeProgress } from "../utils/progressStorage.js";
+import { useProblemTimer } from "../hooks/useProblemTimer.js";
+import { useFeatureSettings } from "../hooks/useFeatureSettings.js";
 import { awardStar, ensurePracticeRun } from "../utils/practiceStorage.js";
 import { newPracticeRunId } from "../game/practiceStars.js";
 import logoAsset from "../assets/logo-mark.png";
 
 export default function FactorAndAddScreen() {
+  const { conjectures: conjecturesEnabled } = useFeatureSettings();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [initialProgress] = useState(
@@ -96,7 +100,6 @@ export default function FactorAndAddScreen() {
     });
   const { width, height: viewportHeight } = useWindowDimensions();
   const [visibleHeight, setVisibleHeight] = useState(null);
-  const [entryHeight, setEntryHeight] = useState(null);
   useEffect(() => {
     if (Platform.OS !== "web" || !window.visualViewport) return;
     const viewport = window.visualViewport;
@@ -205,24 +208,40 @@ export default function FactorAndAddScreen() {
   const [entryOpen, setEntryOpen] = useState(initialProgress.entryOpen);
   const [sum, setSum] = useState(initialProgress.sum);
   const [feedback, setFeedback] = useState("");
+  const problemTimer = useProblemTimer(
+    `${practiceRunId}:${chosen}:${phase === "sum" ? "sum" : `pair-${pairs.length}`}`,
+    !transitioning && ((phase === "factors" && entryOpen) || (phase === "sum" && factorsToAdd(chosen, selected).length > 1)),
+    phase === "sum"
+      ? { type: "addition", label: `${factorsToAdd(chosen, selected).join(" + ")} = ?` }
+      : { type: "multiplication", label: `□ × □ = ${chosen}` },
+  );
   const [confirmRestart, setConfirmRestart] = useState(false);
   const [boardView, setBoardView] = useState({});
-  const [activeView, setActiveView] = useState("data");
+  const [selectedView, setActiveView] = useState("data");
+  const activeView = conjecturesEnabled ? selectedView : "data";
   const [showConjectureHint, setShowConjectureHint] = useState(false);
   const [boardHeadingHeight, setBoardHeadingHeight] = useState(44);
   const [connections, setConnections] = useState(initialProgress.connections);
   const [latest, setLatest] = useState(initialProgress.latest);
   const [noticing, setNoticing] = useState(initialProgress.noticing ?? null);
-  const noticingReady = phase === "choose" && !transitioning && noticing && noticing.stage !== "done" && connections.length > 0;
+  useEffect(() => {
+    if (!conjecturesEnabled) {
+      setActiveView("data");
+      setShowConjectureHint(false);
+    } else if (!noticing && connections.length > 0) {
+      setNoticing(emptyNoticing());
+    }
+  }, [conjecturesEnabled, noticing, connections.length]);
+  const noticingReady = conjecturesEnabled && phase === "choose" && !transitioning && noticing && noticing.stage !== "done" && connections.length > 0;
   const noticingIntro = noticing?.stage === "sizeIntro" || noticing?.stage === "parityIntro";
-  const classifying = noticing?.stage === "classify" || noticing?.stage === "classified";
+  const classifying = conjecturesEnabled && (noticing?.stage === "classify" || noticing?.stage === "classified");
   const showNoticing = noticingReady && !noticingIntro && !classifying && noticing.stage !== "awaitingExample" && activeView === "data";
   useEffect(() => {
-    if (noticing?.stage !== "awaitingExample") return;
+    if (!conjecturesEnabled || noticing?.stage !== "awaitingExample") return;
     setShowConjectureHint(true);
     const timer = setTimeout(() => setShowConjectureHint(false), 5000);
     return () => clearTimeout(timer);
-  }, [noticing?.stage]);
+  }, [conjecturesEnabled, noticing?.stage]);
   const showNoticingOnBoard = noticingReady && noticingIntro && activeView === "data";
   useEffect(() => {
     writeProgress("factor-and-add", {
@@ -288,8 +307,6 @@ export default function FactorAndAddScreen() {
 
   const boardWidth = Math.min(600, width - 48);
   const circleSize = Math.min(460, width - 48);
-  const fittedCircleSize = Math.min(circleSize, entryHeight ?? circleSize);
-  const circleScale = fittedCircleSize / circleSize;
   const addends = factorsToAdd(chosen, selected);
   const automaticSum =
     hasAllFactors(chosen, selected) && addends.length === 1 && addends[0] === 1;
@@ -344,8 +361,8 @@ export default function FactorAndAddScreen() {
       return;
     }
     const nextSelected = [...new Set([...selected, ...values])];
-    awardStar(`${practiceRunId}:factor:${chosen}:${[...values].sort((a, b) => a - b).join("x")}`,
-      "multiplication", values, chosen);
+    const eventId = `${practiceRunId}:factor:${chosen}:${[...values].sort((a, b) => a - b).join("x")}`;
+    awardStar(eventId, "multiplication", values, chosen, problemTimer.finish(eventId));
     const complete = hasAllFactors(chosen, nextSelected);
     if (complete) Keyboard.dismiss();
     setEntryOpen(!complete);
@@ -411,7 +428,8 @@ export default function FactorAndAddScreen() {
     }
     sumSubmission.current = true;
     if (!automaticSum && !direct) {
-      awardStar(`${practiceRunId}:sum:${chosen}`, "addition", addends, total);
+      const eventId = `${practiceRunId}:sum:${chosen}`;
+      awardStar(eventId, "addition", addends, total, problemTimer.finish(eventId));
     }
     const [from, sourceCircle] = await Promise.all([
       measure(direct ? unitFactorRef.current : sumInputRef.current),
@@ -436,8 +454,10 @@ export default function FactorAndAddScreen() {
     Keyboard.dismiss();
     setFeedback("");
     const edge = { from: chosen, to: total };
-    if (connections.length === 0 && !noticing) setNoticing(emptyNoticing());
-    else setNoticing((current) => noticeNextExample(current, edge, addConnection(connections, chosen, total)));
+    if (conjecturesEnabled) {
+      if (!noticing) setNoticing(emptyNoticing());
+      else setNoticing((current) => noticeNextExample(current, edge, addConnection(connections, chosen, total)));
+    }
     setConnections((previous) => addConnection(previous, chosen, total));
     setLatest(edge);
     setPhase("choose");
@@ -503,7 +523,7 @@ export default function FactorAndAddScreen() {
                     <Text style={styles.title}>Factor and Add</Text>
                   </FactorViewMenu>
                 ) : <Text style={styles.title}>Conjectures</Text>}
-                {activeView === "data" && !showNoticingOnBoard && noticing?.conjectures.length > 0 && (
+                {conjecturesEnabled && activeView === "data" && !showNoticingOnBoard && noticing?.conjectures.length > 0 && (
                   <View style={styles.conjectureShortcut}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Open conjectures" disabled={transitioning}
                       style={styles.conjectureButton} onPress={() => {
@@ -624,19 +644,7 @@ export default function FactorAndAddScreen() {
             </Animated.View>
           )}
           {phase !== "choose" && (
-            <View
-              onLayout={(event) => setEntryHeight(event.nativeEvent.layout.height)}
-              style={styles.entryArea}
-            >
-              <View style={{ width: fittedCircleSize, height: fittedCircleSize, opacity: transitioning ? 0 : 1 }}>
-                <View style={{
-                  position: "absolute",
-                  width: circleSize,
-                  height: circleSize,
-                  left: (fittedCircleSize - circleSize) / 2,
-                  top: (fittedCircleSize - circleSize) / 2,
-                  transform: [{ scale: circleScale }],
-                }}>
+            <FactorEntryFrame size={circleSize} hidden={transitioning} reduceMotion={reduceMotion}>
               <FactorFocusCircle
                 ref={focusRef}
                 number={chosen}
@@ -700,9 +708,7 @@ export default function FactorAndAddScreen() {
                   reduceMotion={reduceMotion}
                 />
               </FactorFocusCircle>
-                </View>
-              </View>
-            </View>
+            </FactorEntryFrame>
           )}
           {phase === "factors" && !entryOpen && (
             <View
@@ -956,14 +962,6 @@ const styles = StyleSheet.create({
   entryContent: {
     height: "100%",
     paddingBottom: 12,
-  },
-  entryArea: {
-    flex: 1,
-    minHeight: 0,
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
   },
   header: {
     width: "100%",

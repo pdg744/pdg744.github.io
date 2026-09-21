@@ -9,7 +9,10 @@ import * as SafeArea from "react-native-safe-area-context";
 import * as Theme from "../constants/theme.js";
 import * as Session from "../context/SessionContext.js";
 import StarFeedback from "../components/StarFeedback.jsx";
+import { useSyncExternalStore } from "react";
+import { featureSettingsStore } from "../utils/featureSettings.js";
 function RootLayout() {
+  const { stars } = useSyncExternalStore(featureSettingsStore.subscribe, featureSettingsStore.getSnapshot, featureSettingsStore.getSnapshot);
   const f = React.useRef(false);
   return (
     <SafeArea.SafeAreaProvider>
@@ -31,7 +34,7 @@ function RootLayout() {
             animation: "slide_from_right",
           }}
         />
-        <StarFeedback />
+        {stars && <StarFeedback />}
       </Session.SessionContext.Provider>
     </SafeArea.SafeAreaProvider>
   );
