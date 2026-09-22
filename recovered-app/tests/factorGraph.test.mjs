@@ -110,13 +110,40 @@ test("one terminates a continued chain", () => {
   assert.ok(graph.positions.get(17).y < graph.positions.get(1).y);
 });
 
-test("a full starting board uses portrait space with larger, nonoverlapping circles", () => {
+test("6 stays outside all columns feeding 1, including wider incoming trees", () => {
+  for (const primes of [[3, 5, 7], [2, 3, 5, 7, 11]]) {
+    for (const width of [272, 342, 600]) {
+      const graph = layoutFactorGraph([
+        ...primes.map((from) => ({ from, to: 1 })),
+        { from: 8, to: 7 },
+        { from: 6, to: 6 },
+        { from: 25, to: 6 },
+      ], {}, width);
+      const rightmost = Math.max(...[1, ...primes, 8].map((n) => graph.positions.get(n).x));
+      for (const number of [6, 25])
+        assert.ok(graph.positions.get(number).x - rightmost >= graph.diameter + 24);
+    }
+  }
+});
+
+test("sibling branches reserve separate columns even at different depths", () => {
+  const graph = layoutFactorGraph([
+    { from: 3, to: 1 }, { from: 5, to: 1 },
+    { from: 4, to: 3 }, { from: 9, to: 4 },
+    { from: 15, to: 9 }, { from: 21, to: 9 }, { from: 27, to: 9 },
+  ], {}, 600);
+  const rightmost = Math.max(...[3, 4, 9, 15, 21, 27].map((n) => graph.positions.get(n).x));
+  assert.ok(graph.positions.get(5).x - rightmost >= graph.diameter + 24);
+});
+
+test("a full starting board fits portrait space with nonoverlapping circles", () => {
   const edges = Array.from({ length: 29 }, (_, i) => ({ from: i + 2, to: properFactorSum(i + 2) }));
   for (const [width, height] of [[272, 480], [342, 600], [382, 700]]) {
     const graph = layoutFactorGraph(edges, {}, width);
     const fitted = fitFactorGraph(graph, width, height);
     assert.ok(fitted.sideways);
-    assert.ok(fitted.diameter >= 25);
+    // Reserving separate branch columns still keeps circles at least 24px wide.
+    assert.ok(fitted.diameter >= 24);
     const points = [...fitted.positions.values()];
     for (const p of points) {
       assert.ok(p.x >= fitted.diameter / 2 && p.x <= width - fitted.diameter / 2);

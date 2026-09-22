@@ -50,48 +50,41 @@ export function layoutFactorGraph(connections, savedFactors, viewportWidth) {
         : 108;
   const pitch = diameter + 36;
   const gap = diameter + 24;
-  // Pack by the occupied contour at each depth, not by the widest subtree.
-  // This lets a short branch use space alongside a taller neighboring branch.
+  // Reserve each branch's full horizontal span, even at unoccupied depths.
+  // Unrelated branches must not appear to share a column.
   function tree(number) {
     const branches = children.get(number).map(tree);
-    let spacing = gap;
-    for (let i = 0; i < branches.length; i++) {
-      for (let j = i + 1; j < branches.length; j++) {
-        for (let depth = 0; depth < Math.min(branches[i].right.length, branches[j].left.length); depth++) {
-          spacing = Math.max(spacing,
-            (branches[i].right[depth] - branches[j].left[depth] + gap) / (j - i));
-        }
-      }
-    }
-    const points = new Map([[number, { x: 0, depth: 0 }]]);
-    const left = [0], right = [0];
+    const offsets = [];
     branches.forEach((branch, index) => {
-      const offset = (index - (branches.length - 1) / 2) * spacing;
+      offsets.push(index === 0 ? 0 :
+        offsets[index - 1] + branches[index - 1].right - branch.left + gap);
+    });
+    const center = (offsets.at(-1) ?? 0) / 2;
+    const points = new Map([[number, { x: 0, depth: 0 }]]);
+    let left = 0, right = 0;
+    branches.forEach((branch, index) => {
+      const offset = offsets[index] - center;
       for (const [child, point] of branch.points) {
         const x = point.x + offset, depth = point.depth + 1;
         points.set(child, { x, depth });
-        left[depth] = Math.min(left[depth] ?? Infinity, x);
-        right[depth] = Math.max(right[depth] ?? -Infinity, x);
+        left = Math.min(left, x);
+        right = Math.max(right, x);
       }
     });
     return { points, left, right };
   }
   const positions = new Map();
-  const occupiedRight = [];
+  let occupiedRight = null;
   let maxDepth = 0;
   for (const root of roots) {
     const branch = tree(root);
-    let offset = 0;
-    for (let depth = 0; depth < branch.left.length; depth++) {
-      if (occupiedRight[depth] !== undefined)
-        offset = Math.max(offset, occupiedRight[depth] - branch.left[depth] + gap);
-    }
+    const offset = occupiedRight === null ? 0 : occupiedRight - branch.left + gap;
     for (const [number, point] of branch.points) {
       const x = point.x + offset;
       positions.set(number, { x, depth: point.depth });
       maxDepth = Math.max(maxDepth, point.depth);
-      occupiedRight[point.depth] = Math.max(occupiedRight[point.depth] ?? -Infinity, x);
     }
+    occupiedRight = branch.right + offset;
   }
   const xs = [...positions.values()].map((point) => point.x);
   const minX = xs.length ? Math.min(...xs) : 0;
